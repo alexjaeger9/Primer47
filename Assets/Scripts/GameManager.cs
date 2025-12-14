@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
     public Transform playerSpawnPoint;
 
     [Header("UI")]
-    public UIManager uiManager;
+    //public UIManager uiManager;
 
     [Header("Game State")]
     public int currentLoopIndex;
@@ -50,7 +50,7 @@ public class GameManager : MonoBehaviour
 
     private void StartLoop()
     {
-        uiManager.SetLoopText(currentLoopIndex);
+        //uiManager.SetLoopText(currentLoopIndex);
         SpawnGhostsFromRuns();
         playerRecorder.StartRecording();
     }
@@ -112,6 +112,6 @@ public class GameManager : MonoBehaviour
     private void GameOver()
     {
         // TODO: GameOver-UI, Restart-Option
-        uiManager.ShowGameOver();
+        //uiManager.ShowGameOver();
     }
 }

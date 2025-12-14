@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 velocity;
     private Vector3 moveDirection;
     private float yaw;
+    [HideInInspector] public bool jumpedThisTick;
 
     void Awake()
     {
@@ -28,6 +29,8 @@ public class PlayerController : MonoBehaviour
         HandleRotation();
         HandleMovementInput();
         HandleGravityAndJump();
+
+        jumpedThisTick = false;
 
         Vector3 finalMovement = (moveDirection * moveSpeed) + new Vector3(0, velocity.y, 0);
         controller.Move(finalMovement * Time.deltaTime);
@@ -70,6 +73,7 @@ public class PlayerController : MonoBehaviour
             if (Input.GetButtonDown("Jump"))
             {
                 velocity.y = jumpForce;
+                jumpedThisTick = true;
             }
         }
         else

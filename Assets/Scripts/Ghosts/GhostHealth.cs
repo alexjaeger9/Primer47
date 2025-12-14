@@ -2,22 +2,45 @@ using UnityEngine;
 
 public class GhostHealth : MonoBehaviour
 {
-    public bool isDead;
-    private GameManager gameManager;
+    // Wir speichern den initialen Renderer, um das Material zu ändern
+    private Renderer enemyRenderer;
 
-    private void Awake()
+    void Awake()
     {
-        gameManager = FindObjectOfType<GameManager>();
+        // Holt den Renderer auf diesem GameObject (sollte die Kapsel sein)
+        enemyRenderer = GetComponent<Renderer>();
+
+        // Setzt die initiale Farbe auf Rot
+        if (enemyRenderer != null)
+        {
+            enemyRenderer.material.color = Color.red;
+        }
     }
 
-    public void TakeDamage(int amount)
+    // Diese Methode wird vom PlayerShooter aufgerufen, wenn der Gegner getroffen wird
+    public void TakeHit()
     {
-        if (isDead) return;
-        isDead = true;
+        // Hier könnten Sie Logik für Lebenspunkte, Soundeffekte etc. hinzufügen.
+        // Fürs Erste: Ändert die Farbe auf Grau und verhindert weitere Treffer (optional)
 
-        // TODO: Death-Animation / Effekte
+        if (enemyRenderer != null && enemyRenderer.material.color != Color.gray)
+        {
+            Debug.Log(gameObject.name + " wurde getroffen!");
 
-        gameManager.OnGhostKilled(this);
-        Destroy(gameObject);
+            // Ändert die Farbe auf Grau
+            enemyRenderer.material.color = Color.gray;
+
+            // Optional: Deaktiviert den Collider, damit er nicht mehrmals getroffen werden kann
+            Collider col = GetComponent<Collider>();
+            if (col != null)
+            {
+                col.enabled = false;
+            }
+
+            GameManager.Instance.OnGhostKilled(this);
+
+            // Optional: Zerstört das Objekt nach einer kurzen Verzögerung
+            // Destroy(gameObject, 3f);
+        }
     }
 }

@@ -50,6 +50,15 @@ public class PlayerShooter : MonoBehaviour
         if (Physics.Raycast(cameraRay, out hit, maxRange, hitMask))
         {
             hitTarget = hit.point;
+
+            GhostHealth enemyHealth = hit.collider.GetComponent<GhostHealth>();
+
+            // 2. Wenn die Komponente gefunden wurde (d.h. wir haben einen Gegner getroffen)
+            if (enemyHealth != null)
+            {
+                // 3. Rufe die Methode auf, um den Treffer zu registrieren
+                enemyHealth.TakeHit();
+            }
         }
         else
         {

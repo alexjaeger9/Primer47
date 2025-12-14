@@ -7,6 +7,7 @@ public class GhostController : MonoBehaviour
     private int currentFrameIndex;
     private float currentTime;
     private GhostShooter ghostShooter;
+    private bool hasShotThisTick = false;
 
     private void Awake()
     {
@@ -25,37 +26,49 @@ public class GhostController : MonoBehaviour
         if (runData == null || runData.frames.Count == 0) return;
 
         currentTime += Time.deltaTime;
+        hasShotThisTick = false;
         UpdatePlayback();
     }
 
     private void UpdatePlayback()
     {
+        // A) Frame-Index vorrücken, falls die Zeit des nächsten Frames erreicht wurde
+        while (currentFrameIndex < runData.frames.Count - 1 && currentTime >= runData.frames[currentFrameIndex + 1].time)
+        {
+            currentFrameIndex++;
+        }
+
         if (currentFrameIndex >= runData.frames.Count - 1)
         {
-            // Optional: Ghost bleibt stehen oder despawnt
+            // Replay beendet (oder letzter Frame erreicht)
             return;
         }
 
         RecordedFrame a = runData.frames[currentFrameIndex];
         RecordedFrame b = runData.frames[currentFrameIndex + 1];
 
-        if (currentTime > b.time)
-        {
-            currentFrameIndex++;
-            return;
-        }
-
         float t = Mathf.InverseLerp(a.time, b.time, currentTime);
-        Vector3 pos = Vector3.Lerp(a.position, b.position, t);
-        Quaternion rot = Quaternion.Slerp(a.rotation, b.rotation, t);
 
+        Vector3 pos = Vector3.Lerp(a.position, b.position, t);
         transform.position = pos;
+
+        Quaternion rot = Quaternion.Slerp(a.rotation, b.rotation, t);
         transform.rotation = rot;
 
-        if (a.fired || b.fired)
+        float pitch = Mathf.Lerp(a.pitch, b.pitch, t);
+
+        if (ghostShooter.pitchTarget != null)
         {
-            // TODO: genauer Zeitpunkt prüfen, hier vereinfacht
-            ghostShooter.ShootFromReplay();
+            // Wir setzen die LOKALE Rotation, da der Root-Ghost bereits horizontal rotiert ist
+            ghostShooter.pitchTarget.localRotation = Quaternion.Euler(pitch, 0f, 0f);
         }
+
+        if (a.fired && !hasShotThisTick)
+        {
+            // Führen Sie den Schuss aus
+            ghostShooter.ShootFromReplay();
+            hasShotThisTick = true;
+        }
+
     }
 }

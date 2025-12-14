@@ -3,17 +3,49 @@ using System;
 
 public class PlayerHealth : MonoBehaviour
 {
+    // Event, das der GameManager abonniert, um das Spiel zu beenden
     public event Action OnPlayerDeath;
 
-    public bool isDead;
+    // Optional: Lebenspunkte hinzufügen, wenn Sie mehr als 1 Treffer zulassen
+    // [SerializeField] private int maxHealth = 1; 
+    // private int currentHealth;
 
-    public void TakeDamage(int amount)
+    private void Awake()
     {
-        if (isDead) return;
-        isDead = true;
+        // currentHealth = maxHealth;
+    }
 
-        // TODO: Death-Animation, Effekte
+    // Diese Methode wird vom GhostShooter aufgerufen
+    public void TakeDamage()
+    {
+        // currentHealth--;
 
+        Debug.Log("Spieler wurde getroffen!");
+
+        // Wenn Sie One-Shot-Kill verwenden:
+        Die();
+
+        /*
+        // Oder mit Lebenspunkten:
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+        */
+    }
+
+    private void Die()
+    {
+        // 1. Visuelle/Sound-Effekte
+
+        // 2. Bewegung deaktivieren (damit der Recorder keine weiteren Frames aufzeichnet)
+        PlayerController controller = GetComponent<PlayerController>();
+        if (controller != null) controller.enabled = false;
+
+        // 3. Informiere den GameManager
         OnPlayerDeath?.Invoke();
+
+        // Optional: Zerstöre das Spieler-Objekt nach einer kurzen Verzögerung
+        // Destroy(gameObject, 0.5f);
     }
 }

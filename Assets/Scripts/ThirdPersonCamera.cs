@@ -9,7 +9,7 @@ public class ThirdPersonCamera : MonoBehaviour
     [SerializeField] private float minPitch = -30f;
     [SerializeField] private float maxPitch = 60f;
 
-    private float pitch;
+    [HideInInspector] public float pitch;
 
     void Start()
     {

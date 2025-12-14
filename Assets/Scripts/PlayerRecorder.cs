@@ -10,6 +10,7 @@ public class PlayerRecorder : MonoBehaviour
 
     private PlayerController playerController;
     private PlayerShooter playerShooter;
+    private ThirdPersonCamera thirdPersonCamera;
     private float currentTime;
     private float timeSinceLastTick;
     private bool isRecording;
@@ -18,6 +19,7 @@ public class PlayerRecorder : MonoBehaviour
     {
         playerController = GetComponent<PlayerController>();
         playerShooter = GetComponent<PlayerShooter>();
+        thirdPersonCamera = GetComponent<ThirdPersonCamera>();
     }
 
     private void Update()
@@ -59,8 +61,9 @@ public class PlayerRecorder : MonoBehaviour
         frame.time = currentTime;
         frame.position = transform.position;
         frame.rotation = transform.rotation;
+        frame.pitch = thirdPersonCamera.pitch;
         frame.fired = playerShooter.firedThisTick;
-        frame.jumped = false; // TODO: Jump-Flag setzen, wenn benötigt
+        frame.jumped = playerController.jumpedThisTick;
 
         currentRunData.frames.Add(frame);
     }
