@@ -624,7 +624,7 @@ GameObject:
   - component: {fileID: 6213095043387603144}
   - component: {fileID: 771184510806633708}
   - component: {fileID: -5442326205530943030}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -820,7 +820,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 661a3d5806d29cf478d484baebba3e31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
-  isDead: 0
 --- !u!1 &9009882894938827839
 GameObject:
   m_ObjectHideFlags: 0

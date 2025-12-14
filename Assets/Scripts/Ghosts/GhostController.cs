@@ -11,7 +11,12 @@ public class GhostController : MonoBehaviour
 
     private void Awake()
     {
-        ghostShooter = GetComponent<GhostShooter>();
+        ghostShooter = GetComponentInChildren<GhostShooter>();
+
+        if (ghostShooter == null)
+        {
+            Debug.LogError("GhostController: GhostShooter konnte in den Kindern nicht gefunden werden!", this);
+        }
     }
 
     public void Init(RunData data)
@@ -26,7 +31,7 @@ public class GhostController : MonoBehaviour
         if (runData == null || runData.frames.Count == 0) return;
 
         currentTime += Time.deltaTime;
-        hasShotThisTick = false;
+        //hasShotThisTick = false;
         UpdatePlayback();
     }
 
@@ -35,6 +40,14 @@ public class GhostController : MonoBehaviour
         // A) Frame-Index vorrücken, falls die Zeit des nächsten Frames erreicht wurde
         while (currentFrameIndex < runData.frames.Count - 1 && currentTime >= runData.frames[currentFrameIndex + 1].time)
         {
+            if (runData.frames[currentFrameIndex].fired)
+            {
+                // Führen Sie den Schuss aus
+                ghostShooter.ShootFromReplay();
+                // Wir müssen hier keine hasShotThisTick setzen, da wir den aktuellen 
+                // Frame *sofort* verarbeiten, wenn seine Zeit erreicht ist.
+            }
+
             currentFrameIndex++;
         }
 
@@ -62,13 +75,14 @@ public class GhostController : MonoBehaviour
             // Wir setzen die LOKALE Rotation, da der Root-Ghost bereits horizontal rotiert ist
             ghostShooter.pitchTarget.localRotation = Quaternion.Euler(pitch, 0f, 0f);
         }
-
+        /*
         if (a.fired && !hasShotThisTick)
         {
             // Führen Sie den Schuss aus
             ghostShooter.ShootFromReplay();
             hasShotThisTick = true;
         }
+        */
 
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerShooter))]
 public class PlayerRecorder : MonoBehaviour
 {
-    public float recordTickRate = 20f;
+    public float recordTickRate = 60f;
 
     [HideInInspector] public RunData currentRunData;
 
@@ -19,7 +19,7 @@ public class PlayerRecorder : MonoBehaviour
     {
         playerController = GetComponent<PlayerController>();
         playerShooter = GetComponent<PlayerShooter>();
-        thirdPersonCamera = GetComponent<ThirdPersonCamera>();
+        thirdPersonCamera = FindAnyObjectByType<ThirdPersonCamera>();
     }
 
     private void Update()
