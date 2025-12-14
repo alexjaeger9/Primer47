@@ -3,13 +3,38 @@ using UnityEngine;
 public class ThirdPersonCamera : MonoBehaviour
 {
     public Transform target;
-    public Vector3 offset = new Vector3(0, 1.5f, 3);
-    public float smoothSpeed = 0.125f;
+    [SerializeField] private float distance = 5f;
+    [SerializeField] private float height = 1.5f;
+    [SerializeField] private float verticalMouseSensitivity = 200f;
+    [SerializeField] private float minPitch = -30f;
+    [SerializeField] private float maxPitch = 60f;
+
+    private float pitch;
+
+    void Start()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
+        pitch = transform.eulerAngles.x;
+    }
 
     void LateUpdate()
     {
-        Vector3 desiredPos = target.position + target.rotation * offset;
-        transform.position = Vector3.Lerp(transform.position, desiredPos, smoothSpeed);
-        transform.LookAt(target.position + Vector3.up * 1.5f);
+        if (target == null) return;
+
+        float mouseY = Input.GetAxis("Mouse Y");
+        pitch -= mouseY * verticalMouseSensitivity * Time.deltaTime;
+        pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
+
+        float playerYaw = target.eulerAngles.y;
+
+        Quaternion rotation = Quaternion.Euler(pitch, playerYaw, 0f);
+
+        Vector3 offset = rotation * new Vector3(0f, height, -distance);
+        Vector3 desiredPos = target.position + offset;
+
+        transform.position = desiredPos;
+        transform.rotation = rotation;
     }
 }

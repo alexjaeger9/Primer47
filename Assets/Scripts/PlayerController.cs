@@ -3,66 +3,79 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
-    [Header("Movement")]
-    public float moveSpeed = 6f;
-    public float jumpForce = 5f;
-    public float gravity = -9.81f;
-
-    [Header("References")]
-    public Transform cameraTransform; // ZUWEISEN!
+    [SerializeField] private float moveSpeed = 6f;
+    [SerializeField] private float jumpForce = 5f;
+    [SerializeField] private float gravity = -9.81f;
+    [SerializeField] private float mouseSensitivity = 200f;
 
     private CharacterController controller;
     private Vector3 velocity;
+    private Vector3 moveDirection;
+    private float yaw;
 
-    private void Awake()
+    void Awake()
     {
         controller = GetComponent<CharacterController>();
+        yaw = transform.eulerAngles.y;
     }
 
-    private void Update()
+    void Update()
     {
-        HandleMovement();
-        HandleJump();
-        ApplyGravity();
+        MoveAndRotatePlayer();
     }
 
-    private void HandleMovement()
+    private void MoveAndRotatePlayer()
     {
-        // Input Horizontal/Vertical (WASD/Arrow Keys)
-        float horizontal = Input.GetAxis("Horizontal");  // A/D
-        float vertical = Input.GetAxis("Vertical");      // W/S
+        HandleRotation();
+        HandleMovementInput();
+        HandleGravityAndJump();
 
-        // Bewegung relativ zur Kamera (NICHT transform!)
-        Vector3 move = new Vector3(horizontal, 0f, vertical).normalized;
+        Vector3 finalMovement = (moveDirection * moveSpeed) + new Vector3(0, velocity.y, 0);
+        controller.Move(finalMovement * Time.deltaTime);
+    }
 
-        if (move.magnitude >= 0.1f)
+    void HandleRotation()
+    {
+        float mouseX = Input.GetAxis("Mouse X");
+
+        yaw += mouseX * mouseSensitivity * Time.deltaTime;
+
+        transform.rotation = Quaternion.Euler(0f, yaw, 0f);
+    }
+
+    void HandleMovementInput()
+    {
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
+
+        Vector3 inputDir = new Vector3(horizontal, 0f, vertical);
+        if (inputDir.sqrMagnitude < 0.001f)
         {
-            // Kamera-relative Bewegung
-            move = cameraTransform.right * move.x + cameraTransform.forward * move.z;
-            move.y = 0f; // Y ignorieren
-            controller.Move(move * moveSpeed * Time.deltaTime);
-
-            // Spieler rotieren zur Bewegungsrichtung
-            transform.rotation = Quaternion.LookRotation(move);
-        }
-    }
-
-    private void HandleJump()
-    {
-        if (Input.GetButtonDown("Jump") && controller.isGrounded)
-        {
-            velocity.y = jumpForce;
-        }
-    }
-
-    private void ApplyGravity()
-    {
-        if (controller.isGrounded && velocity.y < 0)
-        {
-            velocity.y = -2f;
+            moveDirection = Vector3.zero;
+            return;
         }
 
-        velocity.y += gravity * Time.deltaTime;
-        controller.Move(velocity * Time.deltaTime);
+        moveDirection = transform.rotation * inputDir.normalized;
+    }
+
+    void HandleGravityAndJump()
+    {
+        bool grounded = controller.isGrounded;
+
+        if (grounded)
+        {
+            if (velocity.y < 0)
+            {
+                velocity.y = -2f;
+            }
+            if (Input.GetButtonDown("Jump"))
+            {
+                velocity.y = jumpForce;
+            }
+        }
+        else
+        {
+            velocity.y += gravity * Time.deltaTime;
+        }
     }
 }
