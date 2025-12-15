@@ -40,7 +40,7 @@ public class PlayerController : MonoBehaviour
     {
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
-        Vector3 inputDir = new Vector3(horizontal, 0f, vertical);
+        Vector3 inputDir = new(horizontal, 0f, vertical);
         if (inputDir.sqrMagnitude < 0.001f)
         {
             moveDirection = Vector3.zero;
