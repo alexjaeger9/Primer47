@@ -1,15 +1,12 @@
 using UnityEngine;
 
-[RequireComponent(typeof(PlayerController))]
-[RequireComponent(typeof(PlayerShooter))]
 public class PlayerRecorder : MonoBehaviour
 {
-    public float recordTickRate = 20f;
-
+    public float recordTickRate = 1000f;
     [HideInInspector] public RunData currentRunData;
-
     private PlayerController playerController;
     private PlayerShooter playerShooter;
+    private ThirdPersonCamera thirdPersonCamera;
     private float currentTime;
     private float timeSinceLastTick;
     private bool isRecording;
@@ -18,15 +15,14 @@ public class PlayerRecorder : MonoBehaviour
     {
         playerController = GetComponent<PlayerController>();
         playerShooter = GetComponent<PlayerShooter>();
+        thirdPersonCamera = FindAnyObjectByType<ThirdPersonCamera>();
     }
 
     private void Update()
     {
         if (!isRecording) return;
-
         currentTime += Time.deltaTime;
         timeSinceLastTick += Time.deltaTime;
-
         if (timeSinceLastTick >= 1f / recordTickRate)
         {
             CaptureFrame();
@@ -45,11 +41,10 @@ public class PlayerRecorder : MonoBehaviour
 
     public RunData StopRecording()
     {
+        currentTime += Time.deltaTime;
+        CaptureFrame();
         isRecording = false;
-        if (currentRunData != null)
-        {
-            currentRunData.duration = currentTime;
-        }
+        if (currentRunData != null) currentRunData.duration = currentTime;
         return currentRunData;
     }
 
@@ -59,9 +54,22 @@ public class PlayerRecorder : MonoBehaviour
         frame.time = currentTime;
         frame.position = transform.position;
         frame.rotation = transform.rotation;
+        frame.pitch = thirdPersonCamera.pitch;
         frame.fired = playerShooter.firedThisTick;
-        frame.jumped = false; // TODO: Jump-Flag setzen, wenn benötigt
-
-        currentRunData.frames.Add(frame);
+        frame.jumped = playerController.jumpedThisTick;
+        if (frame.fired)
+        {
+            frame.fireMuzzlePosition = playerShooter.recordedMuzzlePosition;
+            frame.fireDirection = playerShooter.recordedFireDirection;
+        }
+        else
+        {
+            frame.fireMuzzlePosition = Vector3.zero;
+            frame.fireDirection = Vector3.zero;
+        }
+        if (currentRunData.frames.Count == 0 || currentRunData.frames[currentRunData.frames.Count - 1].time < frame.time - 0.001f)
+        {
+            currentRunData.frames.Add(frame);
+        }
     }
 }
