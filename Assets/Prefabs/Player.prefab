@@ -556,8 +556,8 @@ LineRenderer:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
-        time: 0.0000004786998
-        value: 0.18563338
+        time: 0
+        value: 0.10419083
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -784,6 +784,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerShooter
   mainCamera: {fileID: 1148817700669963721}
   muzzleTransform: {fileID: 850116121314927754}
+  gunTransform: {fileID: 253086363800951097}
   tracePrefab: {fileID: 8329177473425190724}
   fireRate: 5
   maxRange: 100
@@ -792,6 +793,8 @@ MonoBehaviour:
     m_Bits: 1
   traceDuration: 3
   firedThisTick: 0
+  recordedMuzzlePosition: {x: 0, y: 0, z: 0}
+  recordedFireDirection: {x: 0, y: 0, z: 0}
 --- !u!114 &771184510806633708
 MonoBehaviour:
   m_ObjectHideFlags: 0

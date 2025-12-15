@@ -211,8 +211,8 @@ LineRenderer:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
-        time: 0.0000004786998
-        value: 0.18563338
+        time: 0
+        value: 1
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -416,6 +416,71 @@ Transform:
   - {fileID: 356817166}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &197667529
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 463148102409295182, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.27925
+      objectReference: {fileID: 0}
+    - target: {fileID: 463148102409295182, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 463148102409295182, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.99832
+      objectReference: {fileID: 0}
+    - target: {fileID: 463148102409295182, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 463148102409295182, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 463148102409295182, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 463148102409295182, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 463148102409295182, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 463148102409295182, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 463148102409295182, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2499904752377737917, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
+      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].time
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2499904752377737917, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
+      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].value
+      value: 0.10419083
+      objectReference: {fileID: 0}
+    - target: {fileID: 9001557252210380264, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
+      propertyPath: m_Name
+      value: Player
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
 --- !u!1 &341469956
 GameObject:
   m_ObjectHideFlags: 0
@@ -671,7 +736,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   playerPrefab: {fileID: 9001557252210380264, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
-  ghostPrefab: {fileID: 6014853567176218147, guid: 90ee8f71b2ccc8a459ada490808a8218, type: 3}
+  ghostPrefab: {fileID: 8932452957256693822, guid: 7b8a63d1cf781b44ca391307f6eeaaac, type: 3}
   playerSpawnPoint: {fileID: 589791807}
   targetSpawnPoint: {fileID: 1557646529}
   currentLoopIndex: 0
@@ -835,7 +900,7 @@ GameObject:
   - component: {fileID: 416708914}
   - component: {fileID: 416708913}
   m_Layer: 0
-  m_Name: Player (1)
+  m_Name: Player2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -855,6 +920,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerShooter
   mainCamera: {fileID: 705845073}
   muzzleTransform: {fileID: 19313086}
+  gunTransform: {fileID: 0}
   tracePrefab: {fileID: 475078007}
   fireRate: 5
   maxRange: 100
@@ -863,6 +929,8 @@ MonoBehaviour:
     m_Bits: 1
   traceDuration: 3
   firedThisTick: 0
+  recordedMuzzlePosition: {x: 0, y: 0, z: 0}
+  recordedFireDirection: {x: 0, y: 0, z: 0}
 --- !u!114 &416708914
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1870,7 +1938,7 @@ Transform:
   m_GameObject: {fileID: 589791806}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.52, z: 0}
+  m_LocalPosition: {x: 0, y: 1.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3272,3 +3340,4 @@ SceneRoots:
   - {fileID: 363021292}
   - {fileID: 589791807}
   - {fileID: 1557646529}
+  - {fileID: 197667529}

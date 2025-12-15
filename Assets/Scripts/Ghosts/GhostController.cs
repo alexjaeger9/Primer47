@@ -2,12 +2,12 @@ using UnityEngine;
 
 public class GhostController : MonoBehaviour
 {
+    // HINWEIS: RunData und RecordedFrame müssen hier oder in einem externen File definiert sein
     public RunData runData;
 
     private int currentFrameIndex;
     private float currentTime;
     private GhostShooter ghostShooter;
-    private bool hasShotThisTick = false;
 
     private void Awake()
     {
@@ -31,21 +31,20 @@ public class GhostController : MonoBehaviour
         if (runData == null || runData.frames.Count == 0) return;
 
         currentTime += Time.deltaTime;
-        //hasShotThisTick = false;
         UpdatePlayback();
     }
 
     private void UpdatePlayback()
     {
-        // A) Frame-Index vorrücken, falls die Zeit des nächsten Frames erreicht wurde
+        // A) Frame-Index vorrücken und Events verarbeiten
         while (currentFrameIndex < runData.frames.Count - 1 && currentTime >= runData.frames[currentFrameIndex + 1].time)
         {
-            if (runData.frames[currentFrameIndex].fired)
+            RecordedFrame frame = runData.frames[currentFrameIndex];
+
+            if (frame.fired)
             {
-                // Führen Sie den Schuss aus
-                ghostShooter.ShootFromReplay();
-                // Wir müssen hier keine hasShotThisTick setzen, da wir den aktuellen 
-                // Frame *sofort* verarbeiten, wenn seine Zeit erreicht ist.
+                // **KORREKTUR:** Übergabe der gespeicherten, konsistenten Schussdaten
+                ghostShooter.ShootFromReplay(frame.fireMuzzlePosition, frame.fireDirection);
             }
 
             currentFrameIndex++;
@@ -53,10 +52,10 @@ public class GhostController : MonoBehaviour
 
         if (currentFrameIndex >= runData.frames.Count - 1)
         {
-            // Replay beendet (oder letzter Frame erreicht)
             return;
         }
 
+        // B) Interpolation
         RecordedFrame a = runData.frames[currentFrameIndex];
         RecordedFrame b = runData.frames[currentFrameIndex + 1];
 
@@ -72,17 +71,8 @@ public class GhostController : MonoBehaviour
 
         if (ghostShooter.pitchTarget != null)
         {
-            // Wir setzen die LOKALE Rotation, da der Root-Ghost bereits horizontal rotiert ist
+            // Die Pitch-Rotation wird weiterhin hier für die visuelle Darstellung gesetzt
             ghostShooter.pitchTarget.localRotation = Quaternion.Euler(pitch, 0f, 0f);
         }
-        /*
-        if (a.fired && !hasShotThisTick)
-        {
-            // Führen Sie den Schuss aus
-            ghostShooter.ShootFromReplay();
-            hasShotThisTick = true;
-        }
-        */
-
     }
 }

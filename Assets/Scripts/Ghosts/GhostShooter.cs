@@ -1,82 +1,83 @@
 using UnityEngine;
-using System.Collections; // Hinzugefügt für Coroutine
+using System.Collections;
 
 public class GhostShooter : MonoBehaviour
 {
-    public Transform muzzleTransform;
-    public Transform pitchTarget;      // Der Punkt, der Pitch rotiert (Child des Ghosts)
+    public Transform muzzleTransform; // Nur noch für visuelle Hierarchie/Platzierung
+    public Transform pitchTarget;     // Wird nicht mehr für die Richtung verwendet, nur für visuelle Pitch-Darstellung
     public LayerMask hitMask;
     public float maxRange = 100f;
-    public GameObject tracePrefab;     // NEU: Trace Prefab für Visualisierung
-    public float traceDuration = 0.1f; // NEU: Dauer des Traces
+    public GameObject tracePrefab;
+    public float traceDuration = 0.1f;
 
-    public void ShootFromReplay()
+    // **KORREKTUR:** Erhält die gespeicherten Schussdaten vom Controller
+    public void ShootFromReplay(Vector3 savedMuzzlePosition, Vector3 savedDirection)
     {
-        // 1. Richtungsvektor berechnen: Die nach vorne gerichtete Richtung des Pitch-Targets
-        Vector3 rayDirection = pitchTarget.forward;
-        Vector3 rayStart = muzzleTransform.position;
+        // NUTZT DIE GESPEICHERTEN, KONSISTENTEN WERTE
+        Vector3 rayStart = savedMuzzlePosition;
+        Vector3 rayDirection = savedDirection;
+
+        // Der Muzzle-Offset-Fix wird nun nicht mehr benötigt, da die Position exakt ist.
+        // Falls Sie ihn doch beibehalten wollen, wäre er hier:
+        // rayStart += rayDirection * 0.05f; 
+
         Vector3 hitTarget;
         RaycastHit hit;
 
-        // 2. Raycast
+        // Wir nutzen die ursprüngliche Reichweite als maximale Range für diesen Raycast
+        float currentMaxRange = rayDirection.magnitude > 0 ? maxRange : 0;
+
+        // HINWEIS: Wir müssen hier die Reichweite des Originalschusses verwenden,
+        // falls das Original ins Leere geschossen hat (maxRange wurde im Player-Shot begrenzt, 
+        // wenn er das Ziel traf oder wenn maxRange erreicht wurde).
+        // Um das zu vereinfachen, verwenden wir hier maxRange = 100f, 
+        // und speichern stattdessen besser die Max-Range des Schusses im Frame.
+
         if (Physics.Raycast(rayStart, rayDirection, out hit, maxRange, hitMask))
         {
             hitTarget = hit.point;
 
-            // Prüfen, ob der Spieler getroffen wurde (er muss die PlayerHealth-Komponente haben)
             PlayerHealth playerHealth = hit.collider.GetComponent<PlayerHealth>();
+
+            // DEBUG LOGS
             if (playerHealth != null)
             {
-                // Schaden beim Spieler verursachen
                 playerHealth.TakeDamage();
-                Debug.Log("Ghost hat Spieler getroffen!");
+                Debug.Log($"[GHOST HIT] Object: {hit.collider.gameObject.name} | Start: {rayStart} | End: {hitTarget} (TREFFER)");
+            }
+            else
+            {
+                Debug.Log($"[GHOST HIT] Object: {hit.collider.gameObject.name} | Start: {rayStart} | End: {hitTarget} (UMGEBUNG)");
             }
         }
         else
         {
-            // Ray trifft nichts -> Endpunkt ist am Max-Range
             hitTarget = rayStart + rayDirection * maxRange;
+
+            // DEBUG LOGS
+            Debug.Log($"[GHOST MISSED] Target: Nichts | Start: {rayStart} | End: {hitTarget} (MAX RANGE)");
         }
 
-        // 3. Trace-Visualisierung (Fehlerstelle behoben)
         if (tracePrefab != null)
         {
-            Debug.Log("GhostShooter: Tracer instanziiert!");
-
-            // Instanziiere das Trace-Prefab am Muzzle
-            GameObject newTrace = Instantiate(tracePrefab, muzzleTransform.position, muzzleTransform.rotation, muzzleTransform);
-
-            newTrace.transform.SetParent(null); // Optional: Damit sich der Trace nicht mit dem Ghost mitbewegt
+            GameObject newTrace = Instantiate(tracePrefab, rayStart, Quaternion.identity);
+            newTrace.transform.SetParent(null);
 
             LineRenderer newLR = newTrace.GetComponent<LineRenderer>();
 
             if (newLR != null)
             {
-                /*
-                // Vektor relativ zum Muzzle berechnen
-                Vector3 localHitTarget = muzzleTransform.InverseTransformPoint(hitTarget);
                 newLR.enabled = true;
-                newLR.SetPosition(0, Vector3.zero);
-                newLR.SetPosition(1, localHitTarget);
-
-                // Startet die Coroutine, die zuvor fehlte
-                StartCoroutine(FadeOutTrace(newTrace));
-                */
-                newLR.enabled = true;
-
-                // Setze Startpunkt auf die Weltposition des Muzzles
-                newLR.SetPosition(0, rayStart); // rayStart ist bereits muzzleTransform.position
-
-                // Setze Endpunkt auf die Weltposition des Treffers (oder Max-Range)
+                newLR.SetPosition(0, rayStart);
                 newLR.SetPosition(1, hitTarget);
 
-                // Startet die Coroutine
+                Debug.Log($"[GHOST TRACE POS] Start: {rayStart} | End: {hitTarget} | Range: {Vector3.Distance(rayStart, hitTarget)}");
+
                 StartCoroutine(FadeOutTrace(newTrace));
             }
         }
     }
 
-    // NEU: Die fehlende Coroutine aus PlayerShooter übernommen
     private IEnumerator FadeOutTrace(GameObject traceObject)
     {
         yield return new WaitForSeconds(traceDuration);

@@ -1,10 +1,11 @@
 using UnityEngine;
 
-[RequireComponent(typeof(PlayerController))]
+// Annahme: RecordedFrame und RunData sind global verfügbar (wie in Ihren separaten Dateien)
+// [RequireComponent(typeof(PlayerController))] // Angenommen, diese ist noch nötig
 [RequireComponent(typeof(PlayerShooter))]
 public class PlayerRecorder : MonoBehaviour
 {
-    public float recordTickRate = 60f;
+    public float recordTickRate = 1000f;
 
     [HideInInspector] public RunData currentRunData;
 
@@ -17,8 +18,10 @@ public class PlayerRecorder : MonoBehaviour
 
     private void Awake()
     {
+        // Sicherstellen, dass die Komponenten korrekt geholt werden
         playerController = GetComponent<PlayerController>();
         playerShooter = GetComponent<PlayerShooter>();
+        // FindAnyObjectByType ist korrekt, wenn die Kamera nicht am Player hängt
         thirdPersonCamera = FindAnyObjectByType<ThirdPersonCamera>();
     }
 
@@ -37,6 +40,7 @@ public class PlayerRecorder : MonoBehaviour
         }
     }
 
+    // ... (StartRecording, StopRecording Logik bleiben gleich) ...
     public void StartRecording()
     {
         currentRunData = new RunData();
@@ -55,15 +59,33 @@ public class PlayerRecorder : MonoBehaviour
         return currentRunData;
     }
 
+
     private void CaptureFrame()
     {
         RecordedFrame frame = new RecordedFrame();
+
         frame.time = currentTime;
         frame.position = transform.position;
         frame.rotation = transform.rotation;
         frame.pitch = thirdPersonCamera.pitch;
         frame.fired = playerShooter.firedThisTick;
         frame.jumped = playerController.jumpedThisTick;
+
+        
+        // Wenn der Player im aktuellen Tick geschossen hat,
+        // speichern wir die exakten Muzzle-Daten aus dem PlayerShooter.
+        if (frame.fired)
+        {
+            frame.fireMuzzlePosition = playerShooter.recordedMuzzlePosition;
+            frame.fireDirection = playerShooter.recordedFireDirection;
+        }
+        else
+        {
+            // Optional: Setze die Werte auf 0, um sicherzustellen, dass keine alten Werte übernommen werden.
+            // (Obwohl dies bei structs nicht nötig ist, macht es die Absicht klarer)
+            frame.fireMuzzlePosition = Vector3.zero;
+            frame.fireDirection = Vector3.zero;
+        }
 
         currentRunData.frames.Add(frame);
     }
