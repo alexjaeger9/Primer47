@@ -2,22 +2,28 @@ using UnityEngine;
 
 public class GhostHealth : MonoBehaviour
 {
-    public bool isDead;
-    private GameManager gameManager;
+    private Renderer enemyRenderer;
 
-    private void Awake()
+    void Awake()
     {
-        gameManager = FindObjectOfType<GameManager>();
+        enemyRenderer = GetComponent<Renderer>();
+        if (enemyRenderer != null)
+        {
+            enemyRenderer.material.color = Color.red;
+        }
     }
 
-    public void TakeDamage(int amount)
+    public void TakeHit()
     {
-        if (isDead) return;
-        isDead = true;
-
-        // TODO: Death-Animation / Effekte
-
-        gameManager.OnGhostKilled(this);
-        Destroy(gameObject);
+        if (enemyRenderer != null && enemyRenderer.material.color != Color.gray)
+        {
+            enemyRenderer.material.color = Color.gray;
+            if (TryGetComponent<Collider>(out var col))
+            {
+                col.enabled = false;
+            }
+            if (TryGetComponent<GhostController>(out var controller)) controller.enabled = false;
+            GameManager.Instance.OnGhostKilled(this);
+        }
     }
 }
