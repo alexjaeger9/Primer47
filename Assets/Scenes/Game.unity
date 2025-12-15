@@ -416,71 +416,6 @@ Transform:
   - {fileID: 356817166}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &197667529
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 463148102409295182, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.27925
-      objectReference: {fileID: 0}
-    - target: {fileID: 463148102409295182, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 463148102409295182, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0.99832
-      objectReference: {fileID: 0}
-    - target: {fileID: 463148102409295182, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 463148102409295182, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 463148102409295182, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 463148102409295182, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 463148102409295182, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 463148102409295182, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 463148102409295182, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2499904752377737917, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
-      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].time
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2499904752377737917, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
-      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].value
-      value: 0.10419083
-      objectReference: {fileID: 0}
-    - target: {fileID: 9001557252210380264, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
-      propertyPath: m_Name
-      value: Player
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 6900908f4966cb642a1453a03c3e7672, type: 3}
 --- !u!1 &341469956
 GameObject:
   m_ObjectHideFlags: 0
@@ -1533,13 +1468,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GhostShooter
   muzzleTransform: {fileID: 1412618234}
-  pitchTarget: {fileID: 1138463075}
   hitMask:
     serializedVersion: 2
     m_Bits: 64
   maxRange: 100
   tracePrefab: {fileID: 474024781}
   traceDuration: 0.5
+  pitchTarget: {fileID: 1138463075}
 --- !u!114 &480382046
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2632,13 +2567,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GhostShooter
   muzzleTransform: {fileID: 1412618234}
-  pitchTarget: {fileID: 1138463075}
   hitMask:
     serializedVersion: 2
     m_Bits: 4294967295
   maxRange: 100
   tracePrefab: {fileID: 474024781}
   traceDuration: 0.5
+  pitchTarget: {fileID: 1138463075}
 --- !u!1 &1239789473
 GameObject:
   m_ObjectHideFlags: 0
@@ -3340,4 +3275,3 @@ SceneRoots:
   - {fileID: 363021292}
   - {fileID: 589791807}
   - {fileID: 1557646529}
-  - {fileID: 197667529}

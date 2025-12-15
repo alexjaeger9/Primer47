@@ -39,8 +39,10 @@ public class PlayerHealth : MonoBehaviour
         // 1. Visuelle/Sound-Effekte
 
         // 2. Bewegung deaktivieren (damit der Recorder keine weiteren Frames aufzeichnet)
-        PlayerController controller = GetComponent<PlayerController>();
-        if (controller != null) controller.enabled = false;
+        //PlayerController controller = GetComponent<PlayerController>();
+        //if (controller != null) controller.enabled = false;
+
+        Debug.Log("GAME OVER - YOU GOT KILLED");
 
         // 3. Informiere den GameManager
         OnPlayerDeath?.Invoke();

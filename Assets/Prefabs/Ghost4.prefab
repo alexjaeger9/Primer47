@@ -45,13 +45,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GhostShooter
   muzzleTransform: {fileID: 3303675376685427590}
-  pitchTarget: {fileID: 550121508200846179}
   hitMask:
     serializedVersion: 2
     m_Bits: 4294967295
   maxRange: 100
   tracePrefab: {fileID: 2795106674437652466}
   traceDuration: 0.5
+  pitchTarget: {fileID: 550121508200846179}
 --- !u!1 &2460403113712681652
 GameObject:
   m_ObjectHideFlags: 0
@@ -181,7 +181,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2313238884993397799
 Transform:
   m_ObjectHideFlags: 0
@@ -635,10 +635,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GhostShooter
   muzzleTransform: {fileID: 3303675376685427590}
-  pitchTarget: {fileID: 550121508200846179}
   hitMask:
     serializedVersion: 2
     m_Bits: 4294967295
   maxRange: 100
-  tracePrefab: {fileID: 2795106674437652466}
+  tracePrefab: {fileID: 6796344618158638744, guid: 3e8b227d28f15b04bb04dc50d4ad9548, type: 3}
   traceDuration: 0.5
+  pitchTarget: {fileID: 550121508200846179}

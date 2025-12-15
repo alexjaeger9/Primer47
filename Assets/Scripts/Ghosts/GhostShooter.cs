@@ -3,87 +3,93 @@ using System.Collections;
 
 public class GhostShooter : MonoBehaviour
 {
-    public Transform muzzleTransform; // Nur noch für visuelle Hierarchie/Platzierung
-    public Transform pitchTarget;     // Wird nicht mehr für die Richtung verwendet, nur für visuelle Pitch-Darstellung
-    public LayerMask hitMask;
-    public float maxRange = 100f;
-    public GameObject tracePrefab;
-    public float traceDuration = 0.1f;
+    // --- ERFORDERLICHE REPLAY-KOMPONENTEN ---
+    public Transform muzzleTransform; // Startpunkt des Schusses
+    public LayerMask hitMask;        // Welche Objekte getroffen werden können
+    public float maxRange = 100f;    // Maximale Reichweite für Raycasting
 
-    // **KORREKTUR:** Erhält die gespeicherten Schussdaten vom Controller
+    // --- TRACER-KOMPONENTEN ---
+    public GameObject tracePrefab;   // TrailTracer Prefab mit TracerMovement.cs
+    public float traceDuration = 0.1f; // Wird zur Steuerung der Tracer-Dauer verwendet
+
+    // --- ANIMATIONS-KOMPONENTE ---
+    // Dies ist das Transform, das die vertikale Neigung (Pitch) der Waffe steuert 
+    // und vom GhostController angesprochen wird.
+    public Transform pitchTarget;
+
+    // Methode: Führt den Schuss basierend auf aufgezeichneten Daten aus
+    // Dies ist die einzige Schusslogik, die der Ghost benötigt.
     public void ShootFromReplay(Vector3 savedMuzzlePosition, Vector3 savedDirection)
     {
-        // NUTZT DIE GESPEICHERTEN, KONSISTENTEN WERTE
         Vector3 rayStart = savedMuzzlePosition;
         Vector3 rayDirection = savedDirection;
 
-        // Der Muzzle-Offset-Fix wird nun nicht mehr benötigt, da die Position exakt ist.
-        // Falls Sie ihn doch beibehalten wollen, wäre er hier:
-        // rayStart += rayDirection * 0.05f; 
-
-        Vector3 hitTarget;
         RaycastHit hit;
+        Vector3 finalHitTarget;
 
         // Wir nutzen die ursprüngliche Reichweite als maximale Range für diesen Raycast
-        float currentMaxRange = rayDirection.magnitude > 0 ? maxRange : 0;
-
-        // HINWEIS: Wir müssen hier die Reichweite des Originalschusses verwenden,
-        // falls das Original ins Leere geschossen hat (maxRange wurde im Player-Shot begrenzt, 
-        // wenn er das Ziel traf oder wenn maxRange erreicht wurde).
-        // Um das zu vereinfachen, verwenden wir hier maxRange = 100f, 
-        // und speichern stattdessen besser die Max-Range des Schusses im Frame.
-
+        // Die hitMask wird verwendet, um alle potenziellen Ziele (Player, Ghosts, World) zu treffen
         if (Physics.Raycast(rayStart, rayDirection, out hit, maxRange, hitMask))
         {
-            hitTarget = hit.point;
+            finalHitTarget = hit.point;
+
+            // --- ZIELANALYSE und SCHADENSLOGIK ---
 
             PlayerHealth playerHealth = hit.collider.GetComponent<PlayerHealth>();
+            // Wir holen die GhostHealth-Komponente, um Ghosts zu identifizieren
+            GhostHealth ghostHealth = hit.collider.GetComponent<GhostHealth>();
 
-            // DEBUG LOGS
             if (playerHealth != null)
             {
+                // 1. TREFFER: Der Player (zwischengespawnt oder nicht) wurde getroffen
                 playerHealth.TakeDamage();
-                Debug.Log($"[GHOST HIT] Object: {hit.collider.gameObject.name} | Start: {rayStart} | End: {hitTarget} (TREFFER)");
+                Debug.Log($"[GHOST REPLAY HIT] Object: {hit.collider.gameObject.name} | Start: {rayStart} | End: {finalHitTarget} (PLAYER TREFFER)");
+            }
+            else if (ghostHealth != null)
+            {
+                // 2. TREFFER: Ein Ghost wurde getroffen. 
+                // Regel: Ghosts dürfen keine anderen Ghosts töten. Kein Schaden wird angewendet.
+                Debug.Log($"[GHOST REPLAY HIT] Object: {hit.collider.gameObject.name} | Ghost Ignoriert. Schaden wird nicht angewendet.");
             }
             else
             {
-                Debug.Log($"[GHOST HIT] Object: {hit.collider.gameObject.name} | Start: {rayStart} | End: {hitTarget} (UMGEBUNG)");
+                // 3. TREFFER: Umgebung oder ein anderes unschädliches Objekt
+                Debug.Log($"[GHOST REPLAY HIT] Object: {hit.collider.gameObject.name} | Start: {rayStart} | End: {finalHitTarget} (UMGEBUNG)");
             }
         }
         else
         {
-            hitTarget = rayStart + rayDirection * maxRange;
-
-            // DEBUG LOGS
-            Debug.Log($"[GHOST MISSED] Target: Nichts | Start: {rayStart} | End: {hitTarget} (MAX RANGE)");
+            // KEIN TREFFER: Raycast erreicht maximale Reichweite
+            finalHitTarget = rayStart + rayDirection * maxRange;
+            Debug.Log($"[GHOST REPLAY MISSED] Target: Nichts | Start: {rayStart} | End: {finalHitTarget} (MAX RANGE)");
         }
 
-        if (tracePrefab != null)
-        {
-            GameObject newTrace = Instantiate(tracePrefab, rayStart, Quaternion.identity);
-            newTrace.transform.SetParent(null);
-
-            LineRenderer newLR = newTrace.GetComponent<LineRenderer>();
-
-            if (newLR != null)
-            {
-                newLR.enabled = true;
-                newLR.SetPosition(0, rayStart);
-                newLR.SetPosition(1, hitTarget);
-
-                Debug.Log($"[GHOST TRACE POS] Start: {rayStart} | End: {hitTarget} | Range: {Vector3.Distance(rayStart, hitTarget)}");
-
-                StartCoroutine(FadeOutTrace(newTrace));
-            }
-        }
+        // Die visuelle Spur wird immer bis zum Treffpunkt/Max Range gespawnt
+        SpawnTrace(rayStart, finalHitTarget);
     }
 
-    private IEnumerator FadeOutTrace(GameObject traceObject)
+    // NEUE HELPER-METHODE ZUR TRACER-GENERIERUNG (nutzt Trail Renderer)
+    private void SpawnTrace(Vector3 rayStart, Vector3 hitTarget)
     {
-        yield return new WaitForSeconds(traceDuration);
-        if (traceObject != null)
+        if (tracePrefab != null)
         {
-            Destroy(traceObject);
+            GameObject newTrace = Instantiate(tracePrefab);
+            newTrace.transform.SetParent(null);
+
+            TracerMovement movement = newTrace.GetComponent<TracerMovement>();
+
+            if (movement != null)
+            {
+                movement.Initialize(rayStart, hitTarget);
+                // Übergibt die Dauer an das TracerMovement-Skript
+                movement.destroyDelay = traceDuration;
+
+                Debug.Log($"[GHOST TRACE - TRAIL] Start: {rayStart} | End: {hitTarget} | Range: {Vector3.Distance(rayStart, hitTarget):F6}");
+            }
+            else
+            {
+                Debug.LogError("Tracer Prefab is missing the TracerMovement component!");
+            }
         }
     }
 }

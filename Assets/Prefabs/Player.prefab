@@ -481,7 +481,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &9184035768872136837
 Transform:
   m_ObjectHideFlags: 0
@@ -785,7 +785,7 @@ MonoBehaviour:
   mainCamera: {fileID: 1148817700669963721}
   muzzleTransform: {fileID: 850116121314927754}
   gunTransform: {fileID: 253086363800951097}
-  tracePrefab: {fileID: 8329177473425190724}
+  tracePrefab: {fileID: 6796344618158638744, guid: 3e8b227d28f15b04bb04dc50d4ad9548, type: 3}
   fireRate: 5
   maxRange: 100
   hitMask:

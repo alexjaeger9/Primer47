@@ -1,5 +1,6 @@
-using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
@@ -22,6 +23,8 @@ public class GameManager : MonoBehaviour
 
     private PlayerRecorder playerRecorder;
     private PlayerHealth playerHealth;
+
+    private float timeBetweenLoops = 1.0f;
 
     private void Awake()
     {
@@ -81,13 +84,10 @@ public class GameManager : MonoBehaviour
         }
 
         currentLoopIndex++;
-        ClearGhosts();
-        StartLoop();
     }
 
     private void SpawnGhostsFromRuns()
     {
-        ClearGhosts();
         SpawnInitialTarget();
         foreach (RunData run in allRuns)
         {
@@ -120,8 +120,25 @@ public class GameManager : MonoBehaviour
 
         if (activeGhosts.Count == 0)
         {
-            EndLoop();
+            StartCoroutine(TimeBetweenLoops());
         }
+    }
+
+    private IEnumerator TimeBetweenLoops()
+    {
+        // Warten Sie EINEN Frame lang. Dies stellt sicher, 
+        // dass der PlayerShooter/PlayerRecorder den aktuellen Frame beenden und
+        // alle Flags korrekt setzen konnte, bevor StopRecording() aufgerufen wird.
+        yield return new WaitForSeconds(0.1f);
+
+        EndLoop();
+
+        yield return new WaitForSeconds(timeBetweenLoops);
+
+        ClearGhosts();
+
+        // 4. Starte den neuen Loop
+        StartLoop();
     }
 
     private void HandlePlayerDeath()
@@ -133,12 +150,11 @@ public class GameManager : MonoBehaviour
     {
         // TODO: GameOver-UI, Restart-Option
         //uiManager.ShowGameOver();
+        ClearGhosts();
     }
 
     private void SpawnInitialTarget()
     {
-        ClearGhosts(); // Stellt sicher, dass die Liste leer ist
-
         if (ghostPrefab == null || targetSpawnPoint == null)
         {
             Debug.LogError("InitialTargetPrefab oder TargetSpawnPoint fehlt im GameManager!");

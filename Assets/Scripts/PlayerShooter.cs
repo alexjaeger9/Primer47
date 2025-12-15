@@ -5,15 +5,16 @@ public class PlayerShooter : MonoBehaviour
 {
     public Camera mainCamera;
     public Transform muzzleTransform;
-
-    //  NEU: Referenz auf das Gun-GameObject (Muss im Inspector zugewiesen werden)
     public Transform gunTransform;
 
+    // NEU: traceDuration wird für TracerMovement.destroyDelay NICHT direkt benötigt
+    // WICHTIG: tracePrefab muss jetzt das TrailTracer-Prefab sein
     public GameObject tracePrefab;
+
     public float fireRate = 5f;
     public float maxRange = 100f;
     public LayerMask hitMask;
-    public float traceDuration = 0.1f;
+    public float traceDuration = 0.1f; // HIER BEIBEHALTEN, WENN AUCH FÜR ANDERE EFFEKTE GENUTZT
 
     [HideInInspector] public bool firedThisTick;
     [HideInInspector] public Vector3 recordedMuzzlePosition;
@@ -22,16 +23,13 @@ public class PlayerShooter : MonoBehaviour
     private float lastShotTime;
     private bool isAiming;
 
-    // Konstante lokale Offsets (Dies sind die korrekten Editor-Werte gemäß Ihrer Angabe)
-    // Wenn die lokale Position der GUN relativ zum Player (0.6, 0, 0.3) ist
+    // Konstante lokale Offsets
     private readonly Vector3 LOCAL_GUN_OFFSET = new Vector3(0.6f, 0f, 0.3f);
-    // Wenn die lokale Position der MUZZLE relativ zur GUN (0, 0, 1) ist
     private readonly Vector3 LOCAL_MUZZLE_OFFSET_FROM_GUN = new Vector3(0f, 0f, 1f);
 
 
     private void Update()
     {
-        // Wir fügen den Gun Transform Check hinzu, da er für die Berechnung benötigt wird.
         if (mainCamera == null || muzzleTransform == null || gunTransform == null)
         {
             Debug.LogError("PlayerShooter: Missing required Transform assignments (mainCamera, muzzleTransform, or gunTransform).");
@@ -60,6 +58,8 @@ public class PlayerShooter : MonoBehaviour
     {
         firedThisTick = true;
 
+        Debug.Log($"[SHOOTER] Schuss abgefeuert in Frame: {Time.frameCount} | Time: {Time.time:F3}. firedThisTick=TRUE.");
+
         Vector3 screenCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
         Ray cameraRay = mainCamera.ScreenPointToRay(screenCenter);
 
@@ -77,35 +77,17 @@ public class PlayerShooter : MonoBehaviour
         }
 
         // ----------------------------------------------------------------------
-        //  DEBUG / MANUELLE BERECHNUNG DER WELTPOSITION (KORRIGIERT FÜR SKALIERUNG)
+        // DEBUG / MANUELLE BERECHNUNG (BEIBEHALTEN)
         // ----------------------------------------------------------------------
-
         Vector3 playerWorldPos = transform.position;
-
-        // 1. Gun World Pos
         Vector3 gunWorldPos = playerWorldPos + transform.rotation * LOCAL_GUN_OFFSET;
-
-        // 2. Muzzle Offset Vektor, SKALIERT und ROTIERT
-        // Da die Skalierung 0.2, 0.2, 0.2 ist, müssen wir den lokalen Muzzle-Offset entsprechend skalieren.
-
         Vector3 scaledMuzzleOffset = LOCAL_MUZZLE_OFFSET_FROM_GUN;
-
-        // Anwendung der lokalen Skalierung der Gun auf den lokalen Muzzle-Offset.
-        // Da LOCAL_MUZZLE_OFFSET_FROM_GUN (0, 0, 1) ist, beeinflusst nur die Z-Skalierung den Offset.
         scaledMuzzleOffset.x *= gunTransform.localScale.x;
         scaledMuzzleOffset.y *= gunTransform.localScale.y;
         scaledMuzzleOffset.z *= gunTransform.localScale.z;
-
-        // Wende die Gun-Rotation (Pitch) auf den SKALIERTEN Offset an
         Vector3 expectedMuzzleOffsetVector = gunTransform.rotation * scaledMuzzleOffset;
-
-        // Finale erwartete Weltposition
         Vector3 expectedMuzzleWorldPos = gunWorldPos + expectedMuzzleOffsetVector;
-
-        // Die tatsächliche Position, die Unity durch die Hierarchie liefert
         Vector3 actualMuzzlePosUnity = muzzleTransform.position;
-
-        // --- LOGGING ---
         float positionDifference = Vector3.Distance(expectedMuzzleWorldPos, actualMuzzlePosUnity);
 
         Debug.Log("---------------------------------------------------");
@@ -115,10 +97,9 @@ public class PlayerShooter : MonoBehaviour
         Debug.Log($"[DEBUG POS] Expected Muzzle World Pos (Manual): {expectedMuzzleWorldPos}");
         Debug.Log($"[DEBUG POS] Actual Muzzle World Pos (Unity): {actualMuzzlePosUnity}");
 
-        if (positionDifference > 0.005f) // Toleranz von 5mm
+        if (positionDifference > 0.005f)
         {
             Debug.LogError($"[FEHLER!] ERNSTHAFTE ABWEICHUNG DES MUZZLE-PUNKTES! Differenz: {positionDifference:F4} m.");
-            Debug.LogError("Die Skalierung wurde in der Berechnung berücksichtigt. Falls die Abweichung bleibt: 1) Prüfen Sie die konstanten Offsets, 2) Prüfen Sie auf Skripte, die die Muzzle-Position in LateUpdate manipulieren.");
         }
         Debug.Log("---------------------------------------------------");
 
@@ -127,13 +108,11 @@ public class PlayerShooter : MonoBehaviour
         // PHASE 2: RAYCAST VOM MUZZLE ZUM ZIELPUNKT (actualHit)
         // ----------------------------------------------------------------------
 
-        // Wir verwenden die tatsächliche Weltposition, die Unity für das Muzzle-Transform berechnet.
         Vector3 rayStart = actualMuzzlePosUnity;
-
         Vector3 rayDirection = (idealHitTarget - rayStart).normalized;
         float currentRange = Vector3.Distance(rayStart, idealHitTarget);
 
-        // **KORREKTUR/SPEICHERUNG:** Bereitstellen der exakten Schussdaten für den Recorder
+        // SPEICHERUNG für den Recorder
         recordedMuzzlePosition = rayStart;
         recordedFireDirection = rayDirection;
 
@@ -169,8 +148,32 @@ public class PlayerShooter : MonoBehaviour
         }
 
         // ----------------------------------------------------------------------
-        // DEBUG LOGS
+        // TRACER (Trail Renderer) - NEUE LOGIK
         // ----------------------------------------------------------------------
+        if (tracePrefab != null)
+        {
+            GameObject newTrace = Instantiate(tracePrefab);
+            newTrace.transform.SetParent(null);
+
+            TracerMovement movement = newTrace.GetComponent<TracerMovement>();
+
+            if (movement != null)
+            {
+                // Initialisiere das TracerMovement-Skript
+                movement.Initialize(rayStart, finalHitTarget);
+
+                // Setze die Zerstörungsverzögerung basierend auf der Shooter-Einstellung (optional)
+                movement.destroyDelay = traceDuration;
+
+                Debug.Log($"[PLAYER TRACE - TRAIL] Start: {rayStart} | End: {finalHitTarget} | Range: {Vector3.Distance(rayStart, finalHitTarget):F6}");
+            }
+            else
+            {
+                Debug.LogError("Tracer Prefab is missing the TracerMovement component!");
+            }
+        }
+
+        // --- LOGGING ---
         if (isHit)
         {
             Debug.Log($"[PLAYER HIT] Target: {hit.collider.gameObject.name} | Start: {rayStart} | End: {finalHitTarget}");
@@ -183,38 +186,10 @@ public class PlayerShooter : MonoBehaviour
         {
             Debug.Log($"[PLAYER MISSED/CLEARED] Target: Nichts | Start: {rayStart} | End: {finalHitTarget}");
         }
-
-        // ----------------------------------------------------------------------
-        // TRACER (Weltkoordinaten)
-        // ----------------------------------------------------------------------
-        if (tracePrefab != null)
-        {
-            GameObject newTrace = Instantiate(tracePrefab, rayStart, Quaternion.identity);
-            newTrace.transform.SetParent(null);
-            LineRenderer newLR = newTrace.GetComponent<LineRenderer>();
-
-            if (newLR != null)
-            {
-                newLR.enabled = true;
-                newLR.SetPosition(0, rayStart);
-                newLR.SetPosition(1, finalHitTarget);
-                Debug.Log($"[TRACE OBJECT POS] Start Pos: {rayStart} | Tracer World Pos: {newTrace.transform.position}");
-
-                Debug.Log($"[PLAYER TRACE POS] Start: {rayStart} | End: {finalHitTarget} | Range: {Vector3.Distance(rayStart, finalHitTarget):F6}");
-
-                StartCoroutine(FadeOutTrace(newTrace));
-            }
-        }
     }
 
-    private IEnumerator FadeOutTrace(GameObject traceObject)
-    {
-        yield return new WaitForSeconds(traceDuration);
-        if (traceObject != null)
-        {
-            Destroy(traceObject);
-        }
-    }
+    // Coroutine für LineRenderer wurde entfernt, da TracerMovement das übernimmt.
+    // private IEnumerator FadeOutTrace(GameObject traceObject) { ... } 
 
     public void ResetTickFlags()
     {
