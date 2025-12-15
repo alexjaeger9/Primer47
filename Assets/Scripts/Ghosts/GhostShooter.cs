@@ -14,15 +14,12 @@ public class GhostShooter : MonoBehaviour
     {
         Vector3 rayStart = savedMuzzlePosition;
         Vector3 rayDirection = savedDirection;
-        RaycastHit hit;
         Vector3 finalHitTarget;
 
-        if (Physics.Raycast(rayStart, rayDirection, out hit, maxRange, hitMask))
+        if (Physics.Raycast(rayStart, rayDirection, out RaycastHit hit, maxRange, hitMask))
         {
             finalHitTarget = hit.point;
-            PlayerHealth playerHealth = hit.collider.GetComponent<PlayerHealth>();
-            GhostHealth ghostHealth = hit.collider.GetComponent<GhostHealth>();
-            if (playerHealth != null)
+            if (hit.collider.TryGetComponent<PlayerHealth>(out var playerHealth))
             {
                 playerHealth.TakeDamage();
             }
@@ -40,8 +37,7 @@ public class GhostShooter : MonoBehaviour
         {
             GameObject newTrace = Instantiate(tracePrefab);
             newTrace.transform.SetParent(null);
-            TracerMovement movement = newTrace.GetComponent<TracerMovement>();
-            if (movement != null)
+            if (newTrace.TryGetComponent<TracerMovement>(out var movement))
             {
                 movement.Initialize(rayStart, hitTarget);
                 movement.destroyDelay = traceDuration;
