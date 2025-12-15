@@ -18,13 +18,11 @@ public class GhostHealth : MonoBehaviour
         if (enemyRenderer != null && enemyRenderer.material.color != Color.gray)
         {
             enemyRenderer.material.color = Color.gray;
-            Collider col = GetComponent<Collider>();
-            if (col != null)
+            if (TryGetComponent<Collider>(out var col))
             {
                 col.enabled = false;
             }
-            GhostController controller = GetComponent<GhostController>();
-            if (controller != null) controller.enabled = false;
+            if (TryGetComponent<GhostController>(out var controller)) controller.enabled = false;
             GameManager.Instance.OnGhostKilled(this);
         }
     }

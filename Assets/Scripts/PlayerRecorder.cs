@@ -50,13 +50,15 @@ public class PlayerRecorder : MonoBehaviour
 
     private void CaptureFrame()
     {
-        RecordedFrame frame = new RecordedFrame();
-        frame.time = currentTime;
-        frame.position = transform.position;
-        frame.rotation = transform.rotation;
-        frame.pitch = thirdPersonCamera.pitch;
-        frame.fired = playerShooter.firedThisTick;
-        frame.jumped = playerController.jumpedThisTick;
+        RecordedFrame frame = new RecordedFrame
+        {
+            time = currentTime,
+            position = transform.position,
+            rotation = transform.rotation,
+            pitch = thirdPersonCamera.pitch,
+            fired = playerShooter.firedThisTick,
+            jumped = playerController.jumpedThisTick
+        };
         if (frame.fired)
         {
             frame.fireMuzzlePosition = playerShooter.recordedMuzzlePosition;

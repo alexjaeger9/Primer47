@@ -16,10 +16,10 @@ public class GameManager : MonoBehaviour
     public int currentLoopIndex;
     public List<RunData> allRuns = new List<RunData>();
     public List<GhostHealth> activeGhosts = new List<GhostHealth>();
-    private List<GameObject> allSpawnedGhosts = new List<GameObject>();
+    private readonly List<GameObject> allSpawnedGhosts = new List<GameObject>();
     private PlayerRecorder playerRecorder;
     private PlayerHealth playerHealth;
-    private float timeBetweenLoops = 1.0f;
+    private readonly float timeBetweenLoops = 1.0f;
 
     private void Awake()
     {
