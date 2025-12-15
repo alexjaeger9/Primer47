@@ -4,6 +4,6 @@ using System;
 [Serializable]
 public class RunData
 {
-    public List<RecordedFrame> frames = new List<RecordedFrame>();
+    public List<RecordedFrame> frames = new();
     public float duration;
 }
