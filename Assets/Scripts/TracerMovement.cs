@@ -3,8 +3,8 @@ using UnityEngine;
 public class TracerMovement : MonoBehaviour
 {
     private Vector3 targetPosition;
-    public float speed = 300f; // Hohe Geschwindigkeit für sofortigen Schuss-Effekt
-    public float destroyDelay = 0.1f; // Verzögerung, damit der Trail ausklingt
+    public float speed = 300f;
+    public float destroyDelay = 0.1f;
 
     public void Initialize(Vector3 start, Vector3 end)
     {
@@ -20,8 +20,6 @@ public class TracerMovement : MonoBehaviour
             targetPosition,
             speed * Time.deltaTime
         );
-
-        // Ziel erreicht
         if (transform.position == targetPosition)
         {
             Destroy(gameObject, destroyDelay);

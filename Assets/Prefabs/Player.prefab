@@ -766,7 +766,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   moveSpeed: 6
-  jumpForce: 5
+  jumpForce: 7
   gravity: -9.81
   mouseSensitivity: 200
   jumpedThisTick: 0
@@ -791,7 +791,7 @@ MonoBehaviour:
   hitMask:
     serializedVersion: 2
     m_Bits: 1
-  traceDuration: 3
+  trailDuration: 0.1
   firedThisTick: 0
   recordedMuzzlePosition: {x: 0, y: 0, z: 0}
   recordedFireDirection: {x: 0, y: 0, z: 0}
