@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 moveDirection;
     private float yaw;
     [HideInInspector] public bool jumpedThisTick;
+    public Animator playerAnimator;
 
     void Awake()
     {
@@ -24,6 +25,7 @@ public class PlayerController : MonoBehaviour
         HandleRotation();
         HandleMovementInput();
         HandleGravityAndJump();
+        HandleAnimation();
         jumpedThisTick = false;
         Vector3 finalMovement = (moveDirection * moveSpeed) + new Vector3(0, velocity.y, 0);
         controller.Move(finalMovement * Time.deltaTime);
@@ -47,6 +49,44 @@ public class PlayerController : MonoBehaviour
             return;
         }
         moveDirection = transform.rotation * inputDir.normalized;
+    }
+
+    void HandleAnimation()
+    {
+        if (playerAnimator == null) return;
+
+        // 1. Die rohen Input-Werte holen (wie in HandleMovementInput)
+        float horizontal = Input.GetAxisRaw("Horizontal");
+        float vertical = Input.GetAxisRaw("Vertical");
+
+        // 2. Bewegungsparameter im Animator setzen
+        // Diese Werte steuern den 2D Blend Tree
+        playerAnimator.SetFloat("MoveX", horizontal);
+        playerAnimator.SetFloat("MoveY", vertical);
+
+        //Debug.Log("MoveX: " + horizontal + " MoveY: "+vertical);
+
+        /*
+        // 3. Sprung/Fall-Animationen (Logik aus HandleGravityAndJump)
+        bool grounded = controller.isGrounded;
+
+        // Verwenden Sie die Sprung- und Fall-Logik aus dem vorherigen Schritt
+        if (!grounded)
+        {
+            // Wenn man fällt oder hochsteigt
+            playerAnimator.SetBool("IsFalling", true);
+        }
+        else
+        {
+            playerAnimator.SetBool("IsFalling", false);
+
+            if (jumpedThisTick)
+            {
+                // Trigger für den Sprung
+                playerAnimator.SetTrigger("JumpTrigger");
+            }
+        }*/
+        // Beachten Sie, dass Sie hier die `jumpedThisTick` Flagge aus Ihrem Code nutzen!
     }
 
     void HandleGravityAndJump()
