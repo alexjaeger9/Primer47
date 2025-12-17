@@ -17,6 +17,73 @@ public class PlayerShooter : MonoBehaviour
     private float lastShotTime;
     private bool isAiming;
 
+    [HideInInspector] public Vector3 currentAimPosition; // Das globale Ziel
+    public Transform rightHandIKTarget; // <== Im Inspector zuweisen!
+
+    public ThirdPersonCamera cameraController;
+
+    [HideInInspector] public Vector3 weaponAimDirection;
+    [HideInInspector] public Vector3 handTargetPosition; // NEU: Die Zielposition der Hand (nah am Körper)
+
+    private const float HandDistanceOffset = 3f; // Passt die Reichweite des Arms an
+
+
+    private void LateUpdate()
+    {
+        // Die LateUpdate-Methode ist ideal, da die Kamera-Bewegung bereits abgeschlossen ist.
+        UpdateAimTarget();
+        CalculateWeaponAimDirection();
+    }
+
+    private void CalculateWeaponAimDirection()
+    {
+        // A. Zielpunkt im Raum finden (wie in UpdateAimTarget)
+        Vector3 screenCenter = new(Screen.width / 2, Screen.height / 2, 0);
+        Ray cameraRay = mainCamera.ScreenPointToRay(screenCenter);
+        Vector3 idealHitTarget;
+
+        if (Physics.Raycast(cameraRay, out RaycastHit cameraHit, maxRange, hitMask))
+        {
+            idealHitTarget = cameraHit.point;
+        }
+        else
+        {
+            idealHitTarget = cameraRay.origin + cameraRay.direction * maxRange;
+        }
+
+        // B. Der Ursprung der IK-Kette (wo die Hand ist)
+        // Wir verwenden das IKTarget, das die Waffe hält, als Startpunkt.
+        Vector3 rayStart = rightHandIKTarget.position;
+
+        // C. Die Richtung von der Hand zum Ziel berechnen (Zielrichtung)
+        weaponAimDirection = (idealHitTarget - rayStart).normalized;
+
+        // D. Die IK-Position berechnen: Normalisiere den Vektor auf HandDistanceOffset
+        // Die Hand wird entlang des Zielvektors nur 0.5m bewegt, um am Körper zu bleiben.
+        handTargetPosition = rayStart + (weaponAimDirection * HandDistanceOffset); // <== IHR GEWÜNSCHTER IK-PUNKT
+    }
+
+    private void UpdateAimTarget()
+    {
+        // 1. Raycast von der Kameramitte, um das ZIEL zu finden (currentAimPosition)
+        Vector3 screenCenter = new(Screen.width / 2, Screen.height / 2, 0);
+        Ray cameraRay = mainCamera.ScreenPointToRay(screenCenter);
+
+        // Die maximale Reichweite des Ziels
+        if (Physics.Raycast(cameraRay, out RaycastHit hit, maxRange, hitMask))
+        {
+            currentAimPosition = hit.point;
+        }
+        else
+        {
+            currentAimPosition = cameraRay.origin + cameraRay.direction * maxRange;
+        }
+
+        // ACHTUNG: Wir führen HIER KEINE Rotation des rightHandIKTarget mehr durch!
+        // rightHandIKTarget dient nur noch als Positionshalter (Offset) für die Hand.
+    }
+
+
     private void Update()
     {
         HandleAim(Input.GetMouseButton(1));
