@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
     public Animator playerAnimator;
 
     private PlayerShooter playerShooter; // <== Neu!
+    private Transform rightHandBone;
 
     void OnAnimatorIK(int layerIndex)
     {
@@ -77,6 +78,10 @@ public class PlayerController : MonoBehaviour
         controller = GetComponent<CharacterController>();
         yaw = transform.eulerAngles.y;
         playerShooter = GetComponent<PlayerShooter>(); // <== Hinzufügen!
+        if (playerAnimator != null)
+        {
+            rightHandBone = playerAnimator.GetBoneTransform(HumanBodyBones.RightHand);
+        }
     }
 
     void Update()

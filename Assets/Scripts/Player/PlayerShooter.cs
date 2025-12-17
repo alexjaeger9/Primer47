@@ -4,8 +4,10 @@ using System.Collections;
 public class PlayerShooter : MonoBehaviour
 {
     public Camera mainCamera;
-    public Transform muzzleTransform;
-    public Transform gunTransform;
+    public Transform muzzleTransform; // Für den Schussstartpunkt
+    public Transform gunTransform;    // Für die Waffe selbst
+
+    // Nur noch Variablen für den Schuss-Effekt/Timing
     public GameObject tracePrefab;
     public float fireRate = 5f;
     public float maxRange = 100f;
@@ -17,78 +19,54 @@ public class PlayerShooter : MonoBehaviour
     private float lastShotTime;
     private bool isAiming;
 
-    [HideInInspector] public Vector3 currentAimPosition; // Das globale Ziel
-    [SerializeField] private Vector3 rightHandGripOffset = new Vector3(0.5f, 1.3f, 0.1f); // X, Y (Höhe), Z
-    public ThirdPersonCamera cameraController;
+    // --- VEREINFACHTE IK/AIMING VARIABLEN ---
+    // Definiert den lokalen Griffpunkt relativ zum Spieler-Pivot.
+    [SerializeField] private Vector3 rightHandGripOffset = new Vector3(0.5f, 1.3f, 0.1f);
+
+    // Die weite Distanz, die den Arm zwingt, sich auszustrecken.
+    private const float HandDistanceOffset = 10f;
+
     [HideInInspector] public Vector3 weaponAimDirection;
-    [HideInInspector] public Vector3 handTargetPosition; // NEU: Die Zielposition der Hand (nah am Körper)
+    [HideInInspector] public Vector3 handTargetPosition;
+    [HideInInspector] public Vector3 currentAimPosition; // Das globale Ziel für LookAt/Shoot-Raycast
+    // ------------------------------------------
 
-    private const float HandDistanceOffset = 10f; // Passt die Reichweite des Arms an
-
+    public ThirdPersonCamera cameraController;
 
     private void LateUpdate()
     {
-        // Die LateUpdate-Methode ist ideal, da die Kamera-Bewegung bereits abgeschlossen ist.
-        UpdateAimTarget();
-        CalculateWeaponAimDirection();
+        CalculateAimingVectors();
     }
 
-    private void CalculateWeaponAimDirection()
+    private void CalculateAimingVectors()
     {
-        // A. Zielpunkt im Raum finden (idealHitTarget)
-        Vector3 screenCenter = new(Screen.width / 2, Screen.height / 2, 0);
-        Ray cameraRay = mainCamera.ScreenPointToRay(screenCenter);
-        Vector3 idealHitTarget;
+        // 1. ZIELRICHTUNG (weaponAimDirection)
+        // Die Zielrichtung der Waffe ist exakt die Vorwärtsrichtung der Kamera.
+        weaponAimDirection = mainCamera.transform.forward;
 
-        if (Physics.Raycast(cameraRay, out RaycastHit cameraHit, maxRange, hitMask))
-        {
-            idealHitTarget = cameraHit.point;
-        }
-        else
-        {
-            idealHitTarget = cameraRay.origin + cameraRay.direction * maxRange;
-        }
 
-        // B. Ursprung für die ZIELRICHTUNG ist die MÜNDUNG (muzzleTransform)
-        Vector3 rayStartForDirection = muzzleTransform.position;
+        // 2. IK-POSITION (handTargetPosition)
 
-        // C. Die Richtung von der Mündung zum Ziel berechnen (weaponAimDirection)
-        weaponAimDirection = (idealHitTarget - rayStartForDirection).normalized;
-
-        // =====================================================================
-        // D. IK-POSITION NEU BERECHNEN (OHNE rightHandIKTarget Transform)
-        // =====================================================================
-
-        // 1. Lokale Basisposition des Griffs relativ zum Spieler
-        // Wir transformieren den Offset (z.B. (0.5, 1.3, 0.1)) in die Weltkoordinaten.
+        // A. Finde die Basisposition des Griffs im Weltraum (transform.position + Lokaler Offset)
         Vector3 gripBasePosition = transform.position + transform.rotation * rightHandGripOffset;
 
-        // 2. Normalisierung: Die IK-Position wird von der Basis aus entlang der Zielrichtung verschoben.
+        // B. Berechne den IK-Zielpunkt: Vom Griff entlang der Zielrichtung um die definierte Distanz.
+        // Dieser Punkt ist stabil und weit entfernt, um die Armrotation zu steuern.
         handTargetPosition = gripBasePosition + (weaponAimDirection * HandDistanceOffset);
-        // **WICHTIG:** Dieser Vektor MUSS zum IK-Zielpunkt werden (IKPosition), 
-        // um den Arm an diese normalisierte Position zu zwingen.
+
+
+        // 3. GLOBALES ZIEL (currentAimPosition)
+        // Dies ist der Punkt in der Welt, auf den der Spieler schießt und hinsieht (für LookAt).
+        // Wir setzen ihn einfach 100 Meter entfernt entlang der Kamera-Richtung.
+        currentAimPosition = mainCamera.transform.position + weaponAimDirection * maxRange;
     }
 
-    private void UpdateAimTarget()
-    {
-        // 1. Raycast von der Kameramitte, um das ZIEL zu finden (currentAimPosition)
-        Vector3 screenCenter = new(Screen.width / 2, Screen.height / 2, 0);
-        Ray cameraRay = mainCamera.ScreenPointToRay(screenCenter);
+    // ... Update, HandleAim, HandleShooting, ResetTickFlags ...
 
-        // Die maximale Reichweite des Ziels
-        if (Physics.Raycast(cameraRay, out RaycastHit hit, maxRange, hitMask))
-        {
-            currentAimPosition = hit.point;
-        }
-        else
-        {
-            currentAimPosition = cameraRay.origin + cameraRay.direction * maxRange;
-        }
-
-        // ACHTUNG: Wir führen HIER KEINE Rotation des rightHandIKTarget mehr durch!
-        // rightHandIKTarget dient nur noch als Positionshalter (Offset) für die Hand.
-    }
-
+    // Die Shoot() Methode benötigt weiterhin Raycasting, um den Treffer zu registrieren, 
+    // verwendet aber die hier berechneten Richtungen und currentAimPosition.
+    // DIESE LOGIK BLEIBT SO WIE SIE IST, da Sie einen Treffer registrieren wollen.
+    // Die Änderung ist, dass die Richtung aus CalculateAimingVectors kommt.
 
     private void Update()
     {
@@ -110,6 +88,7 @@ public class PlayerShooter : MonoBehaviour
         }
     }
 
+    // HIER NUR DER ANFANG DER SHOOT-METHODE, UM ZU ZEIGEN, DASS NUR EINE RAYCASTING-METHODE VERWENDET WIRD.
     private void Shoot()
     {
         firedThisTick = true;
@@ -165,6 +144,7 @@ public class PlayerShooter : MonoBehaviour
             }
         }
     }
+
 
     public void ResetTickFlags()
     {
