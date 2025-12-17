@@ -26,92 +26,43 @@ public class PlayerController : MonoBehaviour
         float ikWeight = 1.0f;
 
         // --- Werte aus PlayerShooter abrufen ---
+        // ikPosition ist jetzt der normalisierte Punkt (HandDistanceOffset entfernt vom Griff)
         Vector3 ikPosition = playerShooter.handTargetPosition;
         Vector3 aimDirection = playerShooter.weaponAimDirection;
 
-
         // =======================================================
-        // NEUER, KORREKTER ROTATIONSANSATZ
+        // 1. IK BERECHNUNG & ANWENDEN
         // =======================================================
 
-        // 1. Definiere die Vorwärts-Richtung (Z-Achse der Hand)
-        // Sie soll in die Zielrichtung zeigen (aimDirection).
-        Vector3 forward = aimDirection;
-
-        // 2. Definiere die Up-Richtung (Y-Achse der Hand)
-        // Für die rechte Hand sollte die 'Up'-Achse senkrecht zur Schussrichtung
-        // und typischerweise in Richtung des Handgelenks/Armes zeigen.
-
-        // Wir verwenden die lokale Rechts-Achse des Spielers als Orientierung
-        // und drehen sie, um die Handfläche zur Waffe zu halten.
-        // Die Up-Achse des Griffs muss quer zur Wussrichtung stehen.
-        Vector3 up = transform.up; // Startwert: Welt-Up
-
-        // Da die Z-Achse (forward) gesetzt ist, muss die Y-Achse (up) so gedreht werden, 
-        // dass sie senkrecht zu 'forward' steht, aber die natürliche Haltung der Hand beibehält.
-
-        // Bessere Variante: Nimm die Up-Achse der Kamera/des Spielers, 
-        // und korrigiere sie, damit sie senkrecht zur Schussrichtung steht.
-
-        // **Wir müssen die Y- und Z-Achsen der Handknochen vertauschen, die LookRotation standardmäßig annimmt.**
-
-        // Quaternion.LookRotation erwartet: Z-Achse = forward, Y-Achse = up.
-        // Für die Waffe muss die Hand-Z-Achse die Waffe halten.
-
-        // Variante A (Die professionellste): Wir definieren die Achsen explizit.
+        // Rotation: Hand dreht sich in die präzise Zielrichtung.
         Vector3 desiredForward = aimDirection;
-        Vector3 desiredUp = transform.up; // Der Handrücken soll nach oben zeigen (relativ zur Welt)
-
-        // ABER: Wenn die Hand verdreht ist, liegt es daran, dass die Up-Achse nicht stimmt.
-        // Die 'Up'-Achse des Handknochens muss beim Griff typischerweise in Richtung der Finger zeigen.
-        // Korrektur: Die 'Up'-Achse der Hand muss die Waffe halten (meist die 'Links'-Achse des Arms).
-
-        // Nutzen wir die LookRotation-Überladung mit der Up-Richtung:
-        // Der Vektor, der die Handfläche definiert. Für die rechte Hand sollte der Daumen nach oben zeigen.
-        // Wir nehmen die Up-Richtung der Kamera, die in die Blickrichtung rotiert ist.
         Vector3 desiredRightHandUp = playerShooter.mainCamera.transform.up;
-
         Quaternion targetRotation = Quaternion.LookRotation(desiredForward, desiredRightHandUp);
 
-        // Jetzt der WICHTIGSTE Fix: Die Rotation der Hand anpassen, damit die Hand die Waffe hält.
-        // Der Offset ist nicht statisch, sondern basiert auf den Achsen der Hand im Vergleich zur Waffe.
-        // Für die Hand-IK ist die X-Achse meist die Daumenachse, Z die Schussrichtung, Y die Krümmung.
 
-        // Daumen muss nach oben zeigen: Wir rotieren um die Z-Achse, damit die Handfläche nach hinten zeigt
-        // und rotieren um die X-Achse, um die Waffe auszurichten.
-
-        // Der notwendige Korrektur-Offset, der das 'Grip'-Problem behebt, ist NICHT mehr statisch zur Welt, 
-        // sondern statisch zur LookRotation.
-
-        // **VERSUCHEN SIE DIESEN SPEZIFISCHEN OFFSET (Der häufigste Fix für Hands-IK):**
-        // X = 0 (Kein Pitch), Y = -90 (Dreht die Waffe in die Handfläche), Z = 90 (Legt die Hand flach auf die Waffe)
-        //Quaternion gripOffset = Quaternion.Euler(0, 90f, 0f);
-
-        // Wenn -90/90 nicht klappt, versuchen Sie 0/90 oder 0/-90.
-        // Quaternion gripOffset = Quaternion.Euler(0, 0, 90f); 
-
-        //targetRotation *= gripOffset;
-
-
-        // =======================================================
-        // RECHTE HAND ANWENDEN
-        // =======================================================
-
+        // IK POSITION: Die IK Position ist der normalisierte Punkt (handTargetPosition).
+        // Dies zwingt den ARM zur korrigierten Position im Nahbereich.
         playerAnimator.SetIKPosition(AvatarIKGoal.RightHand, ikPosition);
         playerAnimator.SetIKPositionWeight(AvatarIKGoal.RightHand, ikWeight);
 
+        // IK ROTATION: Die Hand dreht sich, um die Waffe auszurichten.
         playerAnimator.SetIKRotation(AvatarIKGoal.RightHand, targetRotation);
         playerAnimator.SetIKRotationWeight(AvatarIKGoal.RightHand, ikWeight);
 
 
         // =======================================================
-        // Waffe an die Hand binden (Muss an die Hand gebunden werden)
-        // Die Waffe folgt dem IK-Target, das jetzt an der IK-Position ist.
-        // Wir setzen die Waffe direkt auf die berechnete IK-Position und -Rotation.
+        // 2. WAFFE BINDEN (An die Hand gebunden)
+        // =======================================================
         if (playerShooter.gunTransform != null)
         {
-            playerShooter.gunTransform.position = ikPosition; // Die Waffe geht zur Handposition
-            playerShooter.gunTransform.rotation = targetRotation; // Die Waffe zeigt in die Zielrichtung
+            // 1. Hole die aktuelle (durch IK verschobene) Handposition des Models.
+            Transform rightHandBone = playerAnimator.GetBoneTransform(HumanBodyBones.RightHand);
+
+            // 2. POSITION: Waffe folgt der Handposition.
+            playerShooter.gunTransform.position = rightHandBone.position;
+
+            // 3. ROTATION: Waffe folgt der berechneten IK-Rotation.
+            playerShooter.gunTransform.rotation = targetRotation;
         }
 
         // =======================================================

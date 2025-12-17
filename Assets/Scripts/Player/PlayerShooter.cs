@@ -18,14 +18,12 @@ public class PlayerShooter : MonoBehaviour
     private bool isAiming;
 
     [HideInInspector] public Vector3 currentAimPosition; // Das globale Ziel
-    public Transform rightHandIKTarget; // <== Im Inspector zuweisen!
-
+    [SerializeField] private Vector3 rightHandGripOffset = new Vector3(0.5f, 1.3f, 0.1f); // X, Y (Höhe), Z
     public ThirdPersonCamera cameraController;
-
     [HideInInspector] public Vector3 weaponAimDirection;
     [HideInInspector] public Vector3 handTargetPosition; // NEU: Die Zielposition der Hand (nah am Körper)
 
-    private const float HandDistanceOffset = 3f; // Passt die Reichweite des Arms an
+    private const float HandDistanceOffset = 10f; // Passt die Reichweite des Arms an
 
 
     private void LateUpdate()
@@ -37,7 +35,7 @@ public class PlayerShooter : MonoBehaviour
 
     private void CalculateWeaponAimDirection()
     {
-        // A. Zielpunkt im Raum finden (wie in UpdateAimTarget)
+        // A. Zielpunkt im Raum finden (idealHitTarget)
         Vector3 screenCenter = new(Screen.width / 2, Screen.height / 2, 0);
         Ray cameraRay = mainCamera.ScreenPointToRay(screenCenter);
         Vector3 idealHitTarget;
@@ -51,16 +49,24 @@ public class PlayerShooter : MonoBehaviour
             idealHitTarget = cameraRay.origin + cameraRay.direction * maxRange;
         }
 
-        // B. Der Ursprung der IK-Kette (wo die Hand ist)
-        // Wir verwenden das IKTarget, das die Waffe hält, als Startpunkt.
-        Vector3 rayStart = rightHandIKTarget.position;
+        // B. Ursprung für die ZIELRICHTUNG ist die MÜNDUNG (muzzleTransform)
+        Vector3 rayStartForDirection = muzzleTransform.position;
 
-        // C. Die Richtung von der Hand zum Ziel berechnen (Zielrichtung)
-        weaponAimDirection = (idealHitTarget - rayStart).normalized;
+        // C. Die Richtung von der Mündung zum Ziel berechnen (weaponAimDirection)
+        weaponAimDirection = (idealHitTarget - rayStartForDirection).normalized;
 
-        // D. Die IK-Position berechnen: Normalisiere den Vektor auf HandDistanceOffset
-        // Die Hand wird entlang des Zielvektors nur 0.5m bewegt, um am Körper zu bleiben.
-        handTargetPosition = rayStart + (weaponAimDirection * HandDistanceOffset); // <== IHR GEWÜNSCHTER IK-PUNKT
+        // =====================================================================
+        // D. IK-POSITION NEU BERECHNEN (OHNE rightHandIKTarget Transform)
+        // =====================================================================
+
+        // 1. Lokale Basisposition des Griffs relativ zum Spieler
+        // Wir transformieren den Offset (z.B. (0.5, 1.3, 0.1)) in die Weltkoordinaten.
+        Vector3 gripBasePosition = transform.position + transform.rotation * rightHandGripOffset;
+
+        // 2. Normalisierung: Die IK-Position wird von der Basis aus entlang der Zielrichtung verschoben.
+        handTargetPosition = gripBasePosition + (weaponAimDirection * HandDistanceOffset);
+        // **WICHTIG:** Dieser Vektor MUSS zum IK-Zielpunkt werden (IKPosition), 
+        // um den Arm an diese normalisierte Position zu zwingen.
     }
 
     private void UpdateAimTarget()
