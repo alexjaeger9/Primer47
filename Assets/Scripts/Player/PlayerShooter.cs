@@ -4,69 +4,20 @@ using System.Collections;
 public class PlayerShooter : MonoBehaviour
 {
     public Camera mainCamera;
-    public Transform muzzleTransform; // Für den Schussstartpunkt
-    public Transform gunTransform;    // Für die Waffe selbst
+    public Animator playerAnimator;
+    public Transform muzzleTransform;
+    public Transform gunTransform;
 
-    // Nur noch Variablen für den Schuss-Effekt/Timing
     public GameObject tracePrefab;
     public float fireRate = 5f;
     public float maxRange = 100f;
     public LayerMask hitMask;
     public float trailDuration = 0.1f;
+    private float lastShotTime;
     [HideInInspector] public bool firedThisTick;
     [HideInInspector] public Vector3 recordedMuzzlePosition;
     [HideInInspector] public Vector3 recordedFireDirection;
-    private float lastShotTime;
-    private bool isAiming;
-
-    // --- VEREINFACHTE IK/AIMING VARIABLEN ---
-    // Definiert den lokalen Griffpunkt relativ zum Spieler-Pivot.
-    [SerializeField] private Vector3 rightHandGripOffset = new Vector3(0.5f, 1.3f, 0.1f);
-
-    // Die weite Distanz, die den Arm zwingt, sich auszustrecken.
-    private const float HandDistanceOffset = 10f;
-
-    [HideInInspector] public Vector3 weaponAimDirection;
-    [HideInInspector] public Vector3 handTargetPosition;
-    [HideInInspector] public Vector3 currentAimPosition; // Das globale Ziel für LookAt/Shoot-Raycast
-    // ------------------------------------------
-
-    public ThirdPersonCamera cameraController;
-
-    private void LateUpdate()
-    {
-        CalculateAimingVectors();
-    }
-
-    private void CalculateAimingVectors()
-    {
-        // 1. ZIELRICHTUNG (weaponAimDirection)
-        // Die Zielrichtung der Waffe ist exakt die Vorwärtsrichtung der Kamera.
-        weaponAimDirection = mainCamera.transform.forward;
-
-
-        // 2. IK-POSITION (handTargetPosition)
-
-        // A. Finde die Basisposition des Griffs im Weltraum (transform.position + Lokaler Offset)
-        Vector3 gripBasePosition = transform.position + transform.rotation * rightHandGripOffset;
-
-        // B. Berechne den IK-Zielpunkt: Vom Griff entlang der Zielrichtung um die definierte Distanz.
-        // Dieser Punkt ist stabil und weit entfernt, um die Armrotation zu steuern.
-        handTargetPosition = gripBasePosition + (weaponAimDirection * HandDistanceOffset);
-
-
-        // 3. GLOBALES ZIEL (currentAimPosition)
-        // Dies ist der Punkt in der Welt, auf den der Spieler schießt und hinsieht (für LookAt).
-        // Wir setzen ihn einfach 100 Meter entfernt entlang der Kamera-Richtung.
-        currentAimPosition = mainCamera.transform.position + weaponAimDirection * maxRange;
-    }
-
-    // ... Update, HandleAim, HandleShooting, ResetTickFlags ...
-
-    // Die Shoot() Methode benötigt weiterhin Raycasting, um den Treffer zu registrieren, 
-    // verwendet aber die hier berechneten Richtungen und currentAimPosition.
-    // DIESE LOGIK BLEIBT SO WIE SIE IST, da Sie einen Treffer registrieren wollen.
-    // Die Änderung ist, dass die Richtung aus CalculateAimingVectors kommt.
+    [HideInInspector] public bool isAiming; // später für Kamera
 
     private void Update()
     {
@@ -88,7 +39,6 @@ public class PlayerShooter : MonoBehaviour
         }
     }
 
-    // HIER NUR DER ANFANG DER SHOOT-METHODE, UM ZU ZEIGEN, DASS NUR EINE RAYCASTING-METHODE VERWENDET WIRD.
     private void Shoot()
     {
         firedThisTick = true;
@@ -125,12 +75,9 @@ public class PlayerShooter : MonoBehaviour
         else
         {
             finalHitTarget = idealHitTarget;
-            if (cameraHit.collider != null)
+            if (cameraHit.collider != null && cameraHit.collider.TryGetComponent<GhostHealth>(out var enemyHealth))
             {
-                if (cameraHit.collider.TryGetComponent<GhostHealth>(out var enemyHealth))
-                {
-                    enemyHealth.TakeHit();
-                }
+                enemyHealth.TakeHit();
             }
         }
         if (tracePrefab != null)
@@ -145,6 +92,29 @@ public class PlayerShooter : MonoBehaviour
         }
     }
 
+    private void OnAnimatorIK(int layerIndex)
+    {
+        // Vektorberechnung
+        Vector3 weaponAimDirection = mainCamera.transform.forward;
+        Vector3 currentAimPosition = mainCamera.transform.position + weaponAimDirection * maxRange;
+
+        if (playerAnimator == null) return;
+
+        float ikWeight = 1.0f;
+
+        // Set Hand IK
+        playerAnimator.SetIKPositionWeight(AvatarIKGoal.RightHand, ikWeight);
+        playerAnimator.SetIKPosition(AvatarIKGoal.RightHand, currentAimPosition);
+
+        // Rotation
+        Quaternion targetRotation = Quaternion.LookRotation(weaponAimDirection, mainCamera.transform.up);
+        playerAnimator.SetIKRotationWeight(AvatarIKGoal.RightHand, ikWeight);
+        playerAnimator.SetIKRotation(AvatarIKGoal.RightHand, targetRotation);
+
+        // Blickrichtung
+        playerAnimator.SetLookAtWeight(ikWeight, 0.8f, 1.0f, 1.0f);
+        playerAnimator.SetLookAtPosition(currentAimPosition);
+    }
 
     public void ResetTickFlags()
     {

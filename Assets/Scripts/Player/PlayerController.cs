@@ -12,76 +12,13 @@ public class PlayerController : MonoBehaviour
     private Vector3 moveDirection;
     private float yaw;
     [HideInInspector] public bool jumpedThisTick;
+
     public Animator playerAnimator;
-
-    private PlayerShooter playerShooter; // <== Neu!
-    private Transform rightHandBone;
-
-    void OnAnimatorIK(int layerIndex)
-    {
-        if (playerAnimator == null || playerShooter == null)
-        {
-            return;
-        }
-
-        float ikWeight = 1.0f;
-
-        // --- Werte aus PlayerShooter abrufen ---
-        // ikPosition ist jetzt der normalisierte Punkt (HandDistanceOffset entfernt vom Griff)
-        Vector3 ikPosition = playerShooter.handTargetPosition;
-        Vector3 aimDirection = playerShooter.weaponAimDirection;
-
-        // =======================================================
-        // 1. IK BERECHNUNG & ANWENDEN
-        // =======================================================
-
-        // Rotation: Hand dreht sich in die präzise Zielrichtung.
-        Vector3 desiredForward = aimDirection;
-        Vector3 desiredRightHandUp = playerShooter.mainCamera.transform.up;
-        Quaternion targetRotation = Quaternion.LookRotation(desiredForward, desiredRightHandUp);
-
-
-        // IK POSITION: Die IK Position ist der normalisierte Punkt (handTargetPosition).
-        // Dies zwingt den ARM zur korrigierten Position im Nahbereich.
-        playerAnimator.SetIKPosition(AvatarIKGoal.RightHand, ikPosition);
-        playerAnimator.SetIKPositionWeight(AvatarIKGoal.RightHand, ikWeight);
-
-        // IK ROTATION: Die Hand dreht sich, um die Waffe auszurichten.
-        playerAnimator.SetIKRotation(AvatarIKGoal.RightHand, targetRotation);
-        playerAnimator.SetIKRotationWeight(AvatarIKGoal.RightHand, ikWeight);
-
-
-        // =======================================================
-        // 2. WAFFE BINDEN (An die Hand gebunden)
-        // =======================================================
-        if (playerShooter.gunTransform != null)
-        {
-            // 1. Hole die aktuelle (durch IK verschobene) Handposition des Models.
-            Transform rightHandBone = playerAnimator.GetBoneTransform(HumanBodyBones.RightHand);
-
-            // 2. POSITION: Waffe folgt der Handposition.
-            playerShooter.gunTransform.position = rightHandBone.position;
-
-            // 3. ROTATION: Waffe folgt der berechneten IK-Rotation.
-            playerShooter.gunTransform.rotation = targetRotation;
-        }
-
-        // =======================================================
-        // KOPF
-        // =======================================================
-        playerAnimator.SetLookAtWeight(ikWeight, 0.3f, 0.5f, 0.5f);
-        playerAnimator.SetLookAtPosition(playerShooter.currentAimPosition);
-    }
 
     void Awake()
     {
         controller = GetComponent<CharacterController>();
         yaw = transform.eulerAngles.y;
-        playerShooter = GetComponent<PlayerShooter>(); // <== Hinzufügen!
-        if (playerAnimator != null)
-        {
-            rightHandBone = playerAnimator.GetBoneTransform(HumanBodyBones.RightHand);
-        }
     }
 
     void Update()
