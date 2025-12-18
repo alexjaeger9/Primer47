@@ -50,6 +50,9 @@ public class PlayerRecorder : MonoBehaviour
 
     private void CaptureFrame()
     {
+        Vector3 weaponAimDirection = thirdPersonCamera.transform.forward;
+        Vector3 currentAimTarget = thirdPersonCamera.transform.position + weaponAimDirection * 100f; // 100f = maxRange
+
         RecordedFrame frame = new RecordedFrame
         {
             time = currentTime,
@@ -57,7 +60,13 @@ public class PlayerRecorder : MonoBehaviour
             rotation = transform.rotation,
             pitch = thirdPersonCamera.pitch,
             fired = playerShooter.firedThisTick,
-            jumped = playerController.jumpedThisTick
+            jumped = playerController.jumpedThisTick,
+
+            moveX = playerController.playerAnimator.GetFloat("MoveX"),
+            moveY = playerController.playerAnimator.GetFloat("MoveY"),
+            isFalling = playerController.playerAnimator.GetBool("isFalling"),
+            isGrounded = playerController.playerAnimator.GetBool("isGrounded"),
+            aimTargetPosition = currentAimTarget
         };
         if (frame.fired)
         {

@@ -261,7 +261,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   playerPrefab: {fileID: 2954327873741449940, guid: d5c30533bcbc45943aa40069d2002c32, type: 3}
-  ghostPrefab: {fileID: 8932452957256693822, guid: 7b8a63d1cf781b44ca391307f6eeaaac, type: 3}
+  ghostPrefab: {fileID: 2954327873741449940, guid: 34e5b9b86589fe54e9b997d2ef6501f8, type: 3}
   playerSpawnPoint: {fileID: 589791807}
   targetSpawnPoint: {fileID: 1557646529}
   currentLoopIndex: 0

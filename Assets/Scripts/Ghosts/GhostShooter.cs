@@ -3,12 +3,12 @@ using System.Collections;
 
 public class GhostShooter : MonoBehaviour
 {
-    public Transform muzzleTransform;
+    //public Transform muzzleTransform;
     public LayerMask hitMask;
     public float maxRange = 100f;
     public GameObject tracePrefab;
     public float traceDuration = 0.1f;
-    public Transform pitchTarget;
+    //public Transform pitchTarget;
 
     public void ShootFromReplay(Vector3 savedMuzzlePosition, Vector3 savedDirection)
     {
