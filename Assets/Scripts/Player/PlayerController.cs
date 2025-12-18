@@ -67,7 +67,10 @@ public class PlayerController : MonoBehaviour
 
         //Debug.Log("MoveX: " + horizontal + " MoveY: "+vertical);
 
+        bool grounded = controller.isGrounded;
+        playerAnimator.SetBool("isGrounded", grounded);
 
+        Debug.Log("MoveX:: "+ horizontal + " MoveY: " + vertical);
 
         /*
         // 3. Sprung/Fall-Animationen (Logik aus HandleGravityAndJump)
