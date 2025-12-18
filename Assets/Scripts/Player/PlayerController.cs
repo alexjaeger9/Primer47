@@ -3,7 +3,9 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private float moveSpeed = 6f;
+    public Animator playerAnimator;
+    [SerializeField] private float runSpeed = 4f;
+    [SerializeField] private float sprintSpeed = 6f;
     [SerializeField] private float jumpForce = 7f;
     [SerializeField] private float gravity = -9.81f;
     [SerializeField] private float mouseSensitivity = 200f;
@@ -11,14 +13,16 @@ public class PlayerController : MonoBehaviour
     private Vector3 velocity;
     private Vector3 moveDirection;
     private float yaw;
+    private float currentSpeed;
     [HideInInspector] public bool jumpedThisTick;
 
-    public Animator playerAnimator;
+    
 
     void Awake()
     {
         controller = GetComponent<CharacterController>();
         yaw = transform.eulerAngles.y;
+        currentSpeed = runSpeed;
     }
 
     void Update()
@@ -28,7 +32,7 @@ public class PlayerController : MonoBehaviour
         HandleGravityAndJump();
         HandleAnimation();
         jumpedThisTick = false;
-        Vector3 finalMovement = (moveDirection * moveSpeed) + new Vector3(0, velocity.y, 0);
+        Vector3 finalMovement = (moveDirection * currentSpeed) + new Vector3(0, velocity.y, 0);
         controller.Move(finalMovement * Time.deltaTime);
     }
 
@@ -43,6 +47,11 @@ public class PlayerController : MonoBehaviour
     {
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
+        
+        bool isSprinting = false;
+        if(vertical >= 0f) isSprinting = Input.GetKey(KeyCode.LeftShift);
+        currentSpeed = isSprinting ? sprintSpeed : runSpeed;
+
         Vector3 inputDir = new(horizontal, 0f, vertical);
         if (inputDir.sqrMagnitude < 0.001f)
         {
@@ -52,69 +61,63 @@ public class PlayerController : MonoBehaviour
         moveDirection = transform.rotation * inputDir.normalized;
     }
 
-    void HandleAnimation()
-    {
-        if (playerAnimator == null) return;
-
-        // 1. Die rohen Input-Werte holen (wie in HandleMovementInput)
-        float horizontal = Input.GetAxisRaw("Horizontal");
-        float vertical = Input.GetAxisRaw("Vertical");
-
-        // 2. Bewegungsparameter im Animator setzen
-        // Diese Werte steuern den 2D Blend Tree
-        playerAnimator.SetFloat("MoveX", horizontal);
-        playerAnimator.SetFloat("MoveY", vertical);
-
-        //Debug.Log("MoveX: " + horizontal + " MoveY: "+vertical);
-
-        bool grounded = controller.isGrounded;
-        playerAnimator.SetBool("isGrounded", grounded);
-
-        Debug.Log("MoveX:: "+ horizontal + " MoveY: " + vertical);
-
-        /*
-        // 3. Sprung/Fall-Animationen (Logik aus HandleGravityAndJump)
-        bool grounded = controller.isGrounded;
-
-        // Verwenden Sie die Sprung- und Fall-Logik aus dem vorherigen Schritt
-        if (!grounded)
-        {
-            // Wenn man fällt oder hochsteigt
-            playerAnimator.SetBool("IsFalling", true);
-        }
-        else
-        {
-            playerAnimator.SetBool("IsFalling", false);
-              if (jumpedThisTick)
-            {
-            // Trigger für den Sprung
-            playerAnimator.SetTrigger("JumpTrigger");
-            }
-            
-        }*/
-
-        // Beachten Sie, dass Sie hier die `jumpedThisTick` Flagge aus Ihrem Code nutzen!
-    }
-
     void HandleGravityAndJump()
     {
         bool grounded = controller.isGrounded;
-        if (grounded)
+
+        bool nearGround = false;
+        if (!grounded && velocity.y < 0) nearGround = Physics.Raycast(transform.position, Vector3.down, 1.25f);
+        if (grounded || nearGround)
         {
+            if (playerAnimator.GetBool("isFalling"))
+            {
+                playerAnimator.SetBool("isFalling", false);
+                playerAnimator.SetTrigger("Land");
+                Debug.Log("Landung JETZT: " + velocity.y);
+            }
+
             if (velocity.y < 0)
             {
                 velocity.y = -2f;
             }
+
             if (Input.GetButtonDown("Jump"))
             {
                 velocity.y = jumpForce;
+                playerAnimator.SetTrigger("Jump");
+                playerAnimator.SetBool("isFalling", false);
                 jumpedThisTick = true;
-                playerAnimator.SetTrigger("JumpTrigger");
             }
         }
         else
         {
             velocity.y += gravity * Time.deltaTime;
+
+            // Erst bei einer gewissen Fallgeschwindigkeit das Falling aktivieren
+            // -3f bis -4f ist gut, um nicht bei Treppenstufen zu "fallen"
+            if (velocity.y < -3f)
+            {
+                playerAnimator.SetBool("isFalling", true);
+            }
         }
+    }
+
+    void HandleAnimation()
+    {
+        if (playerAnimator == null) return;
+
+        float h = Input.GetAxisRaw("Horizontal");
+        float v = Input.GetAxisRaw("Vertical");
+
+        bool isSprinting = false;
+        if (v >= 0f) isSprinting = Input.GetKey(KeyCode.LeftShift) && (h != 0 || v != 0);
+        float multiplier = isSprinting ? 2f : 1f;
+        float targetX = h * multiplier;
+        float targetY = v * multiplier;
+
+        playerAnimator.SetFloat("MoveX", targetX, 0.1f, Time.deltaTime);
+        playerAnimator.SetFloat("MoveY", targetY, 0.1f, Time.deltaTime);
+
+        playerAnimator.SetBool("isGrounded", controller.isGrounded);
     }
 }
