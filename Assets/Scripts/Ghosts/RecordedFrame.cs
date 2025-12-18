@@ -12,4 +12,11 @@ public struct RecordedFrame
     public bool jumped;
     public Vector3 fireMuzzlePosition;
     public Vector3 fireDirection;
+
+    // NEU: Animationsdaten
+    public float moveX;
+    public float moveY;
+    public bool isFalling;
+    public bool isGrounded;
+    public Vector3 aimTargetPosition;
 }

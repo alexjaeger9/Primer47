@@ -4,18 +4,20 @@ using System.Collections;
 public class PlayerShooter : MonoBehaviour
 {
     public Camera mainCamera;
+    public Animator playerAnimator;
     public Transform muzzleTransform;
     public Transform gunTransform;
+
     public GameObject tracePrefab;
     public float fireRate = 5f;
     public float maxRange = 100f;
     public LayerMask hitMask;
     public float trailDuration = 0.1f;
+    private float lastShotTime;
     [HideInInspector] public bool firedThisTick;
     [HideInInspector] public Vector3 recordedMuzzlePosition;
     [HideInInspector] public Vector3 recordedFireDirection;
-    private float lastShotTime;
-    private bool isAiming;
+    [HideInInspector] public bool isAiming; // später für Kamera
 
     private void Update()
     {
@@ -73,12 +75,9 @@ public class PlayerShooter : MonoBehaviour
         else
         {
             finalHitTarget = idealHitTarget;
-            if (cameraHit.collider != null)
+            if (cameraHit.collider != null && cameraHit.collider.TryGetComponent<GhostHealth>(out var enemyHealth))
             {
-                if (cameraHit.collider.TryGetComponent<GhostHealth>(out var enemyHealth))
-                {
-                    enemyHealth.TakeHit();
-                }
+                enemyHealth.TakeHit();
             }
         }
         if (tracePrefab != null)
@@ -91,6 +90,30 @@ public class PlayerShooter : MonoBehaviour
                 movement.destroyDelay = trailDuration;
             }
         }
+    }
+
+    private void OnAnimatorIK(int layerIndex)
+    {
+        // Vektorberechnung
+        Vector3 weaponAimDirection = mainCamera.transform.forward;
+        Vector3 currentAimPosition = mainCamera.transform.position + weaponAimDirection * maxRange;
+
+        if (playerAnimator == null) return;
+
+        float ikWeight = 1.0f;
+
+        // Set Hand IK
+        playerAnimator.SetIKPositionWeight(AvatarIKGoal.RightHand, ikWeight);
+        playerAnimator.SetIKPosition(AvatarIKGoal.RightHand, currentAimPosition);
+
+        // Rotation
+        Quaternion targetRotation = Quaternion.LookRotation(weaponAimDirection, mainCamera.transform.up);
+        playerAnimator.SetIKRotationWeight(AvatarIKGoal.RightHand, ikWeight);
+        playerAnimator.SetIKRotation(AvatarIKGoal.RightHand, targetRotation);
+
+        // Blickrichtung
+        playerAnimator.SetLookAtWeight(ikWeight, 0.8f, 1.0f, 1.0f);
+        playerAnimator.SetLookAtPosition(currentAimPosition);
     }
 
     public void ResetTickFlags()
