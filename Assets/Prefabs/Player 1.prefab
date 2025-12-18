@@ -1070,7 +1070,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d29ac9a1d24cbb4391055ea89d06593, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerRecorder
-  recordTickRate: 20
+  recordTickRate: 1000
   currentRunData:
     frames: []
     duration: 0

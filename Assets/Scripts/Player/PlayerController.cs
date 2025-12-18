@@ -31,7 +31,7 @@ public class PlayerController : MonoBehaviour
         HandleMovementInput();
         HandleGravityAndJump();
         HandleAnimation();
-        jumpedThisTick = false;
+        //jumpedThisTick = false;
         Vector3 finalMovement = (moveDirection * currentSpeed) + new Vector3(0, velocity.y, 0);
         controller.Move(finalMovement * Time.deltaTime);
     }
@@ -73,7 +73,7 @@ public class PlayerController : MonoBehaviour
             {
                 playerAnimator.SetBool("isFalling", false);
                 playerAnimator.SetTrigger("Land");
-                Debug.Log("Landung JETZT: " + velocity.y);
+                //Debug.Log("Landung JETZT: " + velocity.y);
             }
 
             if (velocity.y < 0)
@@ -100,6 +100,7 @@ public class PlayerController : MonoBehaviour
                 playerAnimator.SetBool("isFalling", true);
             }
         }
+        //Debug.Log(playerAnimator.GetBool("isFalling"));
     }
 
     void HandleAnimation()

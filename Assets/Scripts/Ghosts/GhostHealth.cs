@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class GhostHealth : MonoBehaviour
 {
-    private Renderer enemyRenderer;
+    public Renderer enemyRenderer;
 
     void Awake()
     {
-        enemyRenderer = GetComponent<Renderer>();
+        //enemyRenderer = GetComponent<Renderer>();
         if (enemyRenderer != null)
         {
             enemyRenderer.material.color = Color.red;

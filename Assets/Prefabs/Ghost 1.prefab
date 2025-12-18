@@ -855,6 +855,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2d9fbe47fadf424687b23a80de41a24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GhostHealth
+  enemyRenderer: {fileID: 7525410062533398105}
 --- !u!114 &-7041864263910365551
 MonoBehaviour:
   m_ObjectHideFlags: 0

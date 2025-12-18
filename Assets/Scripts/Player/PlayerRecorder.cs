@@ -68,6 +68,9 @@ public class PlayerRecorder : MonoBehaviour
             isGrounded = playerController.playerAnimator.GetBool("isGrounded"),
             aimTargetPosition = currentAimTarget
         };
+
+        if (playerController.jumpedThisTick) playerController.jumpedThisTick = false;
+
         if (frame.fired)
         {
             frame.fireMuzzlePosition = playerShooter.recordedMuzzlePosition;

@@ -32,49 +32,55 @@ public class GhostController : MonoBehaviour
 
     private void UpdatePlayback()
     {
+        // --- TEIL A: Einmalige Ereignisse (Trigger) ---
+        // Alles was in der while-Schleife passiert, wird exakt so oft ausgeführt, wie es aufgenommen wurde
         while (currentFrameIndex < runData.frames.Count - 1 && currentTime >= runData.frames[currentFrameIndex + 1].time)
         {
             RecordedFrame frame = runData.frames[currentFrameIndex];
+
+            // Schießen
             if (frame.fired)
             {
                 ghostShooter.ShootFromReplay(frame.fireMuzzlePosition, frame.fireDirection);
             }
+
+            // JUMP hierhin verschieben! 
+            // So wird der Trigger exakt EINMAL pro aufgenommenem Sprung gefeuert.
+            if (frame.jumped && ghostAnimator != null)
+            {
+                ghostAnimator.SetBool("isFalling", false);
+                ghostAnimator.SetTrigger("Jump");
+                Debug.Log("JumpTRIGGER");
+            }
+
+            // LANDUNG Logik innerhalb der Ticks prüfen
+            RecordedFrame nextFrame = runData.frames[currentFrameIndex + 1];
+            if (frame.isFalling && !nextFrame.isFalling)
+            {
+                ghostAnimator.SetTrigger("Land");
+            }
+
             currentFrameIndex++;
         }
 
-        if (currentFrameIndex >= runData.frames.Count - 1)
-        {
-            return;
-        }
+        if (currentFrameIndex >= runData.frames.Count - 1) return;
+
+        // --- TEIL B: Kontinuierliche Werte (Lerp & Bools) ---
         RecordedFrame a = runData.frames[currentFrameIndex];
         RecordedFrame b = runData.frames[currentFrameIndex + 1];
         float t = Mathf.InverseLerp(a.time, b.time, currentTime);
+
         transform.position = Vector3.Lerp(a.position, b.position, t);
         transform.rotation = Quaternion.Slerp(a.rotation, b.rotation, t);
 
-        // 2. Animationen synchronisieren
         if (ghostAnimator != null)
         {
-            // Floats interpolieren wir für flüssige Übergänge
             ghostAnimator.SetFloat("MoveX", Mathf.Lerp(a.moveX, b.moveX, t));
             ghostAnimator.SetFloat("MoveY", Mathf.Lerp(a.moveY, b.moveY, t));
 
-            // Bools übernehmen wir vom aktuellen Frame
+            // Bools setzen wir hier permanent (Zustände)
             ghostAnimator.SetBool("isFalling", a.isFalling);
-            ghostAnimator.SetBool("isGrounded", a.isGrounded);
-
-            // Trigger (Jump/Land)
-            if (a.jumped) ghostAnimator.SetTrigger("Jump");
-
-            // Logik für Landung: Wenn im letzten Frame falling war und jetzt nicht mehr
-            if (a.isFalling && !b.isFalling) ghostAnimator.SetTrigger("Land");
         }
-
-        /*float pitch = Mathf.Lerp(a.pitch, b.pitch, t);
-        if (pitchTarget != null)
-        {
-            pitchTarget.localRotation = Quaternion.Euler(pitch, 0f, 0f);
-        }*/
 
         currentIKTarget = Vector3.Lerp(a.aimTargetPosition, b.aimTargetPosition, t);
     }
