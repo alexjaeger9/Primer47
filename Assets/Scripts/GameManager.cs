@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     public List<RunData> allRuns = new List<RunData>();
     public List<GhostHealth> activeGhosts = new List<GhostHealth>();
     private readonly List<GameObject> allSpawnedGhosts = new List<GameObject>();
+    private GameObject player;
     private PlayerRecorder playerRecorder;
     private PlayerHealth playerHealth;
     private readonly float timeBetweenLoops = 1.0f;
@@ -34,6 +35,7 @@ public class GameManager : MonoBehaviour
 
     public void StartNewGame()
     {
+        ClearGhosts();
         allRuns.Clear();
         currentLoopIndex = 0;
         SpawnPlayer();
@@ -42,7 +44,8 @@ public class GameManager : MonoBehaviour
 
     private void SpawnPlayer()
     {
-        GameObject player = Instantiate(playerPrefab, playerSpawnPoint.position, playerSpawnPoint.rotation);
+        Destroy(player);
+        player = Instantiate(playerPrefab, playerSpawnPoint.position, playerSpawnPoint.rotation);
         playerRecorder = player.GetComponent<PlayerRecorder>();
         playerHealth = player.GetComponent<PlayerHealth>();
         playerHealth.OnPlayerDeath += HandlePlayerDeath;
@@ -108,7 +111,10 @@ public class GameManager : MonoBehaviour
 
     private void GameOver()
     {
-        // TODO:Restart-Option
+        if (playerRecorder != null)
+        {
+            playerRecorder.enabled = false; // Script ausschalten
+        }
         ClearGhosts();
 
         Time.timeScale = 0f;

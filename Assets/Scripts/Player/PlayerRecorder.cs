@@ -15,7 +15,6 @@ public class PlayerRecorder : MonoBehaviour
     {
         playerController = GetComponent<PlayerController>();
         playerShooter = GetComponent<PlayerShooter>();
-        thirdPersonCamera = FindAnyObjectByType<ThirdPersonCamera>();
     }
 
     private void Update()
@@ -33,6 +32,8 @@ public class PlayerRecorder : MonoBehaviour
 
     public void StartRecording()
     {
+        //Camera finden
+        thirdPersonCamera = FindAnyObjectByType<ThirdPersonCamera>();
         currentRunData = new RunData();
         currentTime = 0f;
         timeSinceLastTick = 0f;
@@ -50,6 +51,13 @@ public class PlayerRecorder : MonoBehaviour
 
     private void CaptureFrame()
     {
+        //Safety Check
+        if (thirdPersonCamera == null)
+        {
+            thirdPersonCamera = FindAnyObjectByType<ThirdPersonCamera>();
+            if (thirdPersonCamera == null) return;
+        }
+        
         Vector3 weaponAimDirection = thirdPersonCamera.transform.forward;
         Vector3 currentAimTarget = thirdPersonCamera.transform.position + weaponAimDirection * 100f; // 100f = maxRange
 
