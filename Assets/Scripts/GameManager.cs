@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
     public Transform playerSpawnPoint;
     public Transform targetSpawnPoint;
     [Header("UI")]
-    //public UIManager uiManager;
+    public UIManager uiManager;
     [Header("Game State")]
     public int currentLoopIndex;
     public List<RunData> allRuns = new List<RunData>();
@@ -108,9 +108,11 @@ public class GameManager : MonoBehaviour
 
     private void GameOver()
     {
-        // TODO: GameOver-UI, Restart-Option
-        //uiManager.ShowGameOver();
+        // TODO:Restart-Option
         ClearGhosts();
+
+        Time.timeScale = 0f;
+        uiManager.ShowGameOver();
     }
 
     private void SpawnInitialTarget()

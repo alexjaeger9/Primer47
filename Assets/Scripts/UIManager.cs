@@ -15,4 +15,18 @@ public class UIManager : MonoBehaviour
     {
         gameOverPanel.SetActive(true);
     }
+
+    public void RestartGame()
+    {
+        Time.timeScale = 1f; //Spiel läuft wieder
+        GameManager.Instance.StartNewGame(); //neues Game starten
+        gameOverPanel.SetActive(false); //Overlay deaktivieren
+    }
+
+    //zum Hauptmenü
+    public void LoadMainMenu()
+    {
+        Time.timeScale = 1f; 
+        // TODO: Später Scene laden
+    }
 }
