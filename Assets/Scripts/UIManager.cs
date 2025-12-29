@@ -1,11 +1,15 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class UIManager : MonoBehaviour
 {
     public Text loopText;
     public GameObject gameOverPanel;
     public GameObject pausePanel;
+    public TransitionController transitionController;
+
 
     public void SetLoopText(int loopIndex)
     {
@@ -23,6 +27,12 @@ public class UIManager : MonoBehaviour
 
     public void RestartGame()
     {
+        StartCoroutine(RestartGameWithFade());
+    }
+
+    private IEnumerator RestartGameWithFade()
+    {
+        yield return transitionController.FadeIn(1f);
         Time.timeScale = 1f; //Spiel läuft wieder
         
         //Cursor wieder locken
@@ -32,13 +42,32 @@ public class UIManager : MonoBehaviour
         GameManager.Instance.StartNewGame(); //neues Game starten
         gameOverPanel.SetActive(false); //Overlay deaktivieren
         pausePanel.SetActive(false);
+        GameManager.Instance.StartNewGame();
+    
+        // Kurze Pause damit alles spawnt
+        yield return new WaitForSeconds(0.1f);
+        
+        // MANUELL Fade Out triggern
+        yield return transitionController.FadeOut(1f);
     }
 
     //zum Hauptmenü
     public void LoadMainMenu()
     {
-        Time.timeScale = 1f; 
-        // TODO: Später Scene laden
+        StartCoroutine(LoadMainMenuWithFade());
+    }
+
+    private IEnumerator LoadMainMenuWithFade()
+    {
+        // Fade to Black
+        yield return transitionController.FadeIn(1f);
+        Time.timeScale = 1f;
+        // Cursor freigeben
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        
+        // Scene laden
+        SceneManager.LoadScene("MainMenu");
     }
 
     public void ShowPause()
