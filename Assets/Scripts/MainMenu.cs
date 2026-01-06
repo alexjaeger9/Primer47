@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 public class MainMenu : MonoBehaviour
 {
     public TransitionController transitionController;
+    public SettingsPanel settingsPanel;
 
     public void StartGame()
     {
@@ -13,13 +14,11 @@ public class MainMenu : MonoBehaviour
 
     private IEnumerator StartGameWithFade()
     {
-        // 1 Sekunde Fade to Black
+        //1 Sekunde Fade to Black
         yield return transitionController.FadeIn(1f);
         
-        // Scene laden
+        //Scene laden
         SceneManager.LoadScene("Game");
-        
-        // 1 Sekunde Fade from Black (passiert automatisch im GameManager)
     }
 
     public void QuitGame()
@@ -29,6 +28,6 @@ public class MainMenu : MonoBehaviour
 
     public void OpenSettings()
     {
-        Debug.Log("Settings in Bearbeitung");
+        settingsPanel.OpenSettings();
     }
 }

@@ -32,13 +32,13 @@ public class GhostController : MonoBehaviour
 
     private void UpdatePlayback()
     {
-        // --- TEIL A: Einmalige Ereignisse (Trigger) ---
-        // Alles was in der while-Schleife passiert, wird exakt so oft ausgeführt, wie es aufgenommen wurde
+        // TEIL A: Einmalige Ereignisse (Trigger)
+        // Alles was in der while-Schleife passiert, wird exakt so oft ausgefï¿½hrt, wie es aufgenommen wurde
         while (currentFrameIndex < runData.frames.Count - 1 && currentTime >= runData.frames[currentFrameIndex + 1].time)
         {
             RecordedFrame frame = runData.frames[currentFrameIndex];
 
-            // Schießen
+            // Schiessen
             if (frame.fired)
             {
                 ghostShooter.ShootFromReplay(frame.fireMuzzlePosition, frame.fireDirection);
@@ -53,7 +53,7 @@ public class GhostController : MonoBehaviour
                 Debug.Log("JumpTRIGGER");
             }
 
-            // LANDUNG Logik innerhalb der Ticks prüfen
+            // LANDUNG Logik innerhalb der Ticks prÃ¼fen
             RecordedFrame nextFrame = runData.frames[currentFrameIndex + 1];
             if (frame.isFalling && !nextFrame.isFalling)
             {
@@ -65,7 +65,7 @@ public class GhostController : MonoBehaviour
 
         if (currentFrameIndex >= runData.frames.Count - 1) return;
 
-        // --- TEIL B: Kontinuierliche Werte (Lerp & Bools) ---
+        // TEIL B: Kontinuierliche Werte (Lerp & Bools) 
         RecordedFrame a = runData.frames[currentFrameIndex];
         RecordedFrame b = runData.frames[currentFrameIndex + 1];
         float t = Mathf.InverseLerp(a.time, b.time, currentTime);
@@ -78,7 +78,7 @@ public class GhostController : MonoBehaviour
             ghostAnimator.SetFloat("MoveX", Mathf.Lerp(a.moveX, b.moveX, t));
             ghostAnimator.SetFloat("MoveY", Mathf.Lerp(a.moveY, b.moveY, t));
 
-            // Bools setzen wir hier permanent (Zustände)
+            // Bools setzen wir hier permanent (ZustÃ¤nde)
             ghostAnimator.SetBool("isFalling", a.isFalling);
         }
 
@@ -92,7 +92,7 @@ public class GhostController : MonoBehaviour
 
         float ikWeight = 1.0f; // Oder nimm einen Wert aus dem Frame, falls du Aiming an/aus willst
 
-        // Hand zum Ziel führen
+        // Hand zum Ziel fÃ¼hren
         ghostAnimator.SetIKPositionWeight(AvatarIKGoal.RightHand, ikWeight);
         ghostAnimator.SetIKPosition(AvatarIKGoal.RightHand, currentIKTarget);
 

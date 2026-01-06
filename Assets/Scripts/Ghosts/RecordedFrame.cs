@@ -13,7 +13,7 @@ public struct RecordedFrame
     public Vector3 fireMuzzlePosition;
     public Vector3 fireDirection;
 
-    // NEU: Animationsdaten
+    //Animationsdaten
     public float moveX;
     public float moveY;
     public bool isFalling;

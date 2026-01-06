@@ -8,7 +8,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float sprintSpeed = 6f;
     [SerializeField] private float jumpForce = 7f;
     [SerializeField] private float gravity = -9.81f;
-    [SerializeField] private float mouseSensitivity = 200f;
+    [SerializeField] public float mouseSensitivity = 200f;
     private CharacterController controller;
     private Vector3 velocity;
     private Vector3 moveDirection;

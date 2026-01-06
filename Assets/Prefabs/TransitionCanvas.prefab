@@ -224,4 +224,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TransitionController
   transitionImage: {fileID: 6006470508835101960}
   fadeDuration: 1
-  startBlack: 1
+  startBlack: 0

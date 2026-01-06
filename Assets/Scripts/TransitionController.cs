@@ -7,26 +7,6 @@ public class TransitionController : MonoBehaviour
 {
     public Image transitionImage;
     public float fadeDuration = 1f;
-    public bool startBlack = false;
-    
-    private void Start()
-    {
-        if (startBlack)
-        {
-            SetAlpha(1f); // Schwarz
-            StartCoroutine(QuickFadeOut());
-        }
-        else
-        {
-            SetAlpha(0f); // Transparent
-        }
-    }
-    
-    private IEnumerator QuickFadeOut()
-    {
-        yield return new WaitForSeconds(0.1f); // Kurze Pause
-        yield return FadeOut(1f); // Fade out
-    }
     
     //zu schwarz
     public IEnumerator FadeIn(float duration)

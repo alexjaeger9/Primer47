@@ -5,17 +5,46 @@ using System.Collections;
 
 public class UIManager : MonoBehaviour
 {
-    public Text loopText;
     public GameObject gameOverPanel;
     public GameObject pausePanel;
     public TransitionController transitionController;
 
+    //HUD Elemente
+    public Text scoreText;
+    public Text currentLoopText; //kleine oben links
+    public Text timerText;
+    public Text bigLoopText; //große in der Mitte
 
-    public void SetLoopText(int loopIndex)
+    //HUD UPDATES
+     public void UpdateScore(int score)
     {
-        loopText.text = "Loop: " + loopIndex;
+        scoreText.text = "Score: " + score;
     }
 
+    public void UpdateLoopCounter(int loopIndex)
+    {
+        currentLoopText.text = "Loop: " + loopIndex;
+    }
+
+    public void UpdateTimer(float timeRemaining)
+    {
+        timeRemaining = Mathf.Max(0, timeRemaining);
+        timerText.text = timeRemaining.ToString("F2") + "s";
+    }
+
+    //BIG LOOP TEXT
+    public void ShowBigLoopText(int loopIndex)
+    {
+        bigLoopText.text = "LOOP " + loopIndex;
+        bigLoopText.gameObject.SetActive(true);
+    }
+
+    public void HideBigLoopText()
+    {
+        bigLoopText.gameObject.SetActive(false);
+    }
+
+    //GAME OVER
     public void ShowGameOver()
     {
         gameOverPanel.SetActive(true);
@@ -33,25 +62,23 @@ public class UIManager : MonoBehaviour
     private IEnumerator RestartGameWithFade()
     {
         yield return transitionController.FadeIn(1f);
-        Time.timeScale = 1f; //Spiel läuft wieder
         
-        //Cursor wieder locken
+        //Panels deaktivieren
+        gameOverPanel.SetActive(false); 
+        pausePanel.SetActive(false);
+
+        //Cursor locken
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        GameManager.Instance.StartNewGame(); //neues Game starten
-        gameOverPanel.SetActive(false); //Overlay deaktivieren
-        pausePanel.SetActive(false);
-        GameManager.Instance.StartNewGame();
-    
-        // Kurze Pause damit alles spawnt
-        yield return new WaitForSeconds(0.1f);
-        
-        // MANUELL Fade Out triggern
-        yield return transitionController.FadeOut(1f);
+        Time.timeScale = 1f; //Spiel läuft wieder
+        PauseManager.isGameOver = false;
+
+        yield return GameManager.Instance.StartingSequence();
     }
 
-    //zum Hauptmenü
+
+    //MAIN MENU
     public void LoadMainMenu()
     {
         StartCoroutine(LoadMainMenuWithFade());
@@ -59,35 +86,15 @@ public class UIManager : MonoBehaviour
 
     private IEnumerator LoadMainMenuWithFade()
     {
-        // Fade to Black
+        //Fade to Black
         yield return transitionController.FadeIn(1f);
         Time.timeScale = 1f;
-        // Cursor freigeben
+        
+        //Cursor freigeben
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         
-        // Scene laden
+        //Scene laden
         SceneManager.LoadScene("MainMenu");
-    }
-
-    public void ShowPause()
-    {
-        pausePanel.SetActive(true);
-        Time.timeScale = 0f;
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-    }
-
-    public void HidePause()
-    {
-        pausePanel.SetActive(false);
-        Time.timeScale = 1f;
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-    }
-
-    public void ResumeGame()
-    {
-        HidePause();
     }
 }

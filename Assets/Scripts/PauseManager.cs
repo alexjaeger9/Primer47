@@ -2,20 +2,31 @@ using UnityEngine;
 
 public class PauseManager : MonoBehaviour
 {
-    public UIManager uiManager;
+    public GameObject pausePanel;
     private bool isPaused = false;
+    public static bool canPause = true;
+    public static bool isGameOver = false;
 
     void Update()
     {
+        //wenn pausieren nicht möglich & nicht pausiert & gameover -> cursor locken + return
+        if (!canPause && !isPaused && !isGameOver)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            return;
+        }
+
+        //Escape -> Pausenmenü
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            //wenn Cursor locked + ESC = Pause
-            if (Cursor.lockState == CursorLockMode.Locked)
+            //wenn nicht pausiert → Pause
+            if (!isPaused)
             {
                 PauseGame();
             }
-            //wenn Cursor unlocked + ESC = Unpause
-            else if (isPaused)
+            //wenn pausiert → Resume
+            else
             {
                 ResumeGame();
             }
@@ -25,12 +36,24 @@ public class PauseManager : MonoBehaviour
     void PauseGame()
     {
         isPaused = true;
-        uiManager.ShowPause();
+        Time.timeScale = 0f;
+
+        pausePanel.SetActive(true);
+        
+        //Cursor freigeben
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
-    void ResumeGame()
+    public void ResumeGame()
     {
         isPaused = false;
-        uiManager.HidePause();
+        Time.timeScale = 1f;
+        
+        pausePanel.SetActive(false);
+
+        // Cursor wieder locken
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 }
