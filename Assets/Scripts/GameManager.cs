@@ -70,6 +70,11 @@ public class GameManager : MonoBehaviour
         uiManager.HideBigLoopText(); //Loop Text hiden
         
         StartNewGame();
+
+        //Cursor locken
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
         yield return transitionController.FadeOut(1f);
     }
 
@@ -262,6 +267,10 @@ public class GameManager : MonoBehaviour
         //GameOver Panel zeigen
         Time.timeScale = 0f;
         uiManager.ShowGameOver();
+
+        //Cursor freigeben
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
     public void OnGhostKilled(GhostHealth ghost)

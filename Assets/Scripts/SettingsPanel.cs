@@ -101,14 +101,7 @@ public class SettingsPanel : MonoBehaviour
 
     public void CloseSettings()
     {
-        settingsPanel.SetActive(false);
-
-        if (Time.timeScale > 0) //wenn Spiel läuft 
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-        
+        settingsPanel.SetActive(false); 
     }
 
     public void ApplySettings()

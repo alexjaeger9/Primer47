@@ -67,10 +67,6 @@ public class UIManager : MonoBehaviour
         gameOverPanel.SetActive(false); 
         pausePanel.SetActive(false);
 
-        //Cursor locken
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-
         Time.timeScale = 1f; //Spiel läuft wieder
         PauseManager.isGameOver = false;
 

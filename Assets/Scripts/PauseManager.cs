@@ -9,13 +9,8 @@ public class PauseManager : MonoBehaviour
 
     void Update()
     {
-        //wenn pausieren nicht möglich & nicht pausiert & gameover -> cursor locken + return
-        if (!canPause && !isPaused && !isGameOver)
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-            return;
-        }
+        //wenn pausieren nicht möglich oder gameover -> returnen
+        if (!canPause || isGameOver) return;
 
         //Escape -> Pausenmenü
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -52,7 +47,7 @@ public class PauseManager : MonoBehaviour
         
         pausePanel.SetActive(false);
 
-        // Cursor wieder locken
+        //Cursor wieder locken
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
