@@ -28,7 +28,7 @@ public class GameManager : MonoBehaviour
     private float loopTimeLimit = 30f;
     private float currentLoopTime = 0f;
     private bool timerRunning = false;
-    private int totalScore = 0;
+    private int lastScore = 0;
 
 
     private void Awake()
@@ -39,7 +39,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(StartingSequence());   
+        StartCoroutine(StartNewGame());   
     }
 
     private void Update()
@@ -62,34 +62,33 @@ public class GameManager : MonoBehaviour
     }
 
     //der erste Start
-    public IEnumerator StartingSequence()
+    public IEnumerator StartNewGame()
     {
-        //BIG LOOP 1 anzeigen
-        uiManager.ShowBigLoopText(1); //Loop Text anzeigen
-        yield return new WaitForSecondsRealtime(2f); //Dauer der Anzeige
-        uiManager.HideBigLoopText(); //Loop Text hiden
+        transitionController.SetAlpha(1f);
+
+        SpawnPlayer();
+        ClearGhosts();
+        ClearBullets();
+        allRuns.Clear();
+        currentLoopIndex = 0;
+        lastScore = 0; //Score resetten
+        uiManager.UpdateScore(0); //UI-Score updaten  
         
-        StartNewGame();
+        PauseManager.canPause = true; //pausieren erlauben
 
         //Cursor locken
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
+        //großen Loop text 1 anzeigen
+        uiManager.ShowBigLoopText(1); //Loop Text anzeigen
+        yield return new WaitForSecondsRealtime(2f); //Dauer der Anzeige
+        uiManager.HideBigLoopText(); //Loop Text hiden
+
+        StartLoop();
         yield return transitionController.FadeOut(1f);
     }
 
-    public void StartNewGame()
-    {
-        ClearGhosts();
-        ClearBullets();
-        allRuns.Clear();
-        currentLoopIndex = 0;
-        totalScore = 0; //Score resetten
-        uiManager.UpdateScore(0); //UI-Score updaten
-        SpawnPlayer();
-        StartLoop();
-        PauseManager.canPause = true; //pausieren erlauben
-    }
 
     private void ClearGhosts()
     {
@@ -119,7 +118,10 @@ public class GameManager : MonoBehaviour
         //Timer starten
         currentLoopTime = 0f;
         timerRunning = true;
-        uiManager.UpdateLoopCounter(currentLoopIndex + 1); //Loop anzeigen
+
+        //UI Updaten
+        uiManager.UpdateLoopCounter(currentLoopIndex + 1);
+        uiManager.UpdateGhostsRemaining(activeGhosts.Count);
     }
 
     private void SpawnGhostsFromRuns()
@@ -149,16 +151,13 @@ public class GameManager : MonoBehaviour
         PauseManager.canPause = false; //pausieren blocken
         
         //Slow Mo (auf 0,1 verlangsamen in 1s)
-        yield return SmoothSlowMo(0.1f, 1f);
+        yield return SmoothSlowMo(0.1f, 0.5f);
         
         //kurz in Slow Mo warten
-        yield return new WaitForSecondsRealtime(1f);
+        yield return new WaitForSecondsRealtime(0.5f);
         
         //Fade to Black
         StartCoroutine(transitionController.FadeIn(1f));
-        
-        //Kurz warten (während Fade läuft)
-        yield return new WaitForSecondsRealtime(0.3f);
         
         EndLoop();
         
@@ -223,14 +222,15 @@ public class GameManager : MonoBehaviour
         int loopBonusPoints = currentLoopIndex * 100;
         
         //gesamt
-        totalScore += timeBonusPoints + loopBonusPoints;
+        lastScore += timeBonusPoints + loopBonusPoints;
         
         //UI updaten
-        uiManager.UpdateScore(totalScore);
+        uiManager.UpdateScore(lastScore);
     }
 
     private void HandlePlayerDeath()
     {
+        timerRunning = false;
         StartCoroutine(GameOverSequence());
     }
 
@@ -239,11 +239,15 @@ public class GameManager : MonoBehaviour
         PauseManager.canPause = false; //pausieren blocken
         PauseManager.isGameOver = true;
         playerRecorder.enabled = false;
+        Animator animator = player.GetComponent<Animator>();
         
-        //Player Movement disablen (WASD + Schießen)
+        //Player Movement, schießen, Animation stoppen
         PlayerController controller = player.GetComponent<PlayerController>();
+        PlayerShooter shooter = player.GetComponent<PlayerShooter>();
         CharacterController charController = player.GetComponent<CharacterController>();
         controller.enabled = false;
+        shooter.enabled = false;
+        animator.enabled = false;
 
         // Kamera freischalten für 360° Blick
         ThirdPersonCamera cam = FindAnyObjectByType<ThirdPersonCamera>();
@@ -263,9 +267,12 @@ public class GameManager : MonoBehaviour
             elapsed += Time.unscaledDeltaTime;
             yield return null;
         }
+
+        cam.enabled = false;
         
         //GameOver Panel zeigen
         Time.timeScale = 0f;
+        SaveScore();
         uiManager.ShowGameOver();
 
         //Cursor freigeben
@@ -273,15 +280,52 @@ public class GameManager : MonoBehaviour
         Cursor.visible = true;
     }
 
+    private void SaveScore()
+    {
+        //aktueller Score wird zu "Last Score"
+        PlayerPrefs.SetInt("LastScore", lastScore);
+        
+        //High Score updaten wenn besser
+        int highScore = PlayerPrefs.GetInt("HighScore", 0);
+        if (lastScore > highScore)
+        {
+            PlayerPrefs.SetInt("HighScore", lastScore);
+        }
+        
+        PlayerPrefs.Save();
+    }
+
     public void OnGhostKilled(GhostHealth ghost)
     {
         activeGhosts.Remove(ghost);
+        //Counter updaten
+        uiManager.UpdateGhostsRemaining(activeGhosts.Count);
+        
         if (activeGhosts.Count == 0)
         {
             timerRunning = false; //Timer stoppen
             StartCoroutine(LoopTransition());
         }
+        else
+        {
+            //Ghosts übrig -> Hitstop
+            StartCoroutine(HitstopEffect());
+        }
     }
 
-
+    private IEnumerator HitstopEffect()
+    {
+        //Timer pausieren
+        timerRunning = false;
+        
+        //Slow Mo
+        Time.timeScale = 0.3f;
+        
+        //0.1 Sekunden warten (realtime weil timeScale verändert)
+        yield return new WaitForSecondsRealtime(0.3f);
+        
+        //zurück zu normal
+        Time.timeScale = 1f;
+        timerRunning = true;
+    }
 }

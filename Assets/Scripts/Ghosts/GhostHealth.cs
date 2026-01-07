@@ -22,7 +22,16 @@ public class GhostHealth : MonoBehaviour
             {
                 col.enabled = false;
             }
-            if (TryGetComponent<GhostController>(out var controller)) controller.enabled = false;
+            
+            if (TryGetComponent<GhostController>(out var controller))
+            {
+                controller.enabled = false;
+            }
+            if (TryGetComponent<Animator>(out var animator))
+            {
+                animator.enabled = false;
+            }
+            
             GameManager.Instance.OnGhostKilled(this);
         }
     }

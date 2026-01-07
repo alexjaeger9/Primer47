@@ -7,6 +7,7 @@ public class UIManager : MonoBehaviour
 {
     public GameObject gameOverPanel;
     public GameObject pausePanel;
+    public GameObject hud;
     public TransitionController transitionController;
 
     //HUD Elemente
@@ -14,8 +15,11 @@ public class UIManager : MonoBehaviour
     public Text currentLoopText; //kleine oben links
     public Text timerText;
     public Text bigLoopText; //große in der Mitte
+    public Text lastScoreText;
+    public Text highScoreText;
+    public Text remainingGhostText;
 
-    //HUD UPDATES
+    //Hud Updates
      public void UpdateScore(int score)
     {
         scoreText.text = "Score: " + score;
@@ -32,7 +36,12 @@ public class UIManager : MonoBehaviour
         timerText.text = timeRemaining.ToString("F2") + "s";
     }
 
-    //BIG LOOP TEXT
+    public void UpdateGhostsRemaining(int remaining)
+    {
+        remainingGhostText.text = "Ghosts Remaining: " + remaining;
+    }
+
+    //großer Loop text
     public void ShowBigLoopText(int loopIndex)
     {
         bigLoopText.text = "LOOP " + loopIndex;
@@ -44,10 +53,16 @@ public class UIManager : MonoBehaviour
         bigLoopText.gameObject.SetActive(false);
     }
 
-    //GAME OVER
+    //Game over
     public void ShowGameOver()
     {
         gameOverPanel.SetActive(true);
+        hud.SetActive(false);
+
+        int currentScore = PlayerPrefs.GetInt("LastScore", 0);
+        int highScore = PlayerPrefs.GetInt("HighScore", 0);
+        lastScoreText.text = "Score: " + currentScore;
+        highScoreText.text = "High Score: " + highScore;
 
         //Cursor freigeben und sichtbar machen
         Cursor.lockState = CursorLockMode.None;
@@ -67,14 +82,16 @@ public class UIManager : MonoBehaviour
         gameOverPanel.SetActive(false); 
         pausePanel.SetActive(false);
 
+        hud.SetActive(true);
+
         Time.timeScale = 1f; //Spiel läuft wieder
         PauseManager.isGameOver = false;
 
-        yield return GameManager.Instance.StartingSequence();
+        yield return GameManager.Instance.StartNewGame();
     }
 
 
-    //MAIN MENU
+    //main menu methode
     public void LoadMainMenu()
     {
         StartCoroutine(LoadMainMenuWithFade());
@@ -84,7 +101,6 @@ public class UIManager : MonoBehaviour
     {
         //Fade to Black
         yield return transitionController.FadeIn(1f);
-        Time.timeScale = 1f;
         
         //Cursor freigeben
         Cursor.lockState = CursorLockMode.None;

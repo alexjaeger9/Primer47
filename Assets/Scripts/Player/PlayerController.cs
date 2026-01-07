@@ -16,7 +16,8 @@ public class PlayerController : MonoBehaviour
     private float currentSpeed;
     [HideInInspector] public bool jumpedThisTick;
 
-    
+    private Vector3 boostVelocity;
+    private float boostVelocityDecay = 2f; //wie schnell der Jumppad Boost abnimmt
 
     void Awake()
     {
@@ -32,7 +33,15 @@ public class PlayerController : MonoBehaviour
         HandleGravityAndJump();
         HandleAnimation();
         //jumpedThisTick = false;
-        Vector3 finalMovement = (moveDirection * currentSpeed) + new Vector3(0, velocity.y, 0);
+        
+        //Boost Velocity über Zeit abbauen
+        if (boostVelocity.magnitude > 0.1f)
+        {
+            boostVelocity = Vector3.Lerp(boostVelocity, Vector3.zero, boostVelocityDecay * Time.deltaTime);
+        }
+        
+        //normale Bewegung + externe Kräfte + Gravity
+        Vector3 finalMovement = (moveDirection * currentSpeed) + boostVelocity + new Vector3(0, velocity.y, 0);
         controller.Move(finalMovement * Time.deltaTime);
     }
 
@@ -120,5 +129,18 @@ public class PlayerController : MonoBehaviour
         playerAnimator.SetFloat("MoveY", targetY, 0.1f, Time.deltaTime);
 
         playerAnimator.SetBool("isGrounded", controller.isGrounded);
+    }
+
+    public void ApplyJumpPadBoost(Vector3 boostVelocity)
+    {
+        //vertikale Komponente in velocity.y
+        velocity.y = boostVelocity.y;
+        
+        //horizontale Komponente in boostVelocity
+        this.boostVelocity = new Vector3(boostVelocity.x, 0f, boostVelocity.z);
+        
+        //Animation
+        playerAnimator.SetBool("isFalling", false);
+        playerAnimator.SetTrigger("Jump");
     }
 }

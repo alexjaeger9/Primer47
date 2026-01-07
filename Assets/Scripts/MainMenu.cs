@@ -1,11 +1,29 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
     public TransitionController transitionController;
     public SettingsPanel settingsPanel;
+
+    public Text highScoreText;
+    public Text lastScoreText;
+
+     private void Start()
+    {
+        displayScores();
+    }
+
+    private void displayScores()
+    {
+        int highScore = PlayerPrefs.GetInt("HighScore", 0);
+        int lastScore = PlayerPrefs.GetInt("LastScore", 0);
+      
+        highScoreText.text = "High Score: " + highScore;
+        lastScoreText.text = "Last Score: " + lastScore;
+    }
 
     public void StartGame()
     {
