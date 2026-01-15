@@ -153,7 +153,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 45.9, y: -1232.6}
+  m_AnchoredPosition: {x: 45.898438, y: -896}
   m_SizeDelta: {x: 359.33, y: 143.4}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &63333607
@@ -270,10 +270,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
@@ -428,7 +428,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 39.30005, y: -43.400024}
+  m_AnchoredPosition: {x: 39.296875, y: -43.398438}
   m_SizeDelta: {x: 540.8, y: 214.1}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &237389563
@@ -780,7 +780,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   playerPrefab: {fileID: 2954327873741449940, guid: 642addf4787567d4abc83665d68e1691, type: 3}
-  ghostPrefab: {fileID: 2954327873741449940, guid: 34e5b9b86589fe54e9b997d2ef6501f8, type: 3}
+  ghostPrefab: {fileID: 2954327873741449940, guid: f3f27a58245bfc64396d58b09a3add13, type: 3}
   playerSpawnPoint: {fileID: 589791807}
   targetSpawnPoint: {fileID: 1557646529}
   uiManager: {fileID: 555316287}
@@ -1777,7 +1777,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 43.61, y: -1322.6}
+  m_AnchoredPosition: {x: 43.609375, y: -986}
   m_SizeDelta: {x: 359.33, y: 143.4}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &624836637
@@ -2617,7 +2617,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 2281.5, y: -43.40002}
+  m_AnchoredPosition: {x: 1661, y: -43.398438}
   m_SizeDelta: {x: 359.33008, y: 143.4}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &1309451383
