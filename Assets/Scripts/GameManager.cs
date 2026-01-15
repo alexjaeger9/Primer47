@@ -252,20 +252,26 @@ public class GameManager : MonoBehaviour
         // Kamera freischalten für 360° Blick
         ThirdPersonCamera cam = FindAnyObjectByType<ThirdPersonCamera>();
         cam.EnableFreeCamera();
-        
+
         //Slow Mo (4 Sekunden)
         Time.timeScale = 0.2f;
         float elapsed = 0f;
         Vector3 velocity = Vector3.zero; //für Gravitation
-        
+
         while (elapsed < 4f)
         {
             //Gravity anwenden während Slow Mo
             velocity.y += -9.81f * Time.unscaledDeltaTime;
             charController.Move(velocity * Time.unscaledDeltaTime);
-            
+
             elapsed += Time.unscaledDeltaTime;
             yield return null;
+        }
+
+        //stop Movement of all Ghosts
+        foreach (GhostHealth activeGhost in activeGhosts)
+        {
+            activeGhost.StopMovement();
         }
 
         cam.enabled = false;
@@ -309,7 +315,8 @@ public class GameManager : MonoBehaviour
         else
         {
             //Ghosts übrig -> Hitstop
-            StartCoroutine(HitstopEffect());
+            // finde ich etwas iritierend beim spielen deswegen auskommentiert
+            //StartCoroutine(HitstopEffect());
         }
     }
 

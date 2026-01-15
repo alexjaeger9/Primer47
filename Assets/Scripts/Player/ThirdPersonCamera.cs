@@ -5,9 +5,10 @@ public class ThirdPersonCamera : MonoBehaviour
     public Transform target; //Spieler, dem die Cam folgt
     
     //Kamera Position
-    [SerializeField] private float distance = 5f; //wie weit hinten die Cam ist
+    [SerializeField] private float distance = 5f;
     [SerializeField] private float height = 1.5f;
-    
+    [SerializeField] private float shoulderOffset = 1.0f;
+
     //Sensitivität
     [SerializeField] public float verticalMouseSensitivity = 200f;
     [SerializeField] public float horizontalMouseSensitivity = 200f;
@@ -55,7 +56,7 @@ public class ThirdPersonCamera : MonoBehaviour
         }
         
         Quaternion rotation = Quaternion.Euler(pitch, finalYaw, 0f);
-        Vector3 offset = rotation * new Vector3(0f, height, -distance);
+        Vector3 offset = rotation * new Vector3(shoulderOffset, height, -distance);
         Vector3 desiredPos = target.position + offset;
         transform.position = desiredPos;
         transform.rotation = rotation;

@@ -10,6 +10,37 @@ public class GhostShooter : MonoBehaviour
     public float traceDuration = 0.1f;
     //public Transform pitchTarget;
 
+    [Header("Hand Pose")]
+    public Transform[] handBones;
+    private Quaternion[] savedRotations;
+
+    private void Start()
+    {
+        // Speichere die Pose von allen zugewiesenen Knochen
+        if (handBones != null)
+        {
+            savedRotations = new Quaternion[handBones.Length];
+            for (int i = 0; i < handBones.Length; i++)
+            {
+                if (handBones[i] != null)
+                    savedRotations[i] = handBones[i].localRotation;
+            }
+        }
+    }
+
+    private void LateUpdate()
+    {
+        // Erzwinge die gespeicherte Pose über jede Animation drüber
+        if (savedRotations != null)
+        {
+            for (int i = 0; i < handBones.Length; i++)
+            {
+                if (handBones[i] != null)
+                    handBones[i].localRotation = savedRotations[i];
+            }
+        }
+    }
+
     public void ShootFromReplay(Vector3 savedMuzzlePosition, Vector3 savedDirection)
     {
         Vector3 rayStart = savedMuzzlePosition;
@@ -26,6 +57,7 @@ public class GhostShooter : MonoBehaviour
         }
         else
         {
+            // Fehler: schuss geht durch ghosts durch, bis max range und trifft trotzdem spieler
             finalHitTarget = rayStart + rayDirection * maxRange;
         }
         SpawnTrace(rayStart, finalHitTarget);

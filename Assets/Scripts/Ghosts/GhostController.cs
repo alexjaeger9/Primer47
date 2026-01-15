@@ -11,6 +11,9 @@ public class GhostController : MonoBehaviour
     public Transform pitchTarget;
     private Vector3 currentIKTarget;
 
+    [HideInInspector] private Vector3 handRotationOffset = new Vector3(0, 0, -90);
+
+
     private void Awake()
     {
         ghostShooter = GetComponentInChildren<GhostShooter>();
@@ -96,13 +99,15 @@ public class GhostController : MonoBehaviour
         ghostAnimator.SetIKPositionWeight(AvatarIKGoal.RightHand, ikWeight);
         ghostAnimator.SetIKPosition(AvatarIKGoal.RightHand, currentIKTarget);
 
-        // Hand rotieren (sie soll in Richtung des Ziels schauen)
+        // Hand Rotation
         Vector3 direction = (currentIKTarget - transform.position).normalized;
         if (direction != Vector3.zero)
         {
-            Quaternion lookRot = Quaternion.LookRotation(direction);
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            Quaternion correction = Quaternion.Euler(handRotationOffset);
+            Quaternion finalHandRotation = targetRotation * correction;
             ghostAnimator.SetIKRotationWeight(AvatarIKGoal.RightHand, ikWeight);
-            ghostAnimator.SetIKRotation(AvatarIKGoal.RightHand, lookRot);
+            ghostAnimator.SetIKRotation(AvatarIKGoal.RightHand, finalHandRotation);
         }
 
         // Kopf zum Ziel drehen

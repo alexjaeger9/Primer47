@@ -779,7 +779,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f11099ad5e608f41941d7ea8be7245c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  playerPrefab: {fileID: 2954327873741449940, guid: d5c30533bcbc45943aa40069d2002c32, type: 3}
+  playerPrefab: {fileID: 2954327873741449940, guid: 642addf4787567d4abc83665d68e1691, type: 3}
   ghostPrefab: {fileID: 2954327873741449940, guid: 34e5b9b86589fe54e9b997d2ef6501f8, type: 3}
   playerSpawnPoint: {fileID: 589791807}
   targetSpawnPoint: {fileID: 1557646529}
@@ -1576,6 +1576,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIManager
   gameOverPanel: {fileID: 1340406194}
   pausePanel: {fileID: 298855651}
+  hud: {fileID: 0}
   transitionController: {fileID: 200218055}
   scoreText: {fileID: 624836638}
   currentLoopText: {fileID: 63333608}
