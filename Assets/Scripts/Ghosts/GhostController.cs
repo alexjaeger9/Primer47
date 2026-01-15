@@ -6,6 +6,7 @@ public class GhostController : MonoBehaviour
     private int currentFrameIndex;
     private float currentTime;
     private GhostShooter ghostShooter;
+    private GhostHealth ghostHealth;
 
     public Animator ghostAnimator;
     public Transform pitchTarget;
@@ -17,6 +18,7 @@ public class GhostController : MonoBehaviour
     private void Awake()
     {
         ghostShooter = GetComponentInChildren<GhostShooter>();
+        ghostHealth = GetComponentInChildren<GhostHealth>();
     }
 
     public void Init(RunData data)
@@ -35,10 +37,17 @@ public class GhostController : MonoBehaviour
 
     private void UpdatePlayback()
     {
-        // TEIL A: Einmalige Ereignisse (Trigger)
-        // Alles was in der while-Schleife passiert, wird exakt so oft ausgef�hrt, wie es aufgenommen wurde
+        // Alles was in der while-Schleife passiert, wird exakt so oft ausgeführt, wie es aufgenommen wurde
         while (currentFrameIndex < runData.frames.Count - 1 && currentTime >= runData.frames[currentFrameIndex + 1].time)
         {
+            // Recording Ende
+            if (currentFrameIndex >= runData.frames.Count - 1)
+            {
+                ghostHealth.StopMovement();
+                return;
+            }
+            
+            //current Frame
             RecordedFrame frame = runData.frames[currentFrameIndex];
 
             // Schiessen
@@ -47,8 +56,7 @@ public class GhostController : MonoBehaviour
                 ghostShooter.ShootFromReplay(frame.fireMuzzlePosition, frame.fireDirection);
             }
 
-            // JUMP hierhin verschieben! 
-            // So wird der Trigger exakt EINMAL pro aufgenommenem Sprung gefeuert.
+            // Jump trigger
             if (frame.jumped && ghostAnimator != null)
             {
                 ghostAnimator.SetBool("isFalling", false);
@@ -56,7 +64,7 @@ public class GhostController : MonoBehaviour
                 Debug.Log("JumpTRIGGER");
             }
 
-            // LANDUNG Logik innerhalb der Ticks prüfen
+            // Landung Logik
             RecordedFrame nextFrame = runData.frames[currentFrameIndex + 1];
             if (frame.isFalling && !nextFrame.isFalling)
             {
@@ -66,9 +74,7 @@ public class GhostController : MonoBehaviour
             currentFrameIndex++;
         }
 
-        if (currentFrameIndex >= runData.frames.Count - 1) return;
-
-        // TEIL B: Kontinuierliche Werte (Lerp & Bools) 
+        // Kontinuierliche Werte (Lerp & Bools) 
         RecordedFrame a = runData.frames[currentFrameIndex];
         RecordedFrame b = runData.frames[currentFrameIndex + 1];
         float t = Mathf.InverseLerp(a.time, b.time, currentTime);
@@ -80,8 +86,6 @@ public class GhostController : MonoBehaviour
         {
             ghostAnimator.SetFloat("MoveX", Mathf.Lerp(a.moveX, b.moveX, t));
             ghostAnimator.SetFloat("MoveY", Mathf.Lerp(a.moveY, b.moveY, t));
-
-            // Bools setzen wir hier permanent (Zustände)
             ghostAnimator.SetBool("isFalling", a.isFalling);
         }
 
@@ -93,9 +97,9 @@ public class GhostController : MonoBehaviour
         if (ghostAnimator == null) return;
         if (runData.duration == 0) return;
 
-        float ikWeight = 1.0f; // Oder nimm einen Wert aus dem Frame, falls du Aiming an/aus willst
+        float ikWeight = 1.0f;
 
-        // Hand zum Ziel führen
+        // Hand/Arm auf Ziel zeigen
         ghostAnimator.SetIKPositionWeight(AvatarIKGoal.RightHand, ikWeight);
         ghostAnimator.SetIKPosition(AvatarIKGoal.RightHand, currentIKTarget);
 
