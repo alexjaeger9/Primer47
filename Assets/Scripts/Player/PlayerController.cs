@@ -8,15 +8,18 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float sprintSpeed = 6f;
     [SerializeField] private float jumpForce = 7f;
     [SerializeField] private float gravity = -9.81f;
-    [SerializeField] private float mouseSensitivity = 200f;
+    [SerializeField] public float mouseSensitivity = 200f;
     private CharacterController controller;
     private Vector3 velocity;
     private Vector3 moveDirection;
     private float yaw;
     private float currentSpeed;
     [HideInInspector] public bool jumpedThisTick;
+    [HideInInspector] public bool landedThisTick;
 
-    
+    private Vector3 boostVelocity;
+    private float boostVelocityDecay = 2f; //wie schnell der Jumppad Boost abnimmt
+
 
     void Awake()
     {
@@ -32,7 +35,15 @@ public class PlayerController : MonoBehaviour
         HandleGravityAndJump();
         HandleAnimation();
         //jumpedThisTick = false;
-        Vector3 finalMovement = (moveDirection * currentSpeed) + new Vector3(0, velocity.y, 0);
+
+        //Boost Velocity über Zeit abbauen
+        if (boostVelocity.magnitude > 0.1f)
+        {
+            boostVelocity = Vector3.Lerp(boostVelocity, Vector3.zero, boostVelocityDecay * Time.deltaTime);
+        }
+
+        //normale Bewegung + externe Kräfte + Gravity
+        Vector3 finalMovement = (moveDirection * currentSpeed) + boostVelocity + new Vector3(0, velocity.y, 0);
         controller.Move(finalMovement * Time.deltaTime);
     }
 
@@ -47,9 +58,9 @@ public class PlayerController : MonoBehaviour
     {
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
-        
+
         bool isSprinting = false;
-        if(vertical >= 0f) isSprinting = Input.GetKey(KeyCode.LeftShift);
+        if (vertical >= 0f) isSprinting = Input.GetKey(KeyCode.LeftShift);
         currentSpeed = isSprinting ? sprintSpeed : runSpeed;
 
         Vector3 inputDir = new(horizontal, 0f, vertical);
@@ -73,6 +84,7 @@ public class PlayerController : MonoBehaviour
             {
                 playerAnimator.SetBool("isFalling", false);
                 playerAnimator.SetTrigger("Land");
+                landedThisTick = true;
                 //Debug.Log("Landung JETZT: " + velocity.y);
             }
 
@@ -92,9 +104,7 @@ public class PlayerController : MonoBehaviour
         else
         {
             velocity.y += gravity * Time.deltaTime;
-
-            // Erst bei einer gewissen Fallgeschwindigkeit das Falling aktivieren
-            // -3f bis -4f ist gut, um nicht bei Treppenstufen zu "fallen"
+            // erst Fallen bei gewisser Geschwindigkeit
             if (velocity.y < -3f)
             {
                 playerAnimator.SetBool("isFalling", true);
@@ -120,5 +130,18 @@ public class PlayerController : MonoBehaviour
         playerAnimator.SetFloat("MoveY", targetY, 0.1f, Time.deltaTime);
 
         playerAnimator.SetBool("isGrounded", controller.isGrounded);
+    }
+
+    public void ApplyJumpPadBoost(Vector3 boostVelocity)
+    {
+        //vertikale Komponente in velocity.y
+        velocity.y = boostVelocity.y;
+
+        //horizontale Komponente in boostVelocity
+        this.boostVelocity = new Vector3(boostVelocity.x, 0f, boostVelocity.z);
+
+        //Animation
+        playerAnimator.SetBool("isFalling", false);
+        playerAnimator.SetTrigger("Jump");
     }
 }

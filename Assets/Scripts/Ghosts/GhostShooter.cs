@@ -10,13 +10,45 @@ public class GhostShooter : MonoBehaviour
     public float traceDuration = 0.1f;
     //public Transform pitchTarget;
 
-    public void ShootFromReplay(Vector3 savedMuzzlePosition, Vector3 savedDirection)
+    [Header("Hand Pose")]
+    public Transform[] handBones;
+    private Quaternion[] savedRotations;
+
+    private void Start()
+    {
+        // Speichere die Pose von allen zugewiesenen Knochen
+        if (handBones != null)
+        {
+            savedRotations = new Quaternion[handBones.Length];
+            for (int i = 0; i < handBones.Length; i++)
+            {
+                if (handBones[i] != null)
+                    savedRotations[i] = handBones[i].localRotation;
+            }
+        }
+    }
+
+    private void LateUpdate()
+    {
+        // Erzwinge die gespeicherte Pose über jede Animation drüber
+        if (savedRotations != null)
+        {
+            for (int i = 0; i < handBones.Length; i++)
+            {
+                if (handBones[i] != null)
+                    handBones[i].localRotation = savedRotations[i];
+            }
+        }
+    }
+
+    public void ShootFromReplay(Vector3 savedMuzzlePosition, Vector3 savedDirection, float savedDistance)
     {
         Vector3 rayStart = savedMuzzlePosition;
         Vector3 rayDirection = savedDirection;
+        float rayDistance = savedDistance;
         Vector3 finalHitTarget;
 
-        if (Physics.Raycast(rayStart, rayDirection, out RaycastHit hit, maxRange, hitMask))
+        if (Physics.Raycast(rayStart, rayDirection, out RaycastHit hit, rayDistance, hitMask))
         {
             finalHitTarget = hit.point;
             if (hit.collider.TryGetComponent<PlayerHealth>(out var playerHealth))
@@ -26,7 +58,7 @@ public class GhostShooter : MonoBehaviour
         }
         else
         {
-            finalHitTarget = rayStart + rayDirection * maxRange;
+            finalHitTarget = rayStart + rayDirection * rayDistance;
         }
         SpawnTrace(rayStart, finalHitTarget);
     }

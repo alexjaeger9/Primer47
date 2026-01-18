@@ -17,12 +17,46 @@ public class PlayerShooter : MonoBehaviour
     [HideInInspector] public bool firedThisTick;
     [HideInInspector] public Vector3 recordedMuzzlePosition;
     [HideInInspector] public Vector3 recordedFireDirection;
+    [HideInInspector] public float recordedFireDistance;
     [HideInInspector] public bool isAiming; // später für Kamera
+
+    [HideInInspector] private Vector3 handRotationOffset = new Vector3(0, 0, -90);
+
+    [Header("Hand Pose")]
+    public Transform[] handBones;
+    private Quaternion[] savedRotations;
+
+    private void Start()
+    {
+        // Speichere die Pose von allen zugewiesenen Knochen
+        if (handBones != null)
+        {
+            savedRotations = new Quaternion[handBones.Length];
+            for (int i = 0; i < handBones.Length; i++)
+            {
+                if (handBones[i] != null)
+                    savedRotations[i] = handBones[i].localRotation;
+            }
+        }
+    }
 
     private void Update()
     {
         HandleAim(Input.GetMouseButton(1));
         HandleShooting(Input.GetMouseButton(0));
+    }
+
+    private void LateUpdate()
+    {
+        // Erzwinge die gespeicherte Pose über jede Animation drüber
+        if (savedRotations != null)
+        {
+            for (int i = 0; i < handBones.Length; i++)
+            {
+                if (handBones[i] != null)
+                    handBones[i].localRotation = savedRotations[i];
+            }
+        }
     }
 
     private void HandleAim(bool aimPressed)
@@ -61,6 +95,7 @@ public class PlayerShooter : MonoBehaviour
 
         recordedMuzzlePosition = rayStart;
         recordedFireDirection = rayDirection;
+        recordedFireDistance = currentRange;
 
         Vector3 finalHitTarget;
 
@@ -108,8 +143,10 @@ public class PlayerShooter : MonoBehaviour
 
         // Rotation
         Quaternion targetRotation = Quaternion.LookRotation(weaponAimDirection, mainCamera.transform.up);
+        Quaternion correction = Quaternion.Euler(handRotationOffset);
+        Quaternion finalHandRotation = targetRotation * correction;
         playerAnimator.SetIKRotationWeight(AvatarIKGoal.RightHand, ikWeight);
-        playerAnimator.SetIKRotation(AvatarIKGoal.RightHand, targetRotation);
+        playerAnimator.SetIKRotation(AvatarIKGoal.RightHand, finalHandRotation);
 
         // Blickrichtung
         playerAnimator.SetLookAtWeight(ikWeight, 0.8f, 1.0f, 1.0f);

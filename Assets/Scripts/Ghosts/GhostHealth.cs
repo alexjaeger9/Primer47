@@ -1,29 +1,55 @@
+using TMPro;
 using UnityEngine;
 
 public class GhostHealth : MonoBehaviour
 {
     public Renderer enemyRenderer;
+    public GameObject ghostNumbers;
 
     void Awake()
     {
         //enemyRenderer = GetComponent<Renderer>();
         if (enemyRenderer != null)
         {
-            enemyRenderer.material.color = Color.red;
+            enemyRenderer.material.color = Color.darkRed;
         }
     }
 
     public void TakeHit()
     {
-        if (enemyRenderer != null && enemyRenderer.material.color != Color.gray)
+        if (enemyRenderer != null && enemyRenderer.material.color != Color.gray3)
         {
-            enemyRenderer.material.color = Color.gray;
-            if (TryGetComponent<Collider>(out var col))
-            {
-                col.enabled = false;
-            }
-            if (TryGetComponent<GhostController>(out var controller)) controller.enabled = false;
+            enemyRenderer.material.color = Color.gray3;
+
+            StopMovement();
+            
             GameManager.Instance.OnGhostKilled(this);
+        }
+    }
+
+    public void StopMovement()
+    {
+        if (TryGetComponent<Collider>(out var col))
+        {
+            col.enabled = false;
+        }
+
+        if (TryGetComponent<GhostController>(out var controller))
+        {
+            controller.enabled = false;
+        }
+        if (TryGetComponent<Animator>(out var animator))
+        {
+            animator.enabled = false;
+        }
+    }
+
+    public void UpdateGhostNumbers(int loopCount)
+    {
+        TextMeshPro[] numbers = ghostNumbers.GetComponentsInChildren<TextMeshPro>();
+        foreach (TextMeshPro txt in numbers)
+        {
+            txt.text = loopCount.ToString();
         }
     }
 }
