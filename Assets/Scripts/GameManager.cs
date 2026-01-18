@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
+using TMPro;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -28,7 +30,7 @@ public class GameManager : MonoBehaviour
     private float loopTimeLimit = 30f;
     private float currentLoopTime = 0f;
     private bool timerRunning = false;
-    private int lastScore = 0;
+    private float lastScore = 0f;
 
 
     private void Awake()
@@ -71,8 +73,9 @@ public class GameManager : MonoBehaviour
         ClearBullets();
         allRuns.Clear();
         currentLoopIndex = 0;
-        lastScore = 0; //Score resetten
+        lastScore = 0f; //Score resetten
         uiManager.UpdateScore(0); //UI-Score updaten  
+        uiManager.hideScoreCalculation();
         
         PauseManager.canPause = true; //pausieren erlauben
 
@@ -113,6 +116,7 @@ public class GameManager : MonoBehaviour
     {
         if (currentLoopIndex == 0) SpawnInitialTarget();
         else SpawnGhostsFromRuns();
+        UpdateGhostNumbers();
         playerRecorder.StartRecording();
 
         //Timer starten
@@ -122,6 +126,9 @@ public class GameManager : MonoBehaviour
         //UI Updaten
         uiManager.UpdateLoopCounter(currentLoopIndex + 1);
         uiManager.UpdateGhostsRemaining(activeGhosts.Count);
+
+        //Player Number Update
+        playerHealth.UpdatePlayerNumbers(currentLoopIndex + 1);
     }
 
     private void SpawnGhostsFromRuns()
@@ -146,21 +153,37 @@ public class GameManager : MonoBehaviour
         activeGhosts.Add(health);
     }
 
+    private void UpdateGhostNumbers()
+    {
+        int count = 0;
+        foreach (GhostHealth health in activeGhosts)
+        {
+            health.UpdateGhostNumbers(count);
+            count++;
+        }
+    }
+
     private IEnumerator LoopTransition()
     {
         PauseManager.canPause = false; //pausieren blocken
-        
+
+        ScoreCalculation();
+
         //Slow Mo (auf 0,1 verlangsamen in 1s)
         yield return SmoothSlowMo(0.1f, 0.5f);
         
         //kurz in Slow Mo warten
-        yield return new WaitForSecondsRealtime(0.5f);
-        
+        yield return new WaitForSecondsRealtime(2f);
+
+        uiManager.hideScoreCalculation();
+
         //Fade to Black
         StartCoroutine(transitionController.FadeIn(1f));
         
         EndLoop();
-        
+
+        uiManager.UpdateScore(lastScore);
+
         //Loop Text Anzeige
         uiManager.ShowBigLoopText(currentLoopIndex + 1);
         yield return new WaitForSecondsRealtime(1.2f); //Dauer in der der Text angezeigt wird        
@@ -171,9 +194,8 @@ public class GameManager : MonoBehaviour
         ClearBullets();
         StartLoop();
         
-        //Slow Mo beenden & Score berechnen
+        //Slow Mo beenden
         Time.timeScale = 1f;
-        CalculateScore();
 
         PauseManager.canPause = true; //pausieren wieder erlauben
 
@@ -212,11 +234,13 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /*
     private void CalculateScore()
     {
         //je schneller, desto mehr Punkte
         float timeBonus = Mathf.Max(0, loopTimeLimit - currentLoopTime);
         int timeBonusPoints = Mathf.RoundToInt(timeBonus * 10); //bsp.: 15sek -> 150pt
+        
         
         //jeder Loop gibt mehr Punkte
         int loopBonusPoints = currentLoopIndex * 100;
@@ -227,6 +251,16 @@ public class GameManager : MonoBehaviour
         //UI updaten
         uiManager.UpdateScore(lastScore);
     }
+    */
+
+    private void ScoreCalculation()
+    {
+        float timeLeft = Mathf.Max(0, loopTimeLimit - currentLoopTime);
+        float newScore = lastScore + timeLeft;
+        uiManager.showScoreScalculation(lastScore, timeLeft, newScore);
+        lastScore = newScore;
+    }
+
 
     private void HandlePlayerDeath()
     {
@@ -289,13 +323,13 @@ public class GameManager : MonoBehaviour
     private void SaveScore()
     {
         //aktueller Score wird zu "Last Score"
-        PlayerPrefs.SetInt("LastScore", lastScore);
+        PlayerPrefs.SetFloat("LastScore", lastScore);
         
         //High Score updaten wenn besser
-        int highScore = PlayerPrefs.GetInt("HighScore", 0);
+        float highScore = PlayerPrefs.GetFloat("HighScore", 0);
         if (lastScore > highScore)
         {
-            PlayerPrefs.SetInt("HighScore", lastScore);
+            PlayerPrefs.SetFloat("HighScore", lastScore);
         }
         
         PlayerPrefs.Save();

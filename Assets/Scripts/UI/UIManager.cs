@@ -18,11 +18,15 @@ public class UIManager : MonoBehaviour
     public Text lastScoreText;
     public Text highScoreText;
     public Text remainingGhostText;
+    public GameObject scoreCalculation;
+    public Text sC_currentScore;
+    public Text sC_timeLeft;
+    public Text sC_newScore;
 
     //Hud Updates
-     public void UpdateScore(int score)
+     public void UpdateScore(float score)
     {
-        scoreText.text = "Score: " + score;
+        scoreText.text = "Score: " + score.ToString("F2");
     }
 
     public void UpdateLoopCounter(int loopIndex)
@@ -38,7 +42,7 @@ public class UIManager : MonoBehaviour
 
     public void UpdateGhostsRemaining(int remaining)
     {
-        remainingGhostText.text = "Ghosts Remaining: " + remaining;
+        remainingGhostText.text = "Targets left: " + remaining;
     }
 
     //großer Loop text
@@ -109,4 +113,18 @@ public class UIManager : MonoBehaviour
         //Scene laden
         SceneManager.LoadScene("MainMenu");
     }
+
+    public void showScoreScalculation(float currentScore, float timeLeft, float newScore)
+    {
+        sC_currentScore.text = currentScore.ToString("F2");
+        sC_timeLeft.text = timeLeft.ToString("F2");
+        sC_newScore.text = newScore.ToString("F2");
+        scoreCalculation.SetActive(true);
+    }
+
+    public void hideScoreCalculation() 
+    {
+        scoreCalculation.SetActive(false);
+    }
+
 }

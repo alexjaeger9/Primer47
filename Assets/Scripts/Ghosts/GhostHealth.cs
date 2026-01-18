@@ -1,15 +1,17 @@
+using TMPro;
 using UnityEngine;
 
 public class GhostHealth : MonoBehaviour
 {
     public Renderer enemyRenderer;
+    public GameObject ghostNumbers;
 
     void Awake()
     {
         //enemyRenderer = GetComponent<Renderer>();
         if (enemyRenderer != null)
         {
-            enemyRenderer.material.color = Color.red;
+            enemyRenderer.material.color = Color.darkRed;
         }
     }
 
@@ -39,6 +41,15 @@ public class GhostHealth : MonoBehaviour
         if (TryGetComponent<Animator>(out var animator))
         {
             animator.enabled = false;
+        }
+    }
+
+    public void UpdateGhostNumbers(int loopCount)
+    {
+        TextMeshPro[] numbers = ghostNumbers.GetComponentsInChildren<TextMeshPro>();
+        foreach (TextMeshPro txt in numbers)
+        {
+            txt.text = loopCount.ToString();
         }
     }
 }

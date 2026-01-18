@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
@@ -19,6 +20,7 @@ public class PlayerController : MonoBehaviour
 
     private Vector3 boostVelocity;
     private float boostVelocityDecay = 2f; //wie schnell der Jumppad Boost abnimmt
+
 
     void Awake()
     {
@@ -84,7 +86,7 @@ public class PlayerController : MonoBehaviour
                 playerAnimator.SetBool("isFalling", false);
                 playerAnimator.SetTrigger("Land");
                 landedThisTick = true;
-                Debug.Log("Landung JETZT: " + velocity.y);
+                //Debug.Log("Landung JETZT: " + velocity.y);
             }
 
             if (velocity.y < 0)
@@ -106,7 +108,6 @@ public class PlayerController : MonoBehaviour
 
             // Erst bei einer gewissen Fallgeschwindigkeit das Falling aktivieren
             // -3f bis -4f ist gut, um nicht bei Treppenstufen zu "fallen"
-            Debug.Log(velocity.y);
             if (velocity.y < -3f)
             {
                 playerAnimator.SetBool("isFalling", true);
