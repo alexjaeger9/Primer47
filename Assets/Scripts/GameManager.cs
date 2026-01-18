@@ -1,7 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
-using TMPro;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -60,7 +58,16 @@ public class GameManager : MonoBehaviour
                 timerRunning = false;
                 HandlePlayerDeath(); //Game Over
             }
+
+            //Von Map gesprungen
+            if (player.transform.position.y < -10f)
+            {
+                timerRunning = false;
+                HandlePlayerDeath(); //Game Over
+            }
         }
+
+        
     }
 
     //der erste Start

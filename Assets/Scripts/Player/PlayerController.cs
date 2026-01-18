@@ -1,4 +1,3 @@
-using TMPro;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
@@ -105,9 +104,7 @@ public class PlayerController : MonoBehaviour
         else
         {
             velocity.y += gravity * Time.deltaTime;
-
-            // Erst bei einer gewissen Fallgeschwindigkeit das Falling aktivieren
-            // -3f bis -4f ist gut, um nicht bei Treppenstufen zu "fallen"
+            // erst Fallen bei gewisser Geschwindigkeit
             if (velocity.y < -3f)
             {
                 playerAnimator.SetBool("isFalling", true);
