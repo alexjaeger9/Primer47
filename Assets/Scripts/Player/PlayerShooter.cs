@@ -17,6 +17,7 @@ public class PlayerShooter : MonoBehaviour
     [HideInInspector] public bool firedThisTick;
     [HideInInspector] public Vector3 recordedMuzzlePosition;
     [HideInInspector] public Vector3 recordedFireDirection;
+    [HideInInspector] public float recordedFireDistance;
     [HideInInspector] public bool isAiming; // später für Kamera
 
     [HideInInspector] private Vector3 handRotationOffset = new Vector3(0, 0, -90);
@@ -94,6 +95,7 @@ public class PlayerShooter : MonoBehaviour
 
         recordedMuzzlePosition = rayStart;
         recordedFireDirection = rayDirection;
+        recordedFireDistance = currentRange;
 
         Vector3 finalHitTarget;
 

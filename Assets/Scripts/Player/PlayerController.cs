@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
     private float yaw;
     private float currentSpeed;
     [HideInInspector] public bool jumpedThisTick;
+    [HideInInspector] public bool landedThisTick;
 
     private Vector3 boostVelocity;
     private float boostVelocityDecay = 2f; //wie schnell der Jumppad Boost abnimmt
@@ -33,13 +34,13 @@ public class PlayerController : MonoBehaviour
         HandleGravityAndJump();
         HandleAnimation();
         //jumpedThisTick = false;
-        
+
         //Boost Velocity über Zeit abbauen
         if (boostVelocity.magnitude > 0.1f)
         {
             boostVelocity = Vector3.Lerp(boostVelocity, Vector3.zero, boostVelocityDecay * Time.deltaTime);
         }
-        
+
         //normale Bewegung + externe Kräfte + Gravity
         Vector3 finalMovement = (moveDirection * currentSpeed) + boostVelocity + new Vector3(0, velocity.y, 0);
         controller.Move(finalMovement * Time.deltaTime);
@@ -56,9 +57,9 @@ public class PlayerController : MonoBehaviour
     {
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
-        
+
         bool isSprinting = false;
-        if(vertical >= 0f) isSprinting = Input.GetKey(KeyCode.LeftShift);
+        if (vertical >= 0f) isSprinting = Input.GetKey(KeyCode.LeftShift);
         currentSpeed = isSprinting ? sprintSpeed : runSpeed;
 
         Vector3 inputDir = new(horizontal, 0f, vertical);
@@ -82,7 +83,8 @@ public class PlayerController : MonoBehaviour
             {
                 playerAnimator.SetBool("isFalling", false);
                 playerAnimator.SetTrigger("Land");
-                //Debug.Log("Landung JETZT: " + velocity.y);
+                landedThisTick = true;
+                Debug.Log("Landung JETZT: " + velocity.y);
             }
 
             if (velocity.y < 0)
@@ -104,6 +106,7 @@ public class PlayerController : MonoBehaviour
 
             // Erst bei einer gewissen Fallgeschwindigkeit das Falling aktivieren
             // -3f bis -4f ist gut, um nicht bei Treppenstufen zu "fallen"
+            Debug.Log(velocity.y);
             if (velocity.y < -3f)
             {
                 playerAnimator.SetBool("isFalling", true);
@@ -135,10 +138,10 @@ public class PlayerController : MonoBehaviour
     {
         //vertikale Komponente in velocity.y
         velocity.y = boostVelocity.y;
-        
+
         //horizontale Komponente in boostVelocity
         this.boostVelocity = new Vector3(boostVelocity.x, 0f, boostVelocity.z);
-        
+
         //Animation
         playerAnimator.SetBool("isFalling", false);
         playerAnimator.SetTrigger("Jump");

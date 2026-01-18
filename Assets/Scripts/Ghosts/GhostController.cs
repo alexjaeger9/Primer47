@@ -37,59 +37,65 @@ public class GhostController : MonoBehaviour
 
     private void UpdatePlayback()
     {
-        // Alles was in der while-Schleife passiert, wird exakt so oft ausgeführt, wie es aufgenommen wurde
         while (currentFrameIndex < runData.frames.Count - 1 && currentTime >= runData.frames[currentFrameIndex + 1].time)
         {
-            // Recording Ende
-            if (currentFrameIndex >= runData.frames.Count - 1)
-            {
-                ghostHealth.StopMovement();
-                return;
-            }
-            
             //current Frame
             RecordedFrame frame = runData.frames[currentFrameIndex];
 
             // Schiessen
             if (frame.fired)
             {
-                ghostShooter.ShootFromReplay(frame.fireMuzzlePosition, frame.fireDirection);
+                ghostShooter.ShootFromReplay(frame.fireMuzzlePosition, frame.fireDirection, frame.fireDistance);
             }
 
-            // Jump trigger
-            if (frame.jumped && ghostAnimator != null)
+            if (ghostAnimator != null)
             {
-                ghostAnimator.SetBool("isFalling", false);
-                ghostAnimator.SetTrigger("Jump");
-                Debug.Log("JumpTRIGGER");
+                if (frame.isFalling)
+                {
+                    ghostAnimator.SetBool("isFalling", true);
+                    //Debug.Log(frame.isFalling);
+                }
+
+                // Jump trigger
+                if (frame.jumped)
+                {
+                    ghostAnimator.SetTrigger("Jump");
+                    //Debug.Log("JumpTRIGGER");
+                }
+
+                if (frame.landed)
+                {
+                    ghostAnimator.SetTrigger("Land");
+                    //Debug.Log("LandTRIGGER");
+                }
             }
 
-            // Landung Logik
-            RecordedFrame nextFrame = runData.frames[currentFrameIndex + 1];
-            if (frame.isFalling && !nextFrame.isFalling)
+            // Recording Ende
+            if (currentFrameIndex >= runData.frames.Count - 2)
             {
-                ghostAnimator.SetTrigger("Land");
+                ghostHealth.StopMovement();
+                return;
             }
+
+            // Kontinuierliche Werte (Lerp & Bools) 
+            RecordedFrame a = runData.frames[currentFrameIndex];
+            RecordedFrame b = runData.frames[currentFrameIndex + 1];
+            float t = Mathf.InverseLerp(a.time, b.time, currentTime);
+
+            transform.position = Vector3.Lerp(a.position, b.position, t);
+            transform.rotation = Quaternion.Slerp(a.rotation, b.rotation, t);
+
+            if (ghostAnimator != null)
+            {
+                ghostAnimator.SetFloat("MoveX", Mathf.Lerp(a.moveX, b.moveX, t));
+                ghostAnimator.SetFloat("MoveY", Mathf.Lerp(a.moveY, b.moveY, t));
+                ghostAnimator.SetBool("isFalling", a.isFalling);
+            }
+
+            currentIKTarget = Vector3.Lerp(a.aimTargetPosition, b.aimTargetPosition, t);
 
             currentFrameIndex++;
         }
-
-        // Kontinuierliche Werte (Lerp & Bools) 
-        RecordedFrame a = runData.frames[currentFrameIndex];
-        RecordedFrame b = runData.frames[currentFrameIndex + 1];
-        float t = Mathf.InverseLerp(a.time, b.time, currentTime);
-
-        transform.position = Vector3.Lerp(a.position, b.position, t);
-        transform.rotation = Quaternion.Slerp(a.rotation, b.rotation, t);
-
-        if (ghostAnimator != null)
-        {
-            ghostAnimator.SetFloat("MoveX", Mathf.Lerp(a.moveX, b.moveX, t));
-            ghostAnimator.SetFloat("MoveY", Mathf.Lerp(a.moveY, b.moveY, t));
-            ghostAnimator.SetBool("isFalling", a.isFalling);
-        }
-
-        currentIKTarget = Vector3.Lerp(a.aimTargetPosition, b.aimTargetPosition, t);
     }
 
     private void OnAnimatorIK(int layerIndex)

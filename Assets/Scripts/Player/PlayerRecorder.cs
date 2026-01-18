@@ -57,7 +57,7 @@ public class PlayerRecorder : MonoBehaviour
             thirdPersonCamera = FindAnyObjectByType<ThirdPersonCamera>();
             if (thirdPersonCamera == null) return;
         }
-        
+
         Vector3 weaponAimDirection = thirdPersonCamera.transform.forward;
         Vector3 currentAimTarget = thirdPersonCamera.transform.position + weaponAimDirection * 100f; // 100f = maxRange
 
@@ -73,16 +73,18 @@ public class PlayerRecorder : MonoBehaviour
             moveX = playerController.playerAnimator.GetFloat("MoveX"),
             moveY = playerController.playerAnimator.GetFloat("MoveY"),
             isFalling = playerController.playerAnimator.GetBool("isFalling"),
-            isGrounded = playerController.playerAnimator.GetBool("isGrounded"),
+            landed = playerController.landedThisTick,
             aimTargetPosition = currentAimTarget
         };
 
         if (playerController.jumpedThisTick) playerController.jumpedThisTick = false;
+        if (playerController.landedThisTick) playerController.landedThisTick = false;
 
         if (frame.fired)
         {
             frame.fireMuzzlePosition = playerShooter.recordedMuzzlePosition;
             frame.fireDirection = playerShooter.recordedFireDirection;
+            frame.fireDistance = playerShooter.recordedFireDistance;
         }
         else
         {

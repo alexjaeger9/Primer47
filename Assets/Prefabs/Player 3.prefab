@@ -971,10 +971,11 @@ MonoBehaviour:
   playerAnimator: {fileID: 32402762388241486}
   runSpeed: 4
   sprintSpeed: 6
-  jumpForce: 7
+  jumpForce: 8
   gravity: -9.81
   mouseSensitivity: 200
   jumpedThisTick: 0
+  landedThisTick: 0
 --- !u!114 &441272580854828227
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1001,24 +1002,8 @@ MonoBehaviour:
   firedThisTick: 0
   recordedMuzzlePosition: {x: 0, y: 0, z: 0}
   recordedFireDirection: {x: 0, y: 0, z: 0}
+  recordedFireDistance: 0
   isAiming: 0
-  fingerBones:
-  - {fileID: 5303440836685057196}
-  - {fileID: 1780455809016151828}
-  - {fileID: 4810158130745172381}
-  - {fileID: 7304831412892158848}
-  - {fileID: 8427510176744570130}
-  - {fileID: 2370659758451636898}
-  - {fileID: 888931311992547313}
-  - {fileID: 4462041384615713426}
-  - {fileID: 326637084779452236}
-  - {fileID: 7012077213683693527}
-  - {fileID: 77006785711471887}
-  - {fileID: 5297604162696129304}
-  thumbBones:
-  - {fileID: 1064485739768955921}
-  - {fileID: 2791148491454560050}
-  - {fileID: 3082897643670922512}
   handBones:
   - {fileID: 5303440836685057196}
   - {fileID: 1780455809016151828}

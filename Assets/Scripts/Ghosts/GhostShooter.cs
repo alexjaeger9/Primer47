@@ -41,13 +41,14 @@ public class GhostShooter : MonoBehaviour
         }
     }
 
-    public void ShootFromReplay(Vector3 savedMuzzlePosition, Vector3 savedDirection)
+    public void ShootFromReplay(Vector3 savedMuzzlePosition, Vector3 savedDirection, float savedDistance)
     {
         Vector3 rayStart = savedMuzzlePosition;
         Vector3 rayDirection = savedDirection;
+        float rayDistance = savedDistance;
         Vector3 finalHitTarget;
 
-        if (Physics.Raycast(rayStart, rayDirection, out RaycastHit hit, maxRange, hitMask))
+        if (Physics.Raycast(rayStart, rayDirection, out RaycastHit hit, rayDistance, hitMask))
         {
             finalHitTarget = hit.point;
             if (hit.collider.TryGetComponent<PlayerHealth>(out var playerHealth))
@@ -57,8 +58,7 @@ public class GhostShooter : MonoBehaviour
         }
         else
         {
-            // Fehler: schuss geht durch ghosts durch, bis max range und trifft trotzdem spieler
-            finalHitTarget = rayStart + rayDirection * maxRange;
+            finalHitTarget = rayStart + rayDirection * rayDistance;
         }
         SpawnTrace(rayStart, finalHitTarget);
     }
