@@ -2,40 +2,51 @@ using UnityEngine;
 
 public class ThirdPersonCamera : MonoBehaviour
 {
-    public Transform target; //Spieler, dem die Cam folgt
-    
-    //Kamera Position
-    [SerializeField] private float distance = 5f;
-    [SerializeField] private float height = 1.5f;
+    public Transform target;
+
+    [Header("Position")]
+    [SerializeField] private float distance = 3f;
+    [SerializeField] private float height = 0.6f;
     [SerializeField] private float shoulderOffset = 1.0f;
 
-    //Sensitivität
-    [SerializeField] public float verticalMouseSensitivity = 200f;
-    [SerializeField] public float horizontalMouseSensitivity = 200f;
-    
-    //Vertikale Rotation Limitter (kein 360 vertikal möglicj)
-    [SerializeField] private float minPitch = -30f;
-    [SerializeField] private float maxPitch = 60f;
-    
-    [HideInInspector] public float pitch; //vertikal
-    public float yaw; //horizontal
+    [Header("Kamera Kollision")]
+    [SerializeField] private LayerMask collisionLayers;
+    [SerializeField] private float collisionRadius = 0.25f;
+    [SerializeField] private float minDistance = 0.5f;
 
-    //für unabhängiges gucken, ohne Spieler (nur Kamara)
+    // Wie schnell die Kamera auf Hindernisse reagiert
+    [SerializeField] private float smoothInSpeed = 25f;
+    [SerializeField] private float smoothOutSpeed = 5f;
+
+    private float currentDistance;
+
+    [Header("Sensitivität")]
+    public float verticalMouseSensitivity = 200f;
+    public float horizontalMouseSensitivity = 200f;
+
+    [SerializeField] private float minPitch = -85f;
+    [SerializeField] private float maxPitch = 85f;
+
+    [HideInInspector] public float pitch;
+    public float yaw;
+
     private bool useOwnYaw = false;
 
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        //Kameraposition aus dem Editor auslesen
+
         pitch = transform.eulerAngles.x;
         yaw = transform.eulerAngles.y;
+        currentDistance = distance;
     }
 
     void LateUpdate()
     {
         if (target == null) return;
 
+        // Rotation
         float mouseY = Input.GetAxis("Mouse Y");
         pitch -= mouseY * verticalMouseSensitivity * Time.deltaTime;
         pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
@@ -43,30 +54,46 @@ public class ThirdPersonCamera : MonoBehaviour
         float finalYaw;
         if (useOwnYaw)
         {
-            //eigene Yaw Berechnung: Spieler steht still, Kamera dreht sich frei
             float mouseX = Input.GetAxis("Mouse X");
             yaw += mouseX * horizontalMouseSensitivity * Time.deltaTime;
             finalYaw = yaw;
         }
         else
         {
-            //normal
             finalYaw = target.eulerAngles.y;
             yaw = finalYaw;
         }
-        
+
         Quaternion rotation = Quaternion.Euler(pitch, finalYaw, 0f);
-        Vector3 offset = rotation * new Vector3(shoulderOffset, height, -distance);
-        Vector3 desiredPos = target.position + offset;
-        transform.position = desiredPos;
+
+        // Kollision
+        Vector3 rayStartPos = target.position + (rotation * new Vector3(shoulderOffset, height, 0f));
+        Vector3 rayDirection = rotation * Vector3.back;
+
+        RaycastHit hit;
+        float targetDist = distance;
+
+        // small offset
+        Vector3 castStart = rayStartPos + (rotation * Vector3.forward * 0.2f);
+
+        if (Physics.SphereCast(castStart, collisionRadius, rayDirection, out hit, distance + 0.2f, collisionLayers))
+        {
+            targetDist = Mathf.Clamp(hit.distance - collisionRadius, minDistance, distance);
+        }
+
+        // Smoothing
+        float currentSmoothing = (targetDist < currentDistance) ? smoothInSpeed : smoothOutSpeed;
+        currentDistance = Mathf.Lerp(currentDistance, targetDist, Time.deltaTime * currentSmoothing);
+
+        // final Position
+        transform.position = rayStartPos + (rayDirection * currentDistance);
         transform.rotation = rotation;
     }
-    
+
     public void EnableFreeCamera()
     {
         useOwnYaw = true;
-    }
-    
+    } 
     public void DisableFreeCamera()
     {
         useOwnYaw = false;

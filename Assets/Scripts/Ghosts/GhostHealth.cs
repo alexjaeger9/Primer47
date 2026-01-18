@@ -17,9 +17,9 @@ public class GhostHealth : MonoBehaviour
 
     public void TakeHit()
     {
-        if (enemyRenderer != null && enemyRenderer.material.color != Color.gray)
+        if (enemyRenderer != null && enemyRenderer.material.color != Color.gray3)
         {
-            enemyRenderer.material.color = Color.gray;
+            enemyRenderer.material.color = Color.gray3;
 
             StopMovement();
             
