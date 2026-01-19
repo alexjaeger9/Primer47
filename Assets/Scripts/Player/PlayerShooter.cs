@@ -8,6 +8,11 @@ public class PlayerShooter : MonoBehaviour
     public Transform muzzleTransform;
     public Transform gunTransform;
 
+    [Header("Audio Settings")] // NEU: Header fÃ¼r Ordnung im Inspector
+    public AudioSource gunAudioSource; // NEU: Der "Lautsprecher"
+    public AudioClip gunshotClip;      // NEU: Der Soundfile
+    [Range(0f, 0.5f)] public float pitchVariation = 0.1f; // NEU: Variation der TonhÃ¶he
+
     public GameObject tracePrefab;
     public float fireRate = 5f;
     public float maxRange = 100f;
@@ -18,7 +23,7 @@ public class PlayerShooter : MonoBehaviour
     [HideInInspector] public Vector3 recordedMuzzlePosition;
     [HideInInspector] public Vector3 recordedFireDirection;
     [HideInInspector] public float recordedFireDistance;
-    [HideInInspector] public bool isAiming; // später für Kamera
+    [HideInInspector] public bool isAiming; // spï¿½ter fï¿½r Kamera
 
     [HideInInspector] private Vector3 handRotationOffset = new Vector3(0, 0, -90);
 
@@ -48,7 +53,7 @@ public class PlayerShooter : MonoBehaviour
 
     private void LateUpdate()
     {
-        // Erzwinge die gespeicherte Pose über jede Animation drüber
+        // Erzwinge die gespeicherte Pose ï¿½ber jede Animation drï¿½ber
         if (savedRotations != null)
         {
             for (int i = 0; i < handBones.Length; i++)
@@ -76,6 +81,18 @@ public class PlayerShooter : MonoBehaviour
     private void Shoot()
     {
         firedThisTick = true;
+
+        // NEU SOUND ABSPIELEN 
+        if (gunAudioSource != null && gunshotClip != null)
+        {
+            // ZufÃ¤llige TonhÃ¶he (zwischen 0.9 und 1.1)
+            gunAudioSource.pitch = 1f + Random.Range(-pitchVariation, pitchVariation);
+            
+            // Sounds kÃ¶nnen sich Ã¼berlagern
+            gunAudioSource.PlayOneShot(gunshotClip);
+        }
+        //
+
         Vector3 screenCenter = new(Screen.width / 2, Screen.height / 2, 0);
         Ray cameraRay = mainCamera.ScreenPointToRay(screenCenter);
         Vector3 idealHitTarget;
