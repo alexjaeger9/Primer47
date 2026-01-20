@@ -4032,6 +4032,14 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2287267469349351620, guid: 642addf4787567d4abc83665d68e1691, type: 3}
+      propertyPath: field of view
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 2287267469349351620, guid: 642addf4787567d4abc83665d68e1691, type: 3}
+      propertyPath: far clip plane
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 2954327873741449940, guid: 642addf4787567d4abc83665d68e1691, type: 3}
       propertyPath: m_Name
       value: Player 3
