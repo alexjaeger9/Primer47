@@ -12,9 +12,6 @@ public class PlayerController : MonoBehaviour
 
     [Header("Footsteps")] //
     public AudioClip[] footstepClips; // Array für mehrere Sounds (Abwechslung)
-    public float walkStepInterval = 0.5f; // Zeit zwischen Schritten beim normalen Laufen
-    public float sprintStepInterval = 0.3f; // Zeit zwischen Schritten beim Sprinten
-    private float footstepTimer; // Zählt die Zeit runter
 
     [SerializeField] private float runSpeed = 4f;
     [SerializeField] private float sprintSpeed = 6f;
@@ -45,7 +42,6 @@ public class PlayerController : MonoBehaviour
         HandleRotation();
         HandleMovementInput();
         HandleGravityAndJump();
-        HandleFootsteps();
         HandleAnimation();
         //jumpedThisTick = false;
 
@@ -128,37 +124,19 @@ public class PlayerController : MonoBehaviour
         //Debug.Log(playerAnimator.GetBool("isFalling"));
     }
 
-    // --- NEU: Schritt-Logik ---
-    void HandleFootsteps()
+    public void OnFootstep()
     {
-        // Wir spielen nur Sounds, wenn wir am Boden sind UND uns bewegen
-        if (controller.isGrounded && moveDirection.magnitude > 0.1f)
+        // Sicherheits-Check: Nur Sound spielen, wenn wir am Boden sind
+        // (Damit man beim Springen nicht weitertrippelt)
+        if (controller.isGrounded && footstepClips.Length > 0)
         {
-            // Timer runterzählen
-            footstepTimer -= Time.deltaTime;
-
-            if (footstepTimer <= 0f)
-            {
-                // Zufälligen Sound aus dem Array wählen
-                if (footstepClips.Length > 0)
-                {
-                    AudioClip clipToPlay = footstepClips[Random.Range(0, footstepClips.Length)];
-                    PlaySound(clipToPlay);
-                }
-
-                // Timer zurücksetzen: Je nach Speed (Sprint oder Normal)
-                bool isSprinting = (currentSpeed == sprintSpeed);
-                footstepTimer = isSprinting ? sprintStepInterval : walkStepInterval;
-            }
-        }
-        else
-        {
-            // Wenn wir stehen bleiben, Timer fast auf 0 setzen, 
-            // damit wir beim Loslaufen sofort einen Schritt hören
-            footstepTimer = 0.05f; 
+            // Leiser Variation in der Lautstärke für Realismus
+            audioSource.volume = Random.Range(0.8f, 1.0f); 
+            
+            AudioClip clipToPlay = footstepClips[Random.Range(0, footstepClips.Length)];
+            PlaySound(clipToPlay);
         }
     }
-    // -------------------------
     
     void HandleAnimation()
     {
