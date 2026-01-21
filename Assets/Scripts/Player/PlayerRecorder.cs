@@ -35,6 +35,7 @@ public class PlayerRecorder : MonoBehaviour
         //Camera finden
         thirdPersonCamera = FindAnyObjectByType<ThirdPersonCamera>();
         currentRunData = new RunData();
+        currentRunData.startPosition = transform.position;
         currentTime = 0f;
         timeSinceLastTick = 0f;
         isRecording = true;

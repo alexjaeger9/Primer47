@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     [Header("Prefabs & Spawns")]
     public GameObject playerPrefab;
     public GameObject ghostPrefab;
+    public SpawnArea spawnArea; //
     public Transform playerSpawnPoint;
     public Transform targetSpawnPoint;
 
@@ -83,7 +84,8 @@ public class GameManager : MonoBehaviour
         lastScore = 0f; //Score resetten
         uiManager.UpdateScore(0); //UI-Score updaten  
         uiManager.hideScoreCalculation();
-        
+
+        spawnArea.ResetSpawnHistory();
         PauseManager.canPause = true; //pausieren erlauben
 
         //Cursor locken
@@ -113,7 +115,11 @@ public class GameManager : MonoBehaviour
     private void SpawnPlayer()
     {
         Destroy(player);
-        player = Instantiate(playerPrefab, playerSpawnPoint.position, playerSpawnPoint.rotation);
+        
+        //Random Position von SpawnArea
+        Vector3 spawnPosition = spawnArea.GetRandomSpawnPosition();
+        
+        player = Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
         playerRecorder = player.GetComponent<PlayerRecorder>();
         playerHealth = player.GetComponent<PlayerHealth>();
         playerHealth.OnPlayerDeath += HandlePlayerDeath;
@@ -143,7 +149,9 @@ public class GameManager : MonoBehaviour
         SpawnInitialTarget();
         foreach (RunData run in allRuns)
         {
-            GameObject ghostGO = Instantiate(ghostPrefab, playerSpawnPoint.position, playerSpawnPoint.rotation);
+            Vector3 ghostSpawnPos = run.startPosition;
+        
+            GameObject ghostGO = Instantiate(ghostPrefab, ghostSpawnPos, Quaternion.identity);
             allSpawnedGhosts.Add(ghostGO);
             GhostController controller = ghostGO.GetComponent<GhostController>();
             GhostHealth health = ghostGO.GetComponent<GhostHealth>();
@@ -199,6 +207,7 @@ public class GameManager : MonoBehaviour
         //Loop Clearen
         ClearGhosts();
         ClearBullets();
+        SpawnPlayer();
         StartLoop();
         
         //Slow Mo beenden
@@ -290,7 +299,7 @@ public class GameManager : MonoBehaviour
         shooter.enabled = false;
         animator.enabled = false;
 
-        // Kamera freischalten für 360° Blick
+        //Kamera freischalten für 360 Blick
         ThirdPersonCamera cam = FindAnyObjectByType<ThirdPersonCamera>();
         cam.EnableFreeCamera();
 
