@@ -83,7 +83,7 @@ public class SpawnArea : MonoBehaviour
     //prüft ob zu nah an einem Jump Pad
     private bool IsTooCloseToJumpPad(Vector3 position)
     {
-        //alle Jump Pads in der Szene
+        //alle Jump Pads
         JumpPad[] allJumpPads = FindObjectsByType<JumpPad>(FindObjectsSortMode.None);
         
         foreach (JumpPad pad in allJumpPads)
