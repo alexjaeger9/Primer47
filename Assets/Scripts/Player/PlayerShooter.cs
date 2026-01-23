@@ -76,45 +76,46 @@ public class PlayerShooter : MonoBehaviour
     private void Shoot()
     {
         firedThisTick = true;
-        Vector3 screenCenter = new(Screen.width / 2, Screen.height / 2, 0);
+        lastShotTime = Time.time;
+
+        Vector3 screenCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
         Ray cameraRay = mainCamera.ScreenPointToRay(screenCenter);
-        Vector3 idealHitTarget;
+
+        Vector3 rayStart = muzzleTransform.position;
+        Vector3 targetWorldPoint;
+
+        // Zielpunkt ermitteln
         if (Physics.Raycast(cameraRay, out RaycastHit cameraHit, maxRange, hitMask))
         {
-            idealHitTarget = cameraHit.point;
+            Vector3 dirToHitFromMuzzle = (cameraHit.point - rayStart).normalized;
+            float dot = Vector3.Dot(mainCamera.transform.forward, dirToHitFromMuzzle);
+
+            // Ist Punkt im Sichtfeld?
+            if (dot > -0.2f) targetWorldPoint = cameraHit.point;
+            else targetWorldPoint = rayStart + mainCamera.transform.forward * maxRange;
         }
-        else
+        else targetWorldPoint = rayStart + mainCamera.transform.forward * maxRange;
+
+        // Richtung und Distanz
+        Vector3 fireDirection = (targetWorldPoint - rayStart).normalized;
+        Vector3 finalHitTarget = targetWorldPoint;
+        float currentRange = maxRange;
+
+        // Echter Schuss von Muzzle
+        if (Physics.Raycast(rayStart, fireDirection, out RaycastHit weaponHit, maxRange, hitMask))
         {
-            idealHitTarget = cameraRay.origin + cameraRay.direction * maxRange;
+            finalHitTarget = weaponHit.point;
+            currentRange = weaponHit.distance;
+            if (weaponHit.collider.TryGetComponent<GhostHealth>(out var enemyHealth)) enemyHealth.TakeHit();
         }
-        Vector3 actualMuzzlePosUnity = muzzleTransform.position;
-        Vector3 rayStart = actualMuzzlePosUnity;
-        Vector3 rayDirection = (idealHitTarget - rayStart).normalized;
+        else currentRange = Vector3.Distance(rayStart, targetWorldPoint);
 
-        float currentRange = Vector3.Distance(rayStart, idealHitTarget);
-
+        // Aufnahme für das Ghost-System
         recordedMuzzlePosition = rayStart;
-        recordedFireDirection = rayDirection;
+        recordedFireDirection = fireDirection;
         recordedFireDistance = currentRange;
 
-        Vector3 finalHitTarget;
-
-        if (Physics.Raycast(rayStart, rayDirection, out RaycastHit hit, currentRange, hitMask))
-        {
-            finalHitTarget = hit.point;
-            if (hit.collider.TryGetComponent<GhostHealth>(out var enemyHealth))
-            {
-                enemyHealth.TakeHit();
-            }
-        }
-        else
-        {
-            finalHitTarget = idealHitTarget;
-            if (cameraHit.collider != null && cameraHit.collider.TryGetComponent<GhostHealth>(out var enemyHealth))
-            {
-                enemyHealth.TakeHit();
-            }
-        }
+        // Tracer
         if (tracePrefab != null)
         {
             GameObject newTrace = Instantiate(tracePrefab);
