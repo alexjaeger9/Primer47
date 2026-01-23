@@ -16,9 +16,12 @@ public class PlayerController : MonoBehaviour
     private float currentSpeed;
     [HideInInspector] public bool jumpedThisTick;
     [HideInInspector] public bool landedThisTick;
+    [HideInInspector] public bool slidingThisTick;
 
     private Vector3 boostVelocity;
     private float boostVelocityDecay = 2f; //wie schnell der Jumppad Boost abnimmt
+
+    private bool canSlideAgain = true;
 
 
     void Awake()
@@ -125,6 +128,20 @@ public class PlayerController : MonoBehaviour
         float multiplier = isSprinting ? 2f : 1f;
         float targetX = h * multiplier;
         float targetY = v * multiplier;
+
+        if (isSprinting && Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            playerAnimator.SetTrigger("Slide");
+            playerAnimator.SetBool("isSliding", true);
+        }
+
+        if (Input.GetKeyUp(KeyCode.LeftControl))
+        {
+            playerAnimator.SetBool("isSliding", false);
+        }
+
+        slidingThisTick = playerAnimator.GetCurrentAnimatorStateInfo(0).IsTag("SlidingTag");
+        Debug.Log(slidingThisTick);
 
         playerAnimator.SetFloat("MoveX", targetX, 0.1f, Time.deltaTime);
         playerAnimator.SetFloat("MoveY", targetY, 0.1f, Time.deltaTime);
