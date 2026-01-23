@@ -75,6 +75,7 @@ public class PlayerRecorder : MonoBehaviour
             moveY = playerController.playerAnimator.GetFloat("MoveY"),
             isFalling = playerController.playerAnimator.GetBool("isFalling"),
             landed = playerController.landedThisTick,
+            isSliding = playerController.slidingThisTick,
             aimTargetPosition = currentAimTarget
         };
 

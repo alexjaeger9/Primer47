@@ -19,5 +19,6 @@ public struct RecordedFrame
     public float moveY;
     public bool isFalling;
     public bool landed;
+    public bool isSliding;
     public Vector3 aimTargetPosition;
 }
