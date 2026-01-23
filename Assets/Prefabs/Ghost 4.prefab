@@ -1904,6 +1904,7 @@ MonoBehaviour:
   runData:
     frames: []
     duration: 0
+    startPosition: {x: 0, y: 0, z: 0}
   ghostAnimator: {fileID: 32402762388241486}
   pitchTarget: {fileID: 5189026472716119414}
 --- !u!114 &-2578500887154527768
@@ -1920,10 +1921,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GhostShooter
   hitMask:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 320
   maxRange: 100
   tracePrefab: {fileID: 6796344618158638744, guid: 3e8b227d28f15b04bb04dc50d4ad9548, type: 3}
   traceDuration: 0.1
+  muzzleParticle: {fileID: 2906822022243540252, guid: ed45006d1fff1dc46943d7ec9e9ee0b9, type: 3}
+  bulletHitParticle: {fileID: 4977915692750998515, guid: 56184da8c3e0fd04e9a18594be20497f, type: 3}
   handBones:
   - {fileID: 6547559608156382954}
   - {fileID: 3181502116648466441}

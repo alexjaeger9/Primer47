@@ -1219,8 +1219,10 @@ MonoBehaviour:
   maxRange: 100
   hitMask:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 384
   trailDuration: 0.1
+  muzzleParticle: {fileID: 2906822022243540252, guid: ed45006d1fff1dc46943d7ec9e9ee0b9, type: 3}
+  bulletHitParticle: {fileID: 4977915692750998515, guid: 56184da8c3e0fd04e9a18594be20497f, type: 3}
   firedThisTick: 0
   recordedMuzzlePosition: {x: 0, y: 0, z: 0}
   recordedFireDirection: {x: 0, y: 0, z: 0}
@@ -1258,6 +1260,7 @@ MonoBehaviour:
   currentRunData:
     frames: []
     duration: 0
+    startPosition: {x: 0, y: 0, z: 0}
 --- !u!114 &7804398242670615876
 MonoBehaviour:
   m_ObjectHideFlags: 0

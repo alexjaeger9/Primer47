@@ -9,10 +9,15 @@ public class GhostShooter : MonoBehaviour
     public GameObject tracePrefab;
     public float traceDuration = 0.1f;
     //public Transform pitchTarget;
+    [SerializeField] private GameObject muzzleParticle;
+    [SerializeField] private GameObject bulletHitParticle;
+
 
     [Header("Hand Pose")]
     public Transform[] handBones;
     private Quaternion[] savedRotations;
+
+    private Camera mainCamera;
 
     private void Start()
     {
@@ -26,11 +31,13 @@ public class GhostShooter : MonoBehaviour
                     savedRotations[i] = handBones[i].localRotation;
             }
         }
+
+        mainCamera = Camera.main;
     }
 
     private void LateUpdate()
     {
-        // Erzwinge die gespeicherte Pose über jede Animation drüber
+        // Erzwinge die gespeicherte Pose ï¿½ber jede Animation drï¿½ber
         if (savedRotations != null)
         {
             for (int i = 0; i < handBones.Length; i++)
@@ -43,6 +50,7 @@ public class GhostShooter : MonoBehaviour
 
     public void ShootFromReplay(Vector3 savedMuzzlePosition, Vector3 savedDirection, float savedDistance)
     {
+        SpawnMuzzleFlash(savedMuzzlePosition, savedDirection);
         Vector3 rayStart = savedMuzzlePosition;
         Vector3 rayDirection = savedDirection;
         float rayDistance = savedDistance;
@@ -51,6 +59,7 @@ public class GhostShooter : MonoBehaviour
         if (Physics.Raycast(rayStart, rayDirection, out RaycastHit hit, rayDistance, hitMask))
         {
             finalHitTarget = hit.point;
+            SpawnShockwave(hit.point);
             if (hit.collider.TryGetComponent<PlayerHealth>(out var playerHealth))
             {
                 playerHealth.TakeDamage();
@@ -75,5 +84,34 @@ public class GhostShooter : MonoBehaviour
                 movement.destroyDelay = traceDuration;
             }
         }
+    }
+
+    private void SpawnMuzzleFlash(Vector3 muzzlePosition, Vector3 direction)
+    {
+        // Rotation in Schuss-Richtung
+        Quaternion rotation = Quaternion.LookRotation(direction);
+        
+        GameObject effect = Instantiate(
+            muzzleParticle, 
+            muzzlePosition, 
+            rotation
+        );
+        Destroy(effect, 1f);
+    }
+
+    private void SpawnShockwave(Vector3 position)
+    {
+        GameObject shockwave = Instantiate(
+            bulletHitParticle, 
+            position, 
+            Quaternion.identity
+        );
+        
+        if (mainCamera != null)
+        {
+            Vector3 directionToCamera = mainCamera.transform.position - position;
+            shockwave.transform.rotation = Quaternion.LookRotation(directionToCamera);
+        }
+        Destroy(shockwave, 1f);
     }
 }

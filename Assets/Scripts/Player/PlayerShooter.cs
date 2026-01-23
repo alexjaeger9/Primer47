@@ -13,12 +13,14 @@ public class PlayerShooter : MonoBehaviour
     public float maxRange = 100f;
     public LayerMask hitMask;
     public float trailDuration = 0.1f;
+    [SerializeField] private GameObject muzzleParticle;
+    [SerializeField] private GameObject bulletHitParticle;
     private float lastShotTime;
     [HideInInspector] public bool firedThisTick;
     [HideInInspector] public Vector3 recordedMuzzlePosition;
     [HideInInspector] public Vector3 recordedFireDirection;
     [HideInInspector] public float recordedFireDistance;
-    [HideInInspector] public bool isAiming; // später für Kamera
+    [HideInInspector] public bool isAiming; // spï¿½ter fï¿½r Kamera
 
     [HideInInspector] private Vector3 handRotationOffset = new Vector3(0, 0, -90);
 
@@ -48,7 +50,7 @@ public class PlayerShooter : MonoBehaviour
 
     private void LateUpdate()
     {
-        // Erzwinge die gespeicherte Pose über jede Animation drüber
+        // Erzwinge die gespeicherte Pose ï¿½ber jede Animation drï¿½ber
         if (savedRotations != null)
         {
             for (int i = 0; i < handBones.Length; i++)
@@ -76,12 +78,14 @@ public class PlayerShooter : MonoBehaviour
     private void Shoot()
     {
         firedThisTick = true;
+        SpawnMuzzleFlash();
         Vector3 screenCenter = new(Screen.width / 2, Screen.height / 2, 0);
         Ray cameraRay = mainCamera.ScreenPointToRay(screenCenter);
         Vector3 idealHitTarget;
         if (Physics.Raycast(cameraRay, out RaycastHit cameraHit, maxRange, hitMask))
         {
             idealHitTarget = cameraHit.point;
+            SpawnShockwave(cameraHit.point);
         }
         else
         {
@@ -102,6 +106,7 @@ public class PlayerShooter : MonoBehaviour
         if (Physics.Raycast(rayStart, rayDirection, out RaycastHit hit, currentRange, hitMask))
         {
             finalHitTarget = hit.point;
+            SpawnShockwave(cameraHit.point);
             if (hit.collider.TryGetComponent<GhostHealth>(out var enemyHealth))
             {
                 enemyHealth.TakeHit();
@@ -156,5 +161,33 @@ public class PlayerShooter : MonoBehaviour
     public void ResetTickFlags()
     {
         firedThisTick = false;
+    }
+
+    private void SpawnMuzzleFlash()
+    {
+            // Spawne am Muzzle (Gun-Ende)
+            GameObject effect = Instantiate(
+                muzzleParticle, 
+                muzzleTransform.position, 
+                muzzleTransform.rotation  // Zeigt nach vorne (Gun-Richtung)
+            );
+            Destroy(effect, 1f);
+    }
+
+    private void SpawnShockwave(Vector3 position)
+    {
+        // Billboard: Quaternion.identity (schaut automatisch zur Kamera)
+        GameObject shockwave = Instantiate(
+            bulletHitParticle, 
+            position, 
+            Quaternion.identity
+        );
+
+        if (mainCamera != null)
+        {
+            Vector3 directionToCamera = mainCamera.transform.position - position;
+            shockwave.transform.rotation = Quaternion.LookRotation(directionToCamera);
+        }
+        Destroy(shockwave, 1f);
     }
 }

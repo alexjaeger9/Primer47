@@ -1888,6 +1888,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GhostHealth
   enemyRenderer: {fileID: 8292873402668726782}
+  ghostNumbers: {fileID: 0}
 --- !u!114 &-7041864263910365551
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1903,6 +1904,7 @@ MonoBehaviour:
   runData:
     frames: []
     duration: 0
+    startPosition: {x: 0, y: 0, z: 0}
   ghostAnimator: {fileID: 32402762388241486}
   pitchTarget: {fileID: 5189026472716119414}
 --- !u!114 &-2578500887154527768
@@ -1919,7 +1921,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GhostShooter
   hitMask:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 320
   maxRange: 100
   tracePrefab: {fileID: 6796344618158638744, guid: 3e8b227d28f15b04bb04dc50d4ad9548, type: 3}
   traceDuration: 0.1

@@ -795,6 +795,14 @@ MonoBehaviour:
   target: {fileID: 4607317465085672663}
   distance: 5
   height: 1.5
+  shoulderOffset: 1
+  collisionLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  collisionRadius: 0.25
+  minDistance: 0.5
+  smoothInSpeed: 25
+  smoothOutSpeed: 5
   verticalMouseSensitivity: 200
   horizontalMouseSensitivity: 200
   minPitch: -30
@@ -974,6 +982,7 @@ MonoBehaviour:
   gravity: -9.81
   mouseSensitivity: 200
   jumpedThisTick: 0
+  landedThisTick: 0
 --- !u!114 &441272580854828227
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -995,12 +1004,14 @@ MonoBehaviour:
   maxRange: 100
   hitMask:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 384
   trailDuration: 0.1
   firedThisTick: 0
   recordedMuzzlePosition: {x: 0, y: 0, z: 0}
   recordedFireDirection: {x: 0, y: 0, z: 0}
+  recordedFireDistance: 0
   isAiming: 0
+  handBones: []
 --- !u!114 &4342052417262731268
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1017,6 +1028,7 @@ MonoBehaviour:
   currentRunData:
     frames: []
     duration: 0
+    startPosition: {x: 0, y: 0, z: 0}
 --- !u!114 &7804398242670615876
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1029,6 +1041,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 661a3d5806d29cf478d484baebba3e31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
+  playerNumbers: {fileID: 0}
 --- !u!95 &32402762388241486
 Animator:
   serializedVersion: 7
