@@ -141,7 +141,6 @@ public class PlayerController : MonoBehaviour
         }
 
         slidingThisTick = playerAnimator.GetCurrentAnimatorStateInfo(0).IsTag("SlidingTag");
-        Debug.Log(slidingThisTick);
 
         playerAnimator.SetFloat("MoveX", targetX, 0.1f, Time.deltaTime);
         playerAnimator.SetFloat("MoveY", targetY, 0.1f, Time.deltaTime);

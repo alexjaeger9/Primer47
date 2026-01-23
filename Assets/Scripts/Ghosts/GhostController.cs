@@ -90,6 +90,7 @@ public class GhostController : MonoBehaviour
                 ghostAnimator.SetFloat("MoveX", Mathf.Lerp(a.moveX, b.moveX, t));
                 ghostAnimator.SetFloat("MoveY", Mathf.Lerp(a.moveY, b.moveY, t));
                 ghostAnimator.SetBool("isFalling", a.isFalling);
+                ghostAnimator.SetBool("isSliding", frame.isSliding);
             }
 
             currentIKTarget = Vector3.Lerp(a.aimTargetPosition, b.aimTargetPosition, t);
