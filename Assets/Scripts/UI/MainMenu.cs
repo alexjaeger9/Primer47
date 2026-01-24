@@ -37,7 +37,7 @@ public class MainMenu : MonoBehaviour
         // Alle Posen deaktivieren
         foreach (var pose in playerPoses) pose.SetActive(false);
 
-        // Neue Pose wählen, die nicht die letzte war
+        // Neue Pose wï¿½hlen, die nicht die letzte war
         do
         {
             currentPoseIndex = Random.Range(0, playerPoses.Length);
@@ -64,6 +64,7 @@ public class MainMenu : MonoBehaviour
 
     private IEnumerator StartGameWithFade()
     {
+        Time.timeScale = 1f;
         //1 Sekunde Fade to Black
         yield return transitionController.FadeIn(1f);
         

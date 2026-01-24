@@ -30,7 +30,7 @@ public class GhostShooter : MonoBehaviour
 
     private void LateUpdate()
     {
-        // Erzwinge die gespeicherte Pose über jede Animation drüber
+        // Erzwinge die gespeicherte Pose ï¿½ber jede Animation drï¿½ber
         if (savedRotations != null)
         {
             for (int i = 0; i < handBones.Length; i++)
