@@ -65,7 +65,7 @@ public class UIManager : MonoBehaviour
 
         float currentScore = PlayerPrefs.GetFloat("LastScore", 0f);
         float highScore = PlayerPrefs.GetFloat("HighScore", 0f);
-        lastScoreText.text = "Score: " + currentScore.ToString("F2");
+        lastScoreText.text = "Your Score: " + currentScore.ToString("F2");
         highScoreText.text = "High Score: " + highScore.ToString("F2");
 
         //Cursor freigeben und sichtbar machen
