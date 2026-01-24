@@ -120,15 +120,13 @@ public class PlayerShooter : MonoBehaviour
                 enemyHealth.TakeHit();
             }
         }
-        if (tracePrefab != null)
+
+        //Bullet aus Pool holen
+        GameObject newTrace = BulletPool.Instance.GetBullet();
+        if (newTrace.TryGetComponent<TracerMovement>(out var movement))
         {
-            GameObject newTrace = Instantiate(tracePrefab);
-            newTrace.transform.SetParent(null);
-            if (newTrace.TryGetComponent<TracerMovement>(out var movement))
-            {
-                movement.Initialize(rayStart, finalHitTarget);
-                movement.destroyDelay = trailDuration;
-            }
+            movement.destroyDelay = trailDuration;
+            movement.Initialize(rayStart, finalHitTarget); //Initialize aktiviert das Bullet
         }
     }
 

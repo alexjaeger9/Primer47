@@ -74,15 +74,12 @@ public class GhostShooter : MonoBehaviour
 
     private void SpawnTrace(Vector3 rayStart, Vector3 hitTarget)
     {
-        if (tracePrefab != null)
+        //Bullet aus Pool holen
+        GameObject newTrace = BulletPool.Instance.GetBullet();
+        if (newTrace.TryGetComponent<TracerMovement>(out var movement))
         {
-            GameObject newTrace = Instantiate(tracePrefab);
-            newTrace.transform.SetParent(null);
-            if (newTrace.TryGetComponent<TracerMovement>(out var movement))
-            {
-                movement.Initialize(rayStart, hitTarget);
-                movement.destroyDelay = traceDuration;
-            }
+            movement.destroyDelay = traceDuration;
+            movement.Initialize(rayStart, hitTarget); //Initialize aktiviert das Bullet
         }
     }
 
