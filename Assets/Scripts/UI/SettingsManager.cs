@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class SettingsManager : MonoBehaviour
 {
@@ -151,12 +153,45 @@ public class SettingsManager : MonoBehaviour
     {
         vSyncEnabled = enabled;
         QualitySettings.vSyncCount = enabled ? 1 : 0;
+        if (!enabled)
+        {
+            SetFPSLimit(fpsLimit);
+        }
     }
 
     public void SetFPSLimit(int limit)
     {
         fpsLimit = limit;
-        Application.targetFrameRate = limit;
+        if (limit == -1)
+        {
+            Application.targetFrameRate = -1; //unlimited
+        }
+        else
+        {
+            Application.targetFrameRate = limit;
+        }
+    }
+
+     private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        StartCoroutine(ApplySettingsDelayed());
+    }
+
+    private IEnumerator ApplySettingsDelayed()
+    {
+        //warte 0.1s damit Player/Camera spawnen können
+        yield return new WaitForSeconds(0.1f);
+        ApplySensitivityToGame();
     }
 
     //Getters

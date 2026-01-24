@@ -74,6 +74,7 @@ public class GameManager : MonoBehaviour
     //der erste Start
     public IEnumerator StartNewGame()
     {
+        Time.timeScale = 1f;
         transitionController.SetAlpha(1f);
 
         SpawnPlayer();
