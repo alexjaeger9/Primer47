@@ -159,5 +159,6 @@ public class PlayerController : MonoBehaviour
         //Animation
         playerAnimator.SetBool("isFalling", false);
         playerAnimator.SetTrigger("Jump");
+        jumpedThisTick = true;
     }
 }
