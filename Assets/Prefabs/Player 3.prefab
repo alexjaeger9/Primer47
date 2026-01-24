@@ -1198,6 +1198,7 @@ MonoBehaviour:
   mouseSensitivity: 200
   jumpedThisTick: 0
   landedThisTick: 0
+  slidingThisTick: 0
 --- !u!114 &441272580854828227
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1219,7 +1220,7 @@ MonoBehaviour:
   maxRange: 100
   hitMask:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 640
   trailDuration: 0.1
   firedThisTick: 0
   recordedMuzzlePosition: {x: 0, y: 0, z: 0}
@@ -1258,6 +1259,7 @@ MonoBehaviour:
   currentRunData:
     frames: []
     duration: 0
+    startPosition: {x: 0, y: 0, z: 0}
 --- !u!114 &7804398242670615876
 MonoBehaviour:
   m_ObjectHideFlags: 0

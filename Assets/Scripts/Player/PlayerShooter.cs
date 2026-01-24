@@ -85,7 +85,7 @@ public class PlayerShooter : MonoBehaviour
         Vector3 targetWorldPoint;
 
         // Zielpunkt ermitteln
-        if (Physics.Raycast(cameraRay, out RaycastHit cameraHit, maxRange, hitMask))
+        if (Physics.Raycast(cameraRay, out RaycastHit cameraHit, maxRange))
         {
             Vector3 dirToHitFromMuzzle = (cameraHit.point - rayStart).normalized;
             float dot = Vector3.Dot(mainCamera.transform.forward, dirToHitFromMuzzle);
@@ -107,6 +107,7 @@ public class PlayerShooter : MonoBehaviour
             finalHitTarget = weaponHit.point;
             currentRange = weaponHit.distance;
             if (weaponHit.collider.TryGetComponent<GhostHealth>(out var enemyHealth)) enemyHealth.TakeHit();
+            else if (weaponHit.collider.TryGetComponent<ExplosiveBarrel>(out var barrel)) barrel.TakeHit();
         }
         else currentRange = Vector3.Distance(rayStart, targetWorldPoint);
 
