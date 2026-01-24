@@ -142,6 +142,13 @@ public class GameManager : MonoBehaviour
 
         //Player Number Update
         playerHealth.UpdatePlayerNumbers(currentLoopIndex + 1);
+
+        //Explosive Barrels respawnen
+        ExplosiveBarrel[] barrels = Object.FindObjectsByType<ExplosiveBarrel>(FindObjectsSortMode.None);
+        foreach (ExplosiveBarrel barrel in barrels)
+        {
+            barrel.Respawn();
+        }
     }
 
     private void SpawnGhostsFromRuns()
@@ -249,25 +256,6 @@ public class GameManager : MonoBehaviour
             Destroy(tracer.gameObject);
         }
     }
-
-    /*
-    private void CalculateScore()
-    {
-        //je schneller, desto mehr Punkte
-        float timeBonus = Mathf.Max(0, loopTimeLimit - currentLoopTime);
-        int timeBonusPoints = Mathf.RoundToInt(timeBonus * 10); //bsp.: 15sek -> 150pt
-        
-        
-        //jeder Loop gibt mehr Punkte
-        int loopBonusPoints = currentLoopIndex * 100;
-        
-        //gesamt
-        lastScore += timeBonusPoints + loopBonusPoints;
-        
-        //UI updaten
-        uiManager.UpdateScore(lastScore);
-    }
-    */
 
     private void ScoreCalculation()
     {

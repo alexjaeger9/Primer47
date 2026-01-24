@@ -51,10 +51,8 @@ public class GhostShooter : MonoBehaviour
         if (Physics.Raycast(rayStart, rayDirection, out RaycastHit hit, rayDistance, hitMask))
         {
             finalHitTarget = hit.point;
-            if (hit.collider.TryGetComponent<PlayerHealth>(out var playerHealth))
-            {
-                playerHealth.TakeDamage();
-            }
+            if (hit.collider.TryGetComponent<PlayerHealth>(out var playerHealth)) playerHealth.TakeDamage();
+            else if (hit.collider.TryGetComponent<ExplosiveBarrel>(out var barrel)) barrel.TakeHit();
         }
         else
         {
