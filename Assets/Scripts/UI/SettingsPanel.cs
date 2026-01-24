@@ -37,7 +37,7 @@ public class SettingsPanel : MonoBehaviour
     private const float DEFAULT_MASTER_VOLUME = 0.75f;
     private const float DEFAULT_MUSIC_VOLUME = 0.75f;
     private const float DEFAULT_SFX_VOLUME = 0.75f;
-    private const float DEFAULT_SENSITIVITY = 0.50f;
+    private const float DEFAULT_SENSITIVITY = 5.0f;
     private const bool DEFAULT_FULLSCREEN = true;
     private const bool DEFAULT_VSYNC = true;
     private const int DEFAULT_FPS_DROPDOWN_INDEX = 1;
@@ -110,7 +110,7 @@ public class SettingsPanel : MonoBehaviour
         SettingsManager.Instance.SetMasterVolume(masterVolumeSlider.value);
         SettingsManager.Instance.SetMusicVolume(musicVolumeSlider.value);
         SettingsManager.Instance.SetSFXVolume(sfxVolumeSlider.value);
-        SettingsManager.Instance.SetMouseSensitivity(sensitivitySlider.value);
+        SettingsManager.Instance.SetMouseSensitivity(sensitivitySlider.value * 20f);
         SettingsManager.Instance.SetFullscreen(fullscreenToggle.isOn);
         SettingsManager.Instance.SetResolution(resolutionDropdown.value);
         SettingsManager.Instance.SetVSync(vsyncToggle.isOn);
@@ -145,7 +145,7 @@ public class SettingsPanel : MonoBehaviour
         masterVolumeSlider.value = SettingsManager.Instance.GetMasterVolume();
         musicVolumeSlider.value = SettingsManager.Instance.GetMusicVolume();
         sfxVolumeSlider.value = SettingsManager.Instance.GetSFXVolume();
-        sensitivitySlider.value = SettingsManager.Instance.GetMouseSensitivity();
+        sensitivitySlider.value = SettingsManager.Instance.GetMouseSensitivity() / 20f;
         fullscreenToggle.isOn = SettingsManager.Instance.GetFullscreen();
         resolutionDropdown.value = SettingsManager.Instance.GetResolutionIndex();
         vsyncToggle.isOn = SettingsManager.Instance.GetVSync();
@@ -194,7 +194,7 @@ public class SettingsPanel : MonoBehaviour
         if (!Mathf.Approximately(masterVolumeSlider.value, SettingsManager.Instance.GetMasterVolume())) return true;
         if (!Mathf.Approximately(musicVolumeSlider.value, SettingsManager.Instance.GetMusicVolume())) return true;
         if (!Mathf.Approximately(sfxVolumeSlider.value, SettingsManager.Instance.GetSFXVolume())) return true;
-        if (!Mathf.Approximately(sensitivitySlider.value, SettingsManager.Instance.GetMouseSensitivity())) return true;
+        if (!Mathf.Approximately(sensitivitySlider.value, SettingsManager.Instance.GetMouseSensitivity() / 20f)) return true;
         if (fullscreenToggle.isOn != SettingsManager.Instance.GetFullscreen()) return true;
         if (resolutionDropdown.value != SettingsManager.Instance.GetResolutionIndex()) return true;
         if (vsyncToggle.isOn != SettingsManager.Instance.GetVSync()) return true;
@@ -274,7 +274,7 @@ public class SettingsPanel : MonoBehaviour
 
     private void UpdateSensitivityText(TextMeshProUGUI text, float value)
     {
-        text.text = value.ToString("F2");
+        text.text = value.ToString("F1");
     }
 
     private void SetupResolutions()
