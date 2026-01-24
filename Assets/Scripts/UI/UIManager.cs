@@ -63,10 +63,10 @@ public class UIManager : MonoBehaviour
         gameOverPanel.SetActive(true);
         hud.SetActive(false);
 
-        int currentScore = PlayerPrefs.GetInt("LastScore", 0);
-        int highScore = PlayerPrefs.GetInt("HighScore", 0);
-        lastScoreText.text = "Score: " + currentScore;
-        highScoreText.text = "High Score: " + highScore;
+        float currentScore = PlayerPrefs.GetFloat("LastScore", 0f);
+        float highScore = PlayerPrefs.GetFloat("HighScore", 0f);
+        lastScoreText.text = "Score: " + currentScore.ToString("F2");
+        highScoreText.text = "High Score: " + highScore.ToString("F2");
 
         //Cursor freigeben und sichtbar machen
         Cursor.lockState = CursorLockMode.None;
@@ -105,7 +105,9 @@ public class UIManager : MonoBehaviour
     {
         //Fade to Black
         yield return transitionController.FadeIn(1f);
-        
+
+        Time.timeScale = 1f;
+
         //Cursor freigeben
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
