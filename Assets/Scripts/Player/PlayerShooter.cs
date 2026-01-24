@@ -18,13 +18,15 @@ public class PlayerShooter : MonoBehaviour
     [HideInInspector] public Vector3 recordedMuzzlePosition;
     [HideInInspector] public Vector3 recordedFireDirection;
     [HideInInspector] public float recordedFireDistance;
-    [HideInInspector] public bool isAiming; // später für Kamera
+    [HideInInspector] public bool isAiming; // spï¿½ter fï¿½r Kamera
 
     [HideInInspector] private Vector3 handRotationOffset = new Vector3(0, 0, -90);
 
     [Header("Hand Pose")]
     public Transform[] handBones;
     private Quaternion[] savedRotations;
+
+    public MuzzleFlash muzzleFlash;
 
     private void Start()
     {
@@ -48,7 +50,7 @@ public class PlayerShooter : MonoBehaviour
 
     private void LateUpdate()
     {
-        // Erzwinge die gespeicherte Pose über jede Animation drüber
+        // Erzwinge die gespeicherte Pose ï¿½ber jede Animation drï¿½ber
         if (savedRotations != null)
         {
             for (int i = 0; i < handBones.Length; i++)
@@ -77,6 +79,8 @@ public class PlayerShooter : MonoBehaviour
     {
         firedThisTick = true;
         lastShotTime = Time.time;
+
+        muzzleFlash.PlayFlash();
 
         Vector3 screenCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
         Ray cameraRay = mainCamera.ScreenPointToRay(screenCenter);
@@ -111,7 +115,7 @@ public class PlayerShooter : MonoBehaviour
         }
         else currentRange = Vector3.Distance(rayStart, targetWorldPoint);
 
-        // Aufnahme für das Ghost-System
+        // Aufnahme fï¿½r das Ghost-System
         recordedMuzzlePosition = rayStart;
         recordedFireDirection = fireDirection;
         recordedFireDistance = currentRange;
