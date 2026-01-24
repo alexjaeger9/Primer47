@@ -6,7 +6,6 @@ public class GhostShooter : MonoBehaviour
     //public Transform muzzleTransform;
     public LayerMask hitMask;
     public float maxRange = 100f;
-    public GameObject tracePrefab;
     public float traceDuration = 0.1f;
     //public Transform pitchTarget;
 
@@ -63,15 +62,12 @@ public class GhostShooter : MonoBehaviour
 
     private void SpawnTrace(Vector3 rayStart, Vector3 hitTarget)
     {
-        if (tracePrefab != null)
+        //holt Tracer aus Pool
+        GameObject newTrace = BulletPool.Instance.GetBullet();
+        if (newTrace.TryGetComponent<TracerMovement>(out var movement))
         {
-            GameObject newTrace = Instantiate(tracePrefab);
-            newTrace.transform.SetParent(null);
-            if (newTrace.TryGetComponent<TracerMovement>(out var movement))
-            {
-                movement.Initialize(rayStart, hitTarget);
-                movement.destroyDelay = traceDuration;
-            }
+            movement.Initialize(rayStart, hitTarget); //Bullet aktivieren
+            movement.destroyDelay = traceDuration;
         }
     }
 }

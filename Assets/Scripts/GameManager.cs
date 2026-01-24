@@ -254,7 +254,11 @@ public class GameManager : MonoBehaviour
         TracerMovement[] tracers = FindObjectsByType<TracerMovement>(FindObjectsSortMode.None);
         foreach (TracerMovement tracer in tracers)
         {
-            Destroy(tracer.gameObject);
+            if (tracer.gameObject.activeInHierarchy)
+            {
+                tracer.StopAllCoroutines();
+                BulletPool.Instance.ReturnBullet(tracer.gameObject);
+            }
         }
     }
 

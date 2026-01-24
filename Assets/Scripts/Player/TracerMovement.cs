@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class TracerMovement : MonoBehaviour
 {
@@ -8,9 +9,11 @@ public class TracerMovement : MonoBehaviour
 
     public void Initialize(Vector3 start, Vector3 end)
     {
-        targetPosition = end;
-        transform.position = start;
-        transform.LookAt(targetPosition);
+        targetPosition = end; //wo tracer hinsoll
+        transform.position = start; //startpos
+        transform.LookAt(targetPosition); //in richtung des Ziels drehen
+        gameObject.SetActive(true); //Bullet aktivieren
+        enabled = true;
     }
 
     void Update()
@@ -20,10 +23,17 @@ public class TracerMovement : MonoBehaviour
             targetPosition,
             speed * Time.deltaTime
         );
+        
         if (transform.position == targetPosition)
         {
-            Destroy(gameObject, destroyDelay);
-            enabled = false;
+            enabled = false; //nach Delay in Pool zurück
+            StartCoroutine(ReturnToPoolAfterDelay());
         }
+    }
+    
+    private IEnumerator ReturnToPoolAfterDelay()
+    {
+        yield return new WaitForSeconds(destroyDelay);
+        BulletPool.Instance.ReturnBullet(gameObject);
     }
 }

@@ -8,7 +8,6 @@ public class PlayerShooter : MonoBehaviour
     public Transform muzzleTransform;
     public Transform gunTransform;
 
-    public GameObject tracePrefab;
     public float fireRate = 5f;
     public float maxRange = 100f;
     public LayerMask hitMask;
@@ -120,16 +119,12 @@ public class PlayerShooter : MonoBehaviour
         recordedFireDirection = fireDirection;
         recordedFireDistance = currentRange;
 
-        // Tracer
-        if (tracePrefab != null)
+        //holt Tracer aus Pool
+        GameObject newTrace = BulletPool.Instance.GetBullet();
+        if (newTrace.TryGetComponent<TracerMovement>(out var movement))
         {
-            GameObject newTrace = Instantiate(tracePrefab);
-            newTrace.transform.SetParent(null);
-            if (newTrace.TryGetComponent<TracerMovement>(out var movement))
-            {
-                movement.Initialize(rayStart, finalHitTarget);
-                movement.destroyDelay = trailDuration;
-            }
+            movement.Initialize(rayStart, finalHitTarget); //Bullet aktivieren
+            movement.destroyDelay = trailDuration;
         }
     }
 
