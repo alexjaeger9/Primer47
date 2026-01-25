@@ -97,11 +97,9 @@ public class PlayerController : MonoBehaviour
                 playerAnimator.SetTrigger("Land");
                 landedThisTick = true;
                 //Debug.Log("Landung JETZT: " + velocity.y);
-            }
-
-            if (velocity.y < 0)
+            } else if (playerAnimator.GetCurrentAnimatorStateInfo(0).IsTag("JumpTag")) // Jump-Stuck Fix
             {
-                velocity.y = -2f;
+                playerAnimator.SetBool("isFalling", true);
             }
 
             if (Input.GetButtonDown("Jump"))
@@ -121,7 +119,6 @@ public class PlayerController : MonoBehaviour
                 playerAnimator.SetBool("isFalling", true);
             }
         }
-        //Debug.Log(playerAnimator.GetBool("isFalling"));
     }
 
     void HandleAnimation()
