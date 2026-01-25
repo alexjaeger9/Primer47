@@ -8,6 +8,12 @@ public class PlayerShooter : MonoBehaviour
     public Transform muzzleTransform;
     public Transform gunTransform;
 
+    [Header("Audio Settings")] // NEU: Header für Ordnung im Inspector
+    public AudioSource gunAudioSource; // NEU: Der "Lautsprecher"
+    public AudioClip gunshotClip;      // NEU: Der Soundfile
+    [Range(0f, 0.5f)] public float pitchVariation = 0.1f; // NEU: Variation der Tonhöhe
+
+    public GameObject tracePrefab;
     public float fireRate = 5f;
     public float maxRange = 100f;
     public LayerMask hitMask;
@@ -82,6 +88,19 @@ public class PlayerShooter : MonoBehaviour
         muzzleFlash.PlayFlash();
 
         Vector3 screenCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
+
+        // NEU SOUND ABSPIELEN 
+        if (gunAudioSource != null && gunshotClip != null)
+        {
+            // Zufällige Tonhöhe (zwischen 0.9 und 1.1)
+            gunAudioSource.pitch = 1f + Random.Range(-pitchVariation, pitchVariation);
+            
+            // Sounds können sich überlagern
+            gunAudioSource.PlayOneShot(gunshotClip);
+        }
+        //
+
+        Vector3 screenCenter = new(Screen.width / 2, Screen.height / 2, 0);
         Ray cameraRay = mainCamera.ScreenPointToRay(screenCenter);
 
         Vector3 rayStart = muzzleTransform.position;

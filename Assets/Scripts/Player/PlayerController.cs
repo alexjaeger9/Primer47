@@ -4,6 +4,15 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public Animator playerAnimator;
+
+    [Header("Audio Settings")] // NEU
+    public AudioSource audioSource; // Audio Source
+    public AudioClip jumpClip;      // Sprung-Sound
+    public AudioClip landClip;      // Lande-Sound
+
+    [Header("Footsteps")] //
+    public AudioClip[] footstepClips; // Array für mehrere Sounds (Abwechslung)
+
     [SerializeField] private float runSpeed = 4f;
     [SerializeField] private float sprintSpeed = 6f;
     [SerializeField] private float jumpForce = 7f;
@@ -98,6 +107,10 @@ public class PlayerController : MonoBehaviour
                 landedThisTick = true;
                 //Debug.Log("Landung JETZT: " + velocity.y);
             } else if (playerAnimator.GetCurrentAnimatorStateInfo(0).IsTag("JumpTag")) // Jump-Stuck Fix
+                PlaySound(landClip);
+            }
+
+            if (velocity.y < 0)
             {
                 playerAnimator.SetBool("isFalling", true);
             }
@@ -108,6 +121,7 @@ public class PlayerController : MonoBehaviour
                 playerAnimator.SetTrigger("Jump");
                 playerAnimator.SetBool("isFalling", false);
                 jumpedThisTick = true;
+                PlaySound(jumpClip);
             }
         }
         else
@@ -121,6 +135,20 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void OnFootstep()
+    {
+        // Sicherheits-Check: Nur Sound spielen, wenn wir am Boden sind
+        // (Damit man beim Springen nicht weitertrippelt)
+        if (controller.isGrounded && footstepClips.Length > 0)
+        {
+            // Leiser Variation in der Lautstärke für Realismus
+            audioSource.volume = Random.Range(0.8f, 1.0f); 
+            
+            AudioClip clipToPlay = footstepClips[Random.Range(0, footstepClips.Length)];
+            PlaySound(clipToPlay);
+        }
+    }
+    
     void HandleAnimation()
     {
         if (playerAnimator == null) return;
@@ -164,5 +192,16 @@ public class PlayerController : MonoBehaviour
         playerAnimator.SetBool("isFalling", false);
         playerAnimator.SetTrigger("Jump");
         jumpedThisTick = true;
+        PlaySound(jumpClip);
+    }
+    // Hilfsfunktion damit wir den Code nicht doppelt schreiben
+    private void PlaySound(AudioClip clip)
+    {
+        if (audioSource != null && clip != null)
+        {
+            // Leichte Variation der Tonhöhe für Natürlichkeit
+            audioSource.pitch = Random.Range(0.9f, 1.1f);
+            audioSource.PlayOneShot(clip);
+        }
     }
 }
