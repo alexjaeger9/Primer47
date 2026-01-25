@@ -21,8 +21,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 boostVelocity;
     private float boostVelocityDecay = 2f; //wie schnell der Jumppad Boost abnimmt
 
-    private bool canSlideAgain = true;
-
+    private bool isSprintingLocked = false;
 
     void Awake()
     {
@@ -62,11 +61,20 @@ public class PlayerController : MonoBehaviour
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
 
-        bool isSprinting = false;
-        if (vertical >= 0f) isSprinting = Input.GetKey(KeyCode.LeftShift);
-        currentSpeed = isSprinting ? sprintSpeed : runSpeed;
+        if (controller.isGrounded)
+        {
+            bool isSprinting = false;
+            if (vertical >= 0f) isSprinting = Input.GetKey(KeyCode.LeftShift);
+            currentSpeed = isSprinting ? sprintSpeed : runSpeed;
+            isSprintingLocked = isSprinting;
+        }
+        else
+        {
+            if (!Input.GetKey(KeyCode.LeftShift)) isSprintingLocked = false;
+            currentSpeed = isSprintingLocked ? sprintSpeed : runSpeed;
+        }
 
-        Vector3 inputDir = new(horizontal, 0f, vertical);
+            Vector3 inputDir = new(horizontal, 0f, vertical);
         if (inputDir.sqrMagnitude < 0.001f)
         {
             moveDirection = Vector3.zero;
@@ -123,8 +131,7 @@ public class PlayerController : MonoBehaviour
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
 
-        bool isSprinting = false;
-        if (v >= 0f) isSprinting = Input.GetKey(KeyCode.LeftShift) && (h != 0 || v != 0);
+        bool isSprinting = (currentSpeed > runSpeed) && (h != 0 || v != 0);
         float multiplier = isSprinting ? 2f : 1f;
         float targetX = h * multiplier;
         float targetY = v * multiplier;
