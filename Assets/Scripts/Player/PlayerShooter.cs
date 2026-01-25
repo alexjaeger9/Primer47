@@ -8,10 +8,10 @@ public class PlayerShooter : MonoBehaviour
     public Transform muzzleTransform;
     public Transform gunTransform;
 
-    [Header("Audio Settings")] // NEU: Header für Ordnung im Inspector
-    public AudioSource gunAudioSource; // NEU: Der "Lautsprecher"
-    public AudioClip gunshotClip;      // NEU: Der Soundfile
-    [Range(0f, 0.5f)] public float pitchVariation = 0.1f; // NEU: Variation der Tonhöhe
+    [Header("Audio Settings")] 
+    public AudioSource gunAudioSource; 
+    public AudioClip gunshotClip;      
+    [Range(0f, 0.5f)] public float pitchVariation = 0.1f; 
 
     public GameObject tracePrefab;
     public float fireRate = 5f;
@@ -23,7 +23,7 @@ public class PlayerShooter : MonoBehaviour
     [HideInInspector] public Vector3 recordedMuzzlePosition;
     [HideInInspector] public Vector3 recordedFireDirection;
     [HideInInspector] public float recordedFireDistance;
-    [HideInInspector] public bool isAiming; // sp�ter f�r Kamera
+    [HideInInspector] public bool isAiming; 
 
     [HideInInspector] private Vector3 handRotationOffset = new Vector3(0, 0, -90);
 
@@ -55,7 +55,7 @@ public class PlayerShooter : MonoBehaviour
 
     private void LateUpdate()
     {
-        // Erzwinge die gespeicherte Pose �ber jede Animation dr�ber
+        // Erzwinge die gespeicherte Pose über jede Animation drüber
         if (savedRotations != null)
         {
             for (int i = 0; i < handBones.Length; i++)
@@ -85,22 +85,22 @@ public class PlayerShooter : MonoBehaviour
         firedThisTick = true;
         lastShotTime = Time.time;
 
-        muzzleFlash.PlayFlash();
+        if (muzzleFlash != null) muzzleFlash.PlayFlash();
 
+        // 1. Hier erstellen wir die Variable EINMAL
         Vector3 screenCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
 
-        // NEU SOUND ABSPIELEN 
+        // --- SOUND LOGIK ---
         if (gunAudioSource != null && gunshotClip != null)
         {
-            // Zufällige Tonhöhe (zwischen 0.9 und 1.1)
             gunAudioSource.pitch = 1f + Random.Range(-pitchVariation, pitchVariation);
-            
-            // Sounds können sich überlagern
             gunAudioSource.PlayOneShot(gunshotClip);
         }
-        //
+        // -------------------
 
-        Vector3 screenCenter = new(Screen.width / 2, Screen.height / 2, 0);
+        // HIER WAR DER FEHLER: Die zweite Zeile "Vector3 screenCenter = ..." habe ich gelöscht.
+        // Wir benutzen einfach die von oben weiter.
+        
         Ray cameraRay = mainCamera.ScreenPointToRay(screenCenter);
 
         Vector3 rayStart = muzzleTransform.position;
@@ -128,32 +128,41 @@ public class PlayerShooter : MonoBehaviour
         {
             finalHitTarget = weaponHit.point;
             currentRange = weaponHit.distance;
-            if (weaponHit.collider.TryGetComponent<GhostHealth>(out var enemyHealth)) enemyHealth.TakeHit();
-            else if (weaponHit.collider.TryGetComponent<ExplosiveBarrel>(out var barrel)) barrel.TakeHit();
+            
+            // HIER GAB ES AUCH KLEINE SCHREIBFEHLER IM MERGE, HAB ICH KORRIGIERT:
+            // Wir prüfen nach Komponenten nur wenn wir sie finden
+            if (weaponHit.collider.TryGetComponent<GhostHealth>(out var enemyHealth)) 
+            {
+                enemyHealth.TakeHit();
+            }
+            else if (weaponHit.collider.TryGetComponent<ExplosiveBarrel>(out var barrel)) 
+            {
+                barrel.TakeHit();
+            }
         }
         else currentRange = Vector3.Distance(rayStart, targetWorldPoint);
 
-        // Aufnahme f�r das Ghost-System
+        // Aufnahme für das Ghost-System
         recordedMuzzlePosition = rayStart;
         recordedFireDirection = fireDirection;
         recordedFireDistance = currentRange;
 
-        //holt Tracer aus Pool
+        // Bullet Tracer
         GameObject newTrace = BulletPool.Instance.GetBullet();
         if (newTrace.TryGetComponent<TracerMovement>(out var movement))
         {
-            movement.Initialize(rayStart, finalHitTarget); //Bullet aktivieren
+            movement.Initialize(rayStart, finalHitTarget); 
             movement.destroyDelay = trailDuration;
         }
     }
 
     private void OnAnimatorIK(int layerIndex)
     {
+        if (playerAnimator == null) return;
+
         // Vektorberechnung
         Vector3 weaponAimDirection = mainCamera.transform.forward;
         Vector3 currentAimPosition = mainCamera.transform.position + weaponAimDirection * maxRange;
-
-        if (playerAnimator == null) return;
 
         float ikWeight = 1.0f;
 

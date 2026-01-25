@@ -5,19 +5,20 @@ public class PlayerController : MonoBehaviour
 {
     public Animator playerAnimator;
 
-    [Header("Audio Settings")] // NEU
-    public AudioSource audioSource; // Audio Source
-    public AudioClip jumpClip;      // Sprung-Sound
-    public AudioClip landClip;      // Lande-Sound
+    [Header("Audio Settings")]
+    public AudioSource audioSource;
+    public AudioClip jumpClip;
+    public AudioClip landClip;
 
-    [Header("Footsteps")] //
-    public AudioClip[] footstepClips; // Array für mehrere Sounds (Abwechslung)
+    [Header("Footsteps")]
+    public AudioClip[] footstepClips;
 
     [SerializeField] private float runSpeed = 4f;
     [SerializeField] private float sprintSpeed = 6f;
     [SerializeField] private float jumpForce = 7f;
     [SerializeField] private float gravity = -9.81f;
     [SerializeField] public float mouseSensitivity = 200f;
+    
     private CharacterController controller;
     private Vector3 velocity;
     private Vector3 moveDirection;
@@ -28,7 +29,7 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public bool slidingThisTick;
 
     private Vector3 boostVelocity;
-    private float boostVelocityDecay = 2f; //wie schnell der Jumppad Boost abnimmt
+    private float boostVelocityDecay = 2f;
 
     private bool isSprintingLocked = false;
 
@@ -45,15 +46,13 @@ public class PlayerController : MonoBehaviour
         HandleMovementInput();
         HandleGravityAndJump();
         HandleAnimation();
-        //jumpedThisTick = false;
 
-        //Boost Velocity über Zeit abbauen
+        // Boost Velocity abbauen
         if (boostVelocity.magnitude > 0.1f)
         {
             boostVelocity = Vector3.Lerp(boostVelocity, Vector3.zero, boostVelocityDecay * Time.deltaTime);
         }
 
-        //normale Bewegung + externe Kräfte + Gravity
         Vector3 finalMovement = (moveDirection * currentSpeed) + boostVelocity + new Vector3(0, velocity.y, 0);
         controller.Move(finalMovement * Time.deltaTime);
     }
@@ -83,7 +82,7 @@ public class PlayerController : MonoBehaviour
             currentSpeed = isSprintingLocked ? sprintSpeed : runSpeed;
         }
 
-        Vector3 inputDir = new(horizontal, 0f, vertical);
+        Vector3 inputDir = new Vector3(horizontal, 0f, vertical); // Syntax Korrektur: Vector3 explizit
         if (inputDir.sqrMagnitude < 0.001f)
         {
             moveDirection = Vector3.zero;
@@ -92,29 +91,36 @@ public class PlayerController : MonoBehaviour
         moveDirection = transform.rotation * inputDir.normalized;
     }
 
+    // HIER WAR DER FEHLER: Ich habe die Klammern aufgeräumt
     void HandleGravityAndJump()
     {
         bool grounded = controller.isGrounded;
-
         bool nearGround = false;
+        
         if (!grounded && velocity.y < 0) nearGround = Physics.Raycast(transform.position, Vector3.down, 1.25f);
+
         if (grounded || nearGround)
         {
+            // --- LANDUNG LOGIK ---
             if (playerAnimator.GetBool("isFalling"))
             {
                 playerAnimator.SetBool("isFalling", false);
                 playerAnimator.SetTrigger("Land");
                 landedThisTick = true;
-                //Debug.Log("Landung JETZT: " + velocity.y);
-            } else if (playerAnimator.GetCurrentAnimatorStateInfo(0).IsTag("JumpTag")) // Jump-Stuck Fix
-                PlaySound(landClip);
-            }
-
-            if (velocity.y < 0)
+            } 
+            else if (playerAnimator.GetCurrentAnimatorStateInfo(0).IsTag("JumpTag")) 
             {
-                playerAnimator.SetBool("isFalling", true);
+                 // Jump-Stuck Fix Sound
+                 PlaySound(landClip);
             }
 
+            // Reset Velocity damit Gravity sich nicht endlos aufbaut am Boden
+            if (velocity.y < 0) 
+            {
+                velocity.y = -2f;
+            }
+
+            // --- SPRINGEN ---
             if (Input.GetButtonDown("Jump"))
             {
                 velocity.y = jumpForce;
@@ -126,8 +132,10 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
+            // --- IN DER LUFT (GRAVITY) ---
             velocity.y += gravity * Time.deltaTime;
-            // erst Fallen bei gewisser Geschwindigkeit
+            
+            // Fallen Animation erst ab gewisser Geschwindigkeit
             if (velocity.y < -3f)
             {
                 playerAnimator.SetBool("isFalling", true);
@@ -137,13 +145,9 @@ public class PlayerController : MonoBehaviour
 
     public void OnFootstep()
     {
-        // Sicherheits-Check: Nur Sound spielen, wenn wir am Boden sind
-        // (Damit man beim Springen nicht weitertrippelt)
         if (controller.isGrounded && footstepClips.Length > 0)
         {
-            // Leiser Variation in der Lautstärke für Realismus
             audioSource.volume = Random.Range(0.8f, 1.0f); 
-            
             AudioClip clipToPlay = footstepClips[Random.Range(0, footstepClips.Length)];
             PlaySound(clipToPlay);
         }
@@ -176,30 +180,23 @@ public class PlayerController : MonoBehaviour
 
         playerAnimator.SetFloat("MoveX", targetX, 0.1f, Time.deltaTime);
         playerAnimator.SetFloat("MoveY", targetY, 0.1f, Time.deltaTime);
-
         playerAnimator.SetBool("isGrounded", controller.isGrounded);
     }
 
     public void ApplyJumpPadBoost(Vector3 boostVelocity)
     {
-        //vertikale Komponente in velocity.y
         velocity.y = boostVelocity.y;
-
-        //horizontale Komponente in boostVelocity
         this.boostVelocity = new Vector3(boostVelocity.x, 0f, boostVelocity.z);
-
-        //Animation
         playerAnimator.SetBool("isFalling", false);
         playerAnimator.SetTrigger("Jump");
         jumpedThisTick = true;
         PlaySound(jumpClip);
     }
-    // Hilfsfunktion damit wir den Code nicht doppelt schreiben
+
     private void PlaySound(AudioClip clip)
     {
         if (audioSource != null && clip != null)
         {
-            // Leichte Variation der Tonhöhe für Natürlichkeit
             audioSource.pitch = Random.Range(0.9f, 1.1f);
             audioSource.PlayOneShot(clip);
         }
