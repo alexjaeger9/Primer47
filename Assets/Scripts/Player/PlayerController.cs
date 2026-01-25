@@ -74,7 +74,7 @@ public class PlayerController : MonoBehaviour
             currentSpeed = isSprintingLocked ? sprintSpeed : runSpeed;
         }
 
-            Vector3 inputDir = new(horizontal, 0f, vertical);
+        Vector3 inputDir = new(horizontal, 0f, vertical);
         if (inputDir.sqrMagnitude < 0.001f)
         {
             moveDirection = Vector3.zero;
