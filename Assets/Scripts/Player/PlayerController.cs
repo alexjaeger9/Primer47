@@ -33,6 +33,8 @@ public class PlayerController : MonoBehaviour
 
     private bool isSprintingLocked = false;
 
+    private bool landed = false;
+
     void Awake()
     {
         controller = GetComponent<CharacterController>();
@@ -101,26 +103,17 @@ public class PlayerController : MonoBehaviour
 
         if (grounded || nearGround)
         {
-            // --- LANDUNG LOGIK ---
-            if (playerAnimator.GetBool("isFalling"))
+            if (playerAnimator.GetBool("isFalling") && !landed)
             {
                 playerAnimator.SetBool("isFalling", false);
                 playerAnimator.SetTrigger("Land");
                 landedThisTick = true;
+                landed = true;
+                PlaySound(landClip);
+                //Debug.Log("Land");
             } 
-            else if (playerAnimator.GetCurrentAnimatorStateInfo(0).IsTag("JumpTag")) 
-            {
-                 // Jump-Stuck Fix Sound
-                 PlaySound(landClip);
-            }
+            else if (playerAnimator.GetCurrentAnimatorStateInfo(0).IsTag("JumpTag")) playerAnimator.SetBool("isFalling", true);
 
-            // Reset Velocity damit Gravity sich nicht endlos aufbaut am Boden
-            if (velocity.y < 0) 
-            {
-                velocity.y = -2f;
-            }
-
-            // --- SPRINGEN ---
             if (Input.GetButtonDown("Jump"))
             {
                 velocity.y = jumpForce;
@@ -128,17 +121,17 @@ public class PlayerController : MonoBehaviour
                 playerAnimator.SetBool("isFalling", false);
                 jumpedThisTick = true;
                 PlaySound(jumpClip);
+                landed = false;
             }
+            
         }
         else
         {
-            // --- IN DER LUFT (GRAVITY) ---
             velocity.y += gravity * Time.deltaTime;
-            
-            // Fallen Animation erst ab gewisser Geschwindigkeit
             if (velocity.y < -3f)
             {
                 playerAnimator.SetBool("isFalling", true);
+                landed = false;
             }
         }
     }
