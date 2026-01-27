@@ -84,7 +84,7 @@ public class PlayerController : MonoBehaviour
             currentSpeed = isSprintingLocked ? sprintSpeed : runSpeed;
         }
 
-        Vector3 inputDir = new Vector3(horizontal, 0f, vertical); // Syntax Korrektur: Vector3 explizit
+        Vector3 inputDir = new Vector3(horizontal, 0f, vertical);
         if (inputDir.sqrMagnitude < 0.001f)
         {
             moveDirection = Vector3.zero;
@@ -93,7 +93,6 @@ public class PlayerController : MonoBehaviour
         moveDirection = transform.rotation * inputDir.normalized;
     }
 
-    // HIER WAR DER FEHLER: Ich habe die Klammern aufgeräumt
     void HandleGravityAndJump()
     {
         bool grounded = controller.isGrounded;
@@ -158,16 +157,13 @@ public class PlayerController : MonoBehaviour
         float targetX = h * multiplier;
         float targetY = v * multiplier;
 
-        if (isSprinting && Input.GetKeyDown(KeyCode.LeftControl))
+        if (Input.GetKeyDown(KeyCode.LeftControl))
         {
             playerAnimator.SetTrigger("Slide");
             playerAnimator.SetBool("isSliding", true);
         }
 
-        if (Input.GetKeyUp(KeyCode.LeftControl))
-        {
-            playerAnimator.SetBool("isSliding", false);
-        }
+        if (Input.GetKeyUp(KeyCode.LeftControl) || (h == 0 && v == 0)) playerAnimator.SetBool("isSliding", false);
 
         slidingThisTick = playerAnimator.GetCurrentAnimatorStateInfo(0).IsTag("SlidingTag");
 
