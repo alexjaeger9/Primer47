@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
     [Header("Prefabs & Spawns")]
     public GameObject playerPrefab;
     public GameObject ghostPrefab;
-    public SpawnArea spawnArea; //
+    public SpawnArea spawnArea; 
     public Transform playerSpawnPoint;
     public Transform targetSpawnPoint;
 
@@ -29,7 +29,7 @@ public class GameManager : MonoBehaviour
     private float loopTimeLimit = 30f;
     private float currentLoopTime = 0f;
     private bool timerRunning = false;
-    private float lastScore = 0f;
+    private float lastScore = 0f; // Das sind deine Gesamtpunkte
 
 
     private void Awake()
@@ -67,9 +67,20 @@ public class GameManager : MonoBehaviour
                 HandlePlayerDeath(); //Game Over
             }
         }
-
-        
     }
+
+    // --- NEU: COIN LOGIC ---
+    // Diese Methode wird vom Coin aufgerufen
+    public void AddCoinPoints(float amount)
+    {
+        lastScore += amount;
+        // Optional: UI direkt updaten, damit man sieht dass man Punkte bekommen hat
+        // (Da dein UIManager.UpdateScore(float) existiert, nutzen wir das direkt)
+        // Aber Achtung: ScoreCalculation rechnet später nochmal Zeit drauf. 
+        // Fürs Feedback ist es aber gut.
+        // Falls du eine separate UI für "Coins" hast, hier nutzen.
+    }
+    // -----------------------
 
     //der erste Start
     public IEnumerator StartNewGame()
@@ -111,11 +122,16 @@ public class GameManager : MonoBehaviour
         }
         allSpawnedGhosts.Clear();
         activeGhosts.Clear();
+        
+        // --- NEU: COIN LOGIC ---
+        // Wenn Geister gelöscht werden, resetten wir auch die Coins
+        if (CoinPool.Instance != null) CoinPool.Instance.DeactivateAll();
+        // -----------------------
     }
 
     private void SpawnPlayer()
     {
-        Destroy(player);
+        if(player != null) Destroy(player); // Sicherheitscheck
         
         //Random Position von SpawnArea
         Vector3 spawnPosition = spawnArea.GetRandomSpawnPosition();
@@ -150,6 +166,11 @@ public class GameManager : MonoBehaviour
         {
             barrel.Respawn();
         }
+
+        // --- NEU: COIN LOGIC ---
+        // Neue Coins verteilen für diesen Loop
+        if (CoinPool.Instance != null) CoinPool.Instance.SpawnCoins();
+        // -----------------------
     }
 
     private void SpawnGhostsFromRuns()
@@ -244,8 +265,11 @@ public class GameManager : MonoBehaviour
 
     private void EndLoop()
     {
-        RunData data = playerRecorder.StopRecording();
-        allRuns.Add(data);
+        if(playerRecorder != null)
+        {
+             RunData data = playerRecorder.StopRecording();
+             allRuns.Add(data);
+        }
         currentLoopIndex++;
     }
 
@@ -257,7 +281,8 @@ public class GameManager : MonoBehaviour
             if (tracer.gameObject.activeInHierarchy)
             {
                 tracer.StopAllCoroutines();
-                BulletPool.Instance.ReturnBullet(tracer.gameObject);
+                if(BulletPool.Instance != null) BulletPool.Instance.ReturnBullet(tracer.gameObject);
+                else Destroy(tracer.gameObject);
             }
         }
     }
@@ -265,7 +290,7 @@ public class GameManager : MonoBehaviour
     private void ScoreCalculation()
     {
         float timeLeft = Mathf.Max(0, loopTimeLimit - currentLoopTime);
-        float newScore = lastScore + timeLeft;
+        float newScore = lastScore + timeLeft; // Hier wird Zeit UND gesammelte Coins (die schon in lastScore sind) addiert
         uiManager.showScoreScalculation(lastScore, timeLeft, newScore);
         lastScore = newScore;
     }
@@ -282,33 +307,39 @@ public class GameManager : MonoBehaviour
         PauseManager.canPause = false; //pausieren blocken
         PauseManager.isGameOver = true;
         playerRecorder.enabled = false;
-        Animator animator = player.GetComponent<Animator>();
         
-        //Player Movement, schießen, Animation stoppen
-        PlayerController controller = player.GetComponent<PlayerController>();
-        PlayerShooter shooter = player.GetComponent<PlayerShooter>();
-        CharacterController charController = player.GetComponent<CharacterController>();
-        controller.enabled = false;
-        shooter.enabled = false;
-        animator.enabled = false;
-
-        //Kamera freischalten für 360 Blick
-        ThirdPersonCamera cam = FindAnyObjectByType<ThirdPersonCamera>();
-        cam.EnableFreeCamera();
-
-        //Slow Mo (4 Sekunden)
-        Time.timeScale = 0.2f;
-        float elapsed = 0f;
-        Vector3 velocity = Vector3.zero; //für Gravitation
-
-        while (elapsed < 4f)
+        // Checken ob Player existiert bevor wir Components holen
+        if(player != null)
         {
-            //Gravity anwenden während Slow Mo
-            velocity.y += -9.81f * Time.unscaledDeltaTime;
-            charController.Move(velocity * Time.unscaledDeltaTime);
+            Animator animator = player.GetComponent<Animator>();
+            PlayerController controller = player.GetComponent<PlayerController>();
+            PlayerShooter shooter = player.GetComponent<PlayerShooter>();
+            CharacterController charController = player.GetComponent<CharacterController>();
 
-            elapsed += Time.unscaledDeltaTime;
-            yield return null;
+            if(controller) controller.enabled = false;
+            if(shooter) shooter.enabled = false;
+            if(animator) animator.enabled = false;
+
+            //Kamera freischalten für 360 Blick
+            ThirdPersonCamera cam = FindAnyObjectByType<ThirdPersonCamera>();
+            if(cam) cam.EnableFreeCamera();
+
+            //Slow Mo (4 Sekunden)
+            Time.timeScale = 0.2f;
+            float elapsed = 0f;
+            Vector3 velocity = Vector3.zero; //für Gravitation
+
+            while (elapsed < 4f)
+            {
+                //Gravity anwenden während Slow Mo
+                velocity.y += -9.81f * Time.unscaledDeltaTime;
+                if(charController) charController.Move(velocity * Time.unscaledDeltaTime);
+
+                elapsed += Time.unscaledDeltaTime;
+                yield return null;
+            }
+            
+            if(cam) cam.enabled = false;
         }
 
         //stop Movement of all Ghosts
@@ -317,8 +348,6 @@ public class GameManager : MonoBehaviour
             activeGhost.StopMovement();
         }
 
-        cam.enabled = false;
-        
         //GameOver Panel zeigen
         Time.timeScale = 0f;
         SaveScore();
@@ -355,27 +384,5 @@ public class GameManager : MonoBehaviour
             timerRunning = false; //Timer stoppen
             StartCoroutine(LoopTransition());
         }
-        else
-        {
-            //Ghosts übrig -> Hitstop
-            // finde ich etwas iritierend beim spielen deswegen auskommentiert
-            //StartCoroutine(HitstopEffect());
-        }
-    }
-
-    private IEnumerator HitstopEffect()
-    {
-        //Timer pausieren
-        timerRunning = false;
-        
-        //Slow Mo
-        Time.timeScale = 0.3f;
-        
-        //0.1 Sekunden warten (realtime weil timeScale verändert)
-        yield return new WaitForSecondsRealtime(0.3f);
-        
-        //zurück zu normal
-        Time.timeScale = 1f;
-        timerRunning = true;
     }
 }
