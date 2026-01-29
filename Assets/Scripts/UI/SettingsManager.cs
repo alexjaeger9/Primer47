@@ -9,9 +9,9 @@ public class SettingsManager : MonoBehaviour
 
     [Header("Audio")]
     public AudioMixer audioMixer;
-    private float masterVolume = 0.75f;
-    private float musicVolume = 0.75f;
-    private float sfxVolume = 0.75f;
+    private float masterVolume = 0.5f;
+    private float musicVolume = 0.5f;
+    private float sfxVolume = 0.5f;
     
     private float mouseSensitivity = 100f;
     
@@ -66,9 +66,9 @@ public class SettingsManager : MonoBehaviour
     //vordefinierte Settings (default)
     public void LoadSettings()
     {
-        masterVolume = PlayerPrefs.GetFloat("MasterVolume", 0.75f);
-        musicVolume = PlayerPrefs.GetFloat("MusicVolume", 0.75f);
-        sfxVolume = PlayerPrefs.GetFloat("SFXVolume", 0.75f);
+        masterVolume = PlayerPrefs.GetFloat("MasterVolume", 0.5f);
+        musicVolume = PlayerPrefs.GetFloat("MusicVolume", 0.5f);
+        sfxVolume = PlayerPrefs.GetFloat("SFXVolume", 0.5f);
         
         mouseSensitivity = PlayerPrefs.GetFloat("MouseSensitivity", 100f);
         
