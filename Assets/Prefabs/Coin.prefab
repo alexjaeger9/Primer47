@@ -69,7 +69,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Coin
   points: 50
   pickupSound: {fileID: 0}
-  pickupEffectPrefab: {fileID: 0}
+  pickupEffectPrefab: {fileID: 3168773913291198233, guid: 076b28ec5d725174899f753f1615b5a8, type: 3}
   rotateSpeed: 100
 --- !u!1001 &8565674864137030648
 PrefabInstance:
