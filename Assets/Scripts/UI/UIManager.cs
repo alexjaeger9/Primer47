@@ -22,6 +22,9 @@ public class UIManager : MonoBehaviour
     public Text sC_currentScore;
     public Text sC_timeLeft;
     public Text sC_newScore;
+    public Text sC_coinScore;
+    public GameObject[] coinTexts;
+    public Text coinsCounter;
 
     //Hud Updates
      public void UpdateScore(float score)
@@ -32,6 +35,12 @@ public class UIManager : MonoBehaviour
     public void UpdateLoopCounter(int loopIndex)
     {
         currentLoopText.text = "Loop: " + loopIndex;
+    }
+
+    public void UpdateCoinCounter(int coins)
+    {
+        coinsCounter.gameObject.SetActive(coins > 0);
+        if (coins > 0) coinsCounter.text = "Coins: " + coins;
     }
 
     public void UpdateTimer(float timeRemaining)
@@ -116,12 +125,21 @@ public class UIManager : MonoBehaviour
         SceneManager.LoadScene("MainMenu");
     }
 
-    public void showScoreScalculation(float currentScore, float timeLeft, float newScore)
+    public void showScoreScalculation(float currentScore, float timeLeft, float newScore, int coins, float coinValue)
     {
         sC_currentScore.text = currentScore.ToString("F2");
         sC_timeLeft.text = timeLeft.ToString("F2");
         sC_newScore.text = newScore.ToString("F2");
         scoreCalculation.SetActive(true);
+        if (coins > 0)
+        {
+            sC_coinScore.text = (coins * coinValue).ToString();
+        }
+        foreach (GameObject coinText in coinTexts)
+        {
+            coinText.SetActive(coins > 0);
+        }
+        
     }
 
     public void hideScoreCalculation() 

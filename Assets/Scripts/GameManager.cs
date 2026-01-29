@@ -30,6 +30,8 @@ public class GameManager : MonoBehaviour
     private float currentLoopTime = 0f;
     private bool timerRunning = false;
     private float lastScore = 0f;
+    private int coinsThisRun = 0;
+    private float coinValue = 0f;
 
 
     private void Awake()
@@ -71,8 +73,11 @@ public class GameManager : MonoBehaviour
 
     public void AddCoinPoints(float amount)
     {
-        lastScore += amount;
-        uiManager.UpdateScore(lastScore);
+        coinsThisRun++;
+        coinValue = amount;
+        uiManager.UpdateCoinCounter(coinsThisRun);
+        //lastScore += amount;
+        //uiManager.UpdateScore(lastScore);
     }
 
     //der erste Start
@@ -158,6 +163,7 @@ public class GameManager : MonoBehaviour
         }
 
         if (CoinPool.Instance != null) CoinPool.Instance.SpawnCoins();
+        uiManager.UpdateCoinCounter(coinsThisRun);
     }
 
     private void SpawnGhostsFromRuns()
@@ -255,6 +261,7 @@ public class GameManager : MonoBehaviour
         RunData data = playerRecorder.StopRecording();
         allRuns.Add(data);
         currentLoopIndex++;
+        coinsThisRun = 0;
     }
 
     private void ClearBullets()
@@ -273,8 +280,8 @@ public class GameManager : MonoBehaviour
     private void ScoreCalculation()
     {
         float timeLeft = Mathf.Max(0, loopTimeLimit - currentLoopTime);
-        float newScore = lastScore + timeLeft;
-        uiManager.showScoreScalculation(lastScore, timeLeft, newScore);
+        float newScore = lastScore + timeLeft + (coinsThisRun * coinValue);
+        uiManager.showScoreScalculation(lastScore, timeLeft, newScore, coinsThisRun, coinValue);
         lastScore = newScore;
     }
 
