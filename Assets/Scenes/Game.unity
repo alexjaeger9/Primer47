@@ -8252,6 +8252,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Coinn
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 061cf867fa9afc344b1c136d522e2958, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7039577126340707425, guid: 061cf867fa9afc344b1c136d522e2958, type: 3}
       propertyPath: m_LocalPosition.z
       value: 0.418
@@ -12745,6 +12749,10 @@ PrefabInstance:
     - target: {fileID: 7986422102633793390, guid: f6b31dc8daac5f041b15c38c22a47b10, type: 3}
       propertyPath: m_Name
       value: Coin
+      objectReference: {fileID: 0}
+    - target: {fileID: 7986422102633793390, guid: f6b31dc8daac5f041b15c38c22a47b10, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

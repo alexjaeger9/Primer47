@@ -9,6 +9,9 @@ public class Coin : MonoBehaviour
     public AudioClip pickupSound;
     public GameObject pickupEffectPrefab; // Das Partikel-Prefab
 
+    [Header("Animation")]
+    public float rotateSpeed = 100f; // Wie schnell soll er sich drehen?
+
     private void OnTriggerEnter(Collider other)
     {
         // Prüfen ob es der Spieler ist (Tag muss "Player" sein!)
@@ -40,5 +43,10 @@ public class Coin : MonoBehaviour
 
         // 4. POOLING: Nicht zerstören, nur deaktivieren!
         gameObject.SetActive(false);
+    }
+    void Update()
+    {
+        // Dreht das Objekt dauerhaft um die Y-Achse (hochkant)
+        transform.Rotate(0, rotateSpeed * Time.deltaTime, 0);
     }
 }
