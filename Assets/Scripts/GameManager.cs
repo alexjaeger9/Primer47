@@ -67,8 +67,12 @@ public class GameManager : MonoBehaviour
                 HandlePlayerDeath(); //Game Over
             }
         }
+    }
 
-        
+    public void AddCoinPoints(float amount)
+    {
+        lastScore += amount;
+        uiManager.UpdateScore(lastScore);
     }
 
     //der erste Start
@@ -111,6 +115,8 @@ public class GameManager : MonoBehaviour
         }
         allSpawnedGhosts.Clear();
         activeGhosts.Clear();
+
+        if (CoinPool.Instance != null) CoinPool.Instance.DeactivateAll();
     }
 
     private void SpawnPlayer()
@@ -150,6 +156,8 @@ public class GameManager : MonoBehaviour
         {
             barrel.Respawn();
         }
+
+        if (CoinPool.Instance != null) CoinPool.Instance.SpawnCoins();
     }
 
     private void SpawnGhostsFromRuns()
