@@ -1108,7 +1108,7 @@ GameObject:
   - component: {fileID: 5768383761421614576}
   m_Layer: 6
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1196,10 +1196,8 @@ MonoBehaviour:
   jumpClip: {fileID: 8300000, guid: e0c044fa486111b458dae9a2b2928a8c, type: 3}
   landClip: {fileID: 8300000, guid: 562d33d861eb8e04c895b250ea2701bf, type: 3}
   footstepClips:
-  - {fileID: 8300000, guid: 18e7353a5ce14a24cb32cd244963de91, type: 3}
-  - {fileID: 8300000, guid: 18ff6e61ed5b2744e9a9bff3ce3ea077, type: 3}
-  walkStepInterval: 1
-  sprintStepInterval: 0.5
+  - {fileID: 8300000, guid: fe50203f91c6c444eac5755ffaa550bf, type: 3}
+  - {fileID: 8300000, guid: e7e5449db38321345afb854737a95c7c, type: 3}
   runSpeed: 4
   sprintSpeed: 6
   jumpForce: 8

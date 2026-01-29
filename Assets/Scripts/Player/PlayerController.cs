@@ -34,6 +34,7 @@ public class PlayerController : MonoBehaviour
     private bool isSprintingLocked = false;
 
     private bool landed = false;
+    private int currentStepIndex = 0; 
 
     void Awake()
     {
@@ -139,9 +140,13 @@ public class PlayerController : MonoBehaviour
     {
         if (controller.isGrounded && footstepClips.Length > 0)
         {
-            audioSource.volume = Random.Range(0.8f, 1.0f); 
-            AudioClip clipToPlay = footstepClips[Random.Range(0, footstepClips.Length)];
+            audioSource.volume = Random.Range(0.9f, 1.0f); 
+
+            currentStepIndex = currentStepIndex % footstepClips.Length;
+            
+            AudioClip clipToPlay = footstepClips[currentStepIndex];
             PlaySound(clipToPlay);
+            currentStepIndex++;
         }
     }
     
@@ -186,7 +191,7 @@ public class PlayerController : MonoBehaviour
     {
         if (audioSource != null && clip != null)
         {
-            audioSource.pitch = Random.Range(0.9f, 1.1f);
+            audioSource.pitch = Random.Range(0.95f, 1.05f);
             audioSource.PlayOneShot(clip);
         }
     }

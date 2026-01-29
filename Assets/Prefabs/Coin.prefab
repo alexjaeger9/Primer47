@@ -53,7 +53,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.5
+  m_Radius: 0.35
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &6513399552687512495
 MonoBehaviour:
@@ -68,7 +68,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Coin
   points: 50
-  pickupSound: {fileID: 0}
+  pickupSound: {fileID: 8300000, guid: b5c95e3c3dd6eab46b800d381122b6c1, type: 3}
   pickupEffectPrefab: {fileID: 3168773913291198233, guid: 076b28ec5d725174899f753f1615b5a8, type: 3}
   rotateSpeed: 100
 --- !u!1001 &8565674864137030648
@@ -79,6 +79,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3100139711650366202}
     m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: e8775f429ec15eb44bd32d90b8be8ba2, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e8775f429ec15eb44bd32d90b8be8ba2, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e8775f429ec15eb44bd32d90b8be8ba2, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.3
+      objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e8775f429ec15eb44bd32d90b8be8ba2, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
