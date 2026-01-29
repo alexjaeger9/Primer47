@@ -2227,8 +2227,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f11099ad5e608f41941d7ea8be7245c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  playerPrefab: {fileID: 2954327873741449940, guid: 642addf4787567d4abc83665d68e1691, type: 3}
-  ghostPrefab: {fileID: 2954327873741449940, guid: 34caa96b2d92e7846b13fda5006eed99, type: 3}
+  playerPrefab: {fileID: 2954327873741449940, guid: 8e2e931aaf2b93b4892a0a7754026dc6, type: 3}
+  ghostPrefab: {fileID: 2954327873741449940, guid: 7b8a63d1cf781b44ca391307f6eeaaac, type: 3}
   spawnArea: {fileID: 235042311}
   playerSpawnPoint: {fileID: 589791807}
   targetSpawnPoint: {fileID: 1557646529}
