@@ -9,22 +9,14 @@ public class PauseManager : MonoBehaviour
 
     void Update()
     {
-        //wenn pausieren nicht möglich oder gameover -> returnen
+        //wenn pausieren nicht möglich oder gameover -> return
         if (!canPause || isGameOver) return;
 
-        //Escape -> Pausenmenü
+        //Escape
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            //wenn nicht pausiert → Pause
-            if (!isPaused)
-            {
-                PauseGame();
-            }
-            //wenn pausiert → Resume
-            else
-            {
-                ResumeGame();
-            }
+            if (!isPaused) PauseGame();
+            else ResumeGame();
         }
     }
 
@@ -34,7 +26,7 @@ public class PauseManager : MonoBehaviour
         Time.timeScale = 0f;
 
         pausePanel.SetActive(true);
-        
+
         //Cursor freigeben
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
