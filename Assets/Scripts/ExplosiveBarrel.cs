@@ -14,6 +14,10 @@ public class ExplosiveBarrel : MonoBehaviour
     public GameObject explosionVisualSphere;
     public LayerMask damageMask;
 
+    [Header("Audio")]
+    public AudioSource audioSource;
+    public AudioClip explosionClip;
+
     private Vector3[] fragmentPositions;
     private Quaternion[] fragmentRotations;
     private Rigidbody[] fragmentRbs;
@@ -43,6 +47,12 @@ public class ExplosiveBarrel : MonoBehaviour
     {
         if (hasExploded) return;
         hasExploded = true;
+
+        if (audioSource != null && explosionClip != null)
+        {
+            audioSource.pitch = Random.Range(0.9f, 1.1f);
+            audioSource.PlayOneShot(explosionClip);
+        }
 
         Collider mainCollider = GetComponent<Collider>();
         if (mainCollider != null) mainCollider.enabled = false;
