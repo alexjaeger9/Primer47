@@ -60,6 +60,7 @@ MonoBehaviour:
     m_Bits: 704
   audioSource: {fileID: 3168894964397539546}
   explosionClip: {fileID: 8300000, guid: f51f7fcf687c6fb41ba85e202ea71a0d, type: 3}
+  explosionVolume: 3
 --- !u!136 &672436309197615927
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -102,7 +103,7 @@ AudioSource:
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
-  Priority: 128
+  Priority: 0
   DopplerLevel: 1
   MinDistance: 1
   MaxDistance: 500

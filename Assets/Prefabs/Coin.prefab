@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3100139711650366202}
   - component: {fileID: 8853734906530955846}
   - component: {fileID: 6513399552687512495}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Coin
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -67,7 +67,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36c138cf3e832a94c8d3d7766373e855, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Coin
-  points: 50
   pickupSound: {fileID: 8300000, guid: b5c95e3c3dd6eab46b800d381122b6c1, type: 3}
   pickupEffectPrefab: {fileID: 3168773913291198233, guid: 076b28ec5d725174899f753f1615b5a8, type: 3}
   rotateSpeed: 100
@@ -135,9 +134,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: Coin
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: e8775f429ec15eb44bd32d90b8be8ba2, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 7039577126340707425, guid: e8775f429ec15eb44bd32d90b8be8ba2, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8186104883371204058, guid: e8775f429ec15eb44bd32d90b8be8ba2, type: 3}
+      propertyPath: m_Layer
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:

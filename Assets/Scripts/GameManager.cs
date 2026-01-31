@@ -91,6 +91,19 @@ public class GameManager : MonoBehaviour
     {
         if (tickAudioSource == null) return;
 
+        if (Time.timeScale == 0f)
+        {
+            if (tickAudioSource.isPlaying) 
+            {
+                tickAudioSource.Pause(); 
+            }
+            return;
+        }
+        else
+        {
+            tickAudioSource.UnPause();
+        }
+
         if (timeRemaining <= tickStartTime && timeRemaining > 0)
         {
             if (!tickAudioSource.isPlaying) 

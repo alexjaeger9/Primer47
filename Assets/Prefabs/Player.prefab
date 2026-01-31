@@ -1195,7 +1195,6 @@ MonoBehaviour:
   audioSource: {fileID: 5768383761421614576}
   jumpClip: {fileID: 8300000, guid: e0c044fa486111b458dae9a2b2928a8c, type: 3}
   landClip: {fileID: 8300000, guid: 562d33d861eb8e04c895b250ea2701bf, type: 3}
-  stepVolume: 0.054
   footstepClips:
   - {fileID: 8300000, guid: fe50203f91c6c444eac5755ffaa550bf, type: 3}
   - {fileID: 8300000, guid: e7e5449db38321345afb854737a95c7c, type: 3}
@@ -1224,14 +1223,15 @@ MonoBehaviour:
   muzzleTransform: {fileID: 5056583357010010285}
   gunTransform: {fileID: 2903742202514363888}
   gunAudioSource: {fileID: 5768383761421614576}
-  gunshotClip: {fileID: 8300000, guid: 1d9928777a1f4614c84d06681263139c, type: 3}
+  gunshotClip: {fileID: 8300000, guid: 5560e1f007fe74947ad8b181ebd25eda, type: 3}
   pitchVariation: 0.1
   tracePrefab: {fileID: 6796344618158638744, guid: 3e8b227d28f15b04bb04dc50d4ad9548, type: 3}
+  impactPrefab: {fileID: 2526400565753230683, guid: a7d5c628c7549d948848c734d70259ae, type: 3}
   fireRate: 5
   maxRange: 100
   hitMask:
     serializedVersion: 2
-    m_Bits: 640
+    m_Bits: 961
   trailDuration: 0.1
   firedThisTick: 0
   recordedMuzzlePosition: {x: 0, y: 0, z: 0}

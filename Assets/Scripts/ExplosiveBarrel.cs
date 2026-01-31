@@ -17,6 +17,7 @@ public class ExplosiveBarrel : MonoBehaviour
     [Header("Audio")]
     public AudioSource audioSource;
     public AudioClip explosionClip;
+    [Range(0f, 3f)] public float explosionVolume = 1.0f; 
 
     private Vector3[] fragmentPositions;
     private Quaternion[] fragmentRotations;
@@ -26,7 +27,6 @@ public class ExplosiveBarrel : MonoBehaviour
 
     void Awake()
     {
-        // Save Debris Positions
         fragmentRbs = shatteredModel.GetComponentsInChildren<Rigidbody>(true);
         fragmentPositions = new Vector3[fragmentRbs.Length];
         fragmentRotations = new Quaternion[fragmentRbs.Length];
@@ -51,7 +51,9 @@ public class ExplosiveBarrel : MonoBehaviour
         if (audioSource != null && explosionClip != null)
         {
             audioSource.pitch = Random.Range(0.9f, 1.1f);
-            audioSource.PlayOneShot(explosionClip);
+            
+            // +++ NEU: Wir nutzen hier deine eingestellte Lautstärke +++
+            audioSource.PlayOneShot(explosionClip, explosionVolume);
         }
 
         Collider mainCollider = GetComponent<Collider>();
@@ -120,7 +122,6 @@ public class ExplosiveBarrel : MonoBehaviour
         explosionVisualSphere.SetActive(false);
         GetComponent<Collider>().enabled = true;
 
-        // reset debris to start
         for (int i = 0; i < fragmentRbs.Length; i++)
         {
             fragmentRbs[i].linearVelocity = Vector3.zero;

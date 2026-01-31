@@ -145,20 +145,15 @@ public class PlayerController : MonoBehaviour
 
         if (footstepClips.Length > 0)
         {
-            // Wir ändern NICHT mehr die globale Lautstärke (audioSource.volume),
-            // damit das Springen danach nicht leiser wird.
 
             currentStepIndex = currentStepIndex % footstepClips.Length;
             AudioClip clipToPlay = footstepClips[currentStepIndex];
 
             if (audioSource != null && clipToPlay != null)
             {
-                // Pitch Variation (wie vorher)
                 audioSource.pitch = Random.Range(0.95f, 1.05f);
                 
-                // HIER ist dein Regler: Die '0.4f' bedeutet 40% Lautstärke.
-                // Ändere die 0.4f zu 0.2f (leiser) oder 0.8f (lauter), wie du willst.
-                audioSource.PlayOneShot(clipToPlay, 1.0f); 
+                audioSource.PlayOneShot(clipToPlay, 0.25f); 
             }
 
             currentStepIndex++;

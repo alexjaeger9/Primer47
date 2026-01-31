@@ -13,7 +13,10 @@ public class PlayerShooter : MonoBehaviour
     public AudioClip gunshotClip;      
     [Range(0f, 0.5f)] public float pitchVariation = 0.1f; 
 
+    [Header("VFX")]
     public GameObject tracePrefab;
+    public GameObject impactPrefab;
+
     public float fireRate = 5f;
     public float maxRange = 100f;
     public LayerMask hitMask;
@@ -49,6 +52,7 @@ public class PlayerShooter : MonoBehaviour
 
     private void Update()
     {
+        if (Time.timeScale == 0f) return;
         HandleAim(Input.GetMouseButton(1));
         HandleShooting(Input.GetMouseButton(0));
     }
@@ -87,19 +91,13 @@ public class PlayerShooter : MonoBehaviour
 
         if (muzzleFlash != null) muzzleFlash.PlayFlash();
 
-        // 1. Hier erstellen wir die Variable EINMAL
         Vector3 screenCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
 
-        // --- SOUND LOGIK ---
         if (gunAudioSource != null && gunshotClip != null)
         {
             gunAudioSource.pitch = 1f + Random.Range(-pitchVariation, pitchVariation);
             gunAudioSource.PlayOneShot(gunshotClip);
         }
-        // -------------------
-
-        // HIER WAR DER FEHLER: Die zweite Zeile "Vector3 screenCenter = ..." habe ich gelöscht.
-        // Wir benutzen einfach die von oben weiter.
         
         Ray cameraRay = mainCamera.ScreenPointToRay(screenCenter);
 
@@ -107,7 +105,7 @@ public class PlayerShooter : MonoBehaviour
         Vector3 targetWorldPoint;
 
         // Zielpunkt ermitteln
-        if (Physics.Raycast(cameraRay, out RaycastHit cameraHit, maxRange))
+        if (Physics.Raycast(cameraRay, out RaycastHit cameraHit, maxRange, hitMask))
         {
             Vector3 dirToHitFromMuzzle = (cameraHit.point - rayStart).normalized;
             float dot = Vector3.Dot(mainCamera.transform.forward, dirToHitFromMuzzle);
@@ -129,7 +127,11 @@ public class PlayerShooter : MonoBehaviour
             finalHitTarget = weaponHit.point;
             currentRange = weaponHit.distance;
             
-            // HIER GAB ES AUCH KLEINE SCHREIBFEHLER IM MERGE, HAB ICH KORRIGIERT:
+            if (impactPrefab != null)
+            {
+                Instantiate(impactPrefab, weaponHit.point, Quaternion.LookRotation(weaponHit.normal));
+            }
+
             // Wir prüfen nach Komponenten nur wenn wir sie finden
             if (weaponHit.collider.TryGetComponent<GhostHealth>(out var enemyHealth)) 
             {
