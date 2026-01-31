@@ -2297,6 +2297,9 @@ MonoBehaviour:
   targetSpawnPoint: {fileID: 1557646529}
   uiManager: {fileID: 555316287}
   tickAudioSource: {fileID: 363021293}
+  startClip: {fileID: 8300000, guid: d4f4c66979a15f940a7b6f9603e42908, type: 3}
+  timeOverClip: {fileID: 8300000, guid: 3ee077f42dfde2c4996988c242539012, type: 3}
+  gameOverClip: {fileID: 8300000, guid: a12c0be276443b14cb35ab55a833601a, type: 3}
   tickStartTime: 8
   minPitch: 1
   maxPitch: 2.5

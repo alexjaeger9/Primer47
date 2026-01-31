@@ -17,7 +17,10 @@ public class GameManager : MonoBehaviour
     public UIManager uiManager;
 
     [Header("Audio Effects")]
-    public AudioSource tickAudioSource; 
+    public AudioSource tickAudioSource;
+    public AudioClip startClip;
+    public AudioClip timeOverClip;
+    public AudioClip gameOverClip;
     public float tickStartTime = 8f;
     public float minPitch = 1.0f;
     public float maxPitch = 4.0f;
@@ -53,36 +56,28 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
+        if (Time.timeScale == 0f)
+        {
+            HandleTickingSound(0); 
+            return; 
+        }
+
         if (timerRunning)
         {
             currentLoopTime += Time.deltaTime;
             float timeRemaining = loopTimeLimit - currentLoopTime;
             
-            //Timer updaten
             uiManager.UpdateTimer(timeRemaining);
-
             HandleTickingSound(timeRemaining);
             
-            //Zeit abgelaufen
             if (timeRemaining <= 0)
             {
-                timerRunning = false;
-                HandlePlayerDeath(); //Game Over
+                HandlePlayerDeath(); 
             }
 
-            //Von Map gesprungen
             if (player.transform.position.y < -10f)
             {
-                timerRunning = false;
-                HandlePlayerDeath(); //Game Over
-            }
-        }
-        else
-        {
-            if (tickAudioSource != null && tickAudioSource.isPlaying)
-            {
-                tickAudioSource.Stop();
-                tickAudioSource.pitch = 1f; // Pitch zurücksetzen
+                HandlePlayerDeath(); 
             }
         }
     }
@@ -93,6 +88,8 @@ public class GameManager : MonoBehaviour
 
         if (Time.timeScale == 0f)
         {
+            if (PauseManager.isGameOver) return; 
+
             if (tickAudioSource.isPlaying) 
             {
                 tickAudioSource.Pause(); 
@@ -132,6 +129,14 @@ public class GameManager : MonoBehaviour
     //der erste Start
     public IEnumerator StartNewGame()
     {
+        if (tickAudioSource != null && startClip != null)
+        {
+            tickAudioSource.Stop();
+            tickAudioSource.pitch = 1f; // Pitch Reset
+            tickAudioSource.PlayOneShot(startClip);
+        }
+
+        PauseManager.isGameOver = false;
         Time.timeScale = 1f;
         transitionController.SetAlpha(1f);
 
@@ -338,9 +343,12 @@ public class GameManager : MonoBehaviour
     private void HandlePlayerDeath()
     {
         timerRunning = false;
+        tickAudioSource.Stop();
+        tickAudioSource.pitch = 1f; // Pitch Reset
+        tickAudioSource.PlayOneShot(timeOverClip);
+
         StartCoroutine(GameOverSequence());
     }
-
     private IEnumerator GameOverSequence()
     {
         PauseManager.canPause = false; //pausieren blocken
@@ -385,6 +393,8 @@ public class GameManager : MonoBehaviour
         
         //GameOver Panel zeigen
         Time.timeScale = 0f;
+        tickAudioSource.pitch = 1f; 
+        tickAudioSource.PlayOneShot(gameOverClip);
         SaveScore();
         uiManager.ShowGameOver();
 
@@ -408,22 +418,22 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    public void OnGhostKilled(GhostHealth ghost)
+public void OnGhostKilled(GhostHealth ghost)
     {
         activeGhosts.Remove(ghost);
-        //Counter updaten
         uiManager.UpdateGhostsRemaining(activeGhosts.Count);
         
         if (activeGhosts.Count == 0)
         {
-            timerRunning = false; //Timer stoppen
+            timerRunning = false; 
+
+            if (tickAudioSource != null)
+            {
+                tickAudioSource.Stop();
+                tickAudioSource.pitch = 1f;
+            }
+
             StartCoroutine(LoopTransition());
-        }
-        else
-        {
-            //Ghosts übrig -> Hitstop
-            // finde ich etwas iritierend beim spielen deswegen auskommentiert
-            //StartCoroutine(HitstopEffect());
         }
     }
 
