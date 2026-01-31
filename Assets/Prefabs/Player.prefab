@@ -1195,6 +1195,7 @@ MonoBehaviour:
   audioSource: {fileID: 5768383761421614576}
   jumpClip: {fileID: 8300000, guid: e0c044fa486111b458dae9a2b2928a8c, type: 3}
   landClip: {fileID: 8300000, guid: 562d33d861eb8e04c895b250ea2701bf, type: 3}
+  stepVolume: 0.054
   footstepClips:
   - {fileID: 8300000, guid: fe50203f91c6c444eac5755ffaa550bf, type: 3}
   - {fileID: 8300000, guid: e7e5449db38321345afb854737a95c7c, type: 3}

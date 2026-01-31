@@ -16,6 +16,12 @@ public class GameManager : MonoBehaviour
     [Header("UI")]
     public UIManager uiManager;
 
+    [Header("Audio Effects")]
+    public AudioSource tickAudioSource; 
+    public float tickStartTime = 8f;
+    public float minPitch = 1.0f;
+    public float maxPitch = 4.0f;
+
     [Header("Game State")]
     public int currentLoopIndex;
     public List<RunData> allRuns = new List<RunData>();
@@ -54,6 +60,8 @@ public class GameManager : MonoBehaviour
             
             //Timer updaten
             uiManager.UpdateTimer(timeRemaining);
+
+            HandleTickingSound(timeRemaining);
             
             //Zeit abgelaufen
             if (timeRemaining <= 0)
@@ -69,8 +77,36 @@ public class GameManager : MonoBehaviour
                 HandlePlayerDeath(); //Game Over
             }
         }
+        else
+        {
+            if (tickAudioSource != null && tickAudioSource.isPlaying)
+            {
+                tickAudioSource.Stop();
+                tickAudioSource.pitch = 1f; // Pitch zurücksetzen
+            }
+        }
     }
 
+    private void HandleTickingSound(float timeRemaining)
+    {
+        if (tickAudioSource == null) return;
+
+        if (timeRemaining <= tickStartTime && timeRemaining > 0)
+        {
+            if (!tickAudioSource.isPlaying) 
+            {
+                tickAudioSource.Play();
+            }
+
+            float progress = 1 - (timeRemaining / tickStartTime);
+            
+            tickAudioSource.pitch = Mathf.Lerp(minPitch, maxPitch, progress);
+        }
+        else
+        {
+            if (tickAudioSource.isPlaying) tickAudioSource.Stop();
+        }
+    }
     public void AddCoinPoints(float amount)
     {
         coinsThisRun++;

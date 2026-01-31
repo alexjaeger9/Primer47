@@ -138,18 +138,32 @@ public class PlayerController : MonoBehaviour
 
     public void OnFootstep()
     {
-        if (controller.isGrounded && footstepClips.Length > 0)
+        if (!controller.isGrounded) return;
+
+        // Wenn man zu langsam ist (Antippen), kein Sound
+        if (controller.velocity.sqrMagnitude < 0.5f) return;
+
+        if (footstepClips.Length > 0)
         {
-            audioSource.volume = Random.Range(0.9f, 1.0f); 
+            // Wir ändern NICHT mehr die globale Lautstärke (audioSource.volume),
+            // damit das Springen danach nicht leiser wird.
 
             currentStepIndex = currentStepIndex % footstepClips.Length;
-            
             AudioClip clipToPlay = footstepClips[currentStepIndex];
-            PlaySound(clipToPlay);
+
+            if (audioSource != null && clipToPlay != null)
+            {
+                // Pitch Variation (wie vorher)
+                audioSource.pitch = Random.Range(0.95f, 1.05f);
+                
+                // HIER ist dein Regler: Die '0.4f' bedeutet 40% Lautstärke.
+                // Ändere die 0.4f zu 0.2f (leiser) oder 0.8f (lauter), wie du willst.
+                audioSource.PlayOneShot(clipToPlay, 1.0f); 
+            }
+
             currentStepIndex++;
         }
     }
-    
     void HandleAnimation()
     {
         if (playerAnimator == null) return;
