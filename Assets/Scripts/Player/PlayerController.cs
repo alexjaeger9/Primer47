@@ -42,8 +42,8 @@ public class PlayerController : MonoBehaviour
 
     [Header("Slide Settings")]
     [SerializeField] private float slideBoostForce = 8f; 
-    [SerializeField] private float slideCooldown = 2f; 
-    private float lastSlideTime = -999f;
+    [SerializeField] private float slideCooldown = 0.5f; 
+    private float lastSlideTime = 0f;
 
     
     void Awake()
@@ -175,7 +175,6 @@ public class PlayerController : MonoBehaviour
             if (audioSource != null && clipToPlay != null)
             {
                 audioSource.pitch = Random.Range(0.95f, 1.05f);
-                
                 audioSource.PlayOneShot(clipToPlay, 0.25f); 
             }
 
@@ -194,9 +193,9 @@ public class PlayerController : MonoBehaviour
         float targetX = h * multiplier;
         float targetY = v * multiplier;
 
-         if (Input.GetKeyDown(KeyCode.LeftControl))
+         if (Input.GetKeyDown(KeyCode.LeftControl) && (h != 0 || v != 0) && controller.isGrounded)
         {
-            // Prüfen ob Cooldown vorbei ist
+            // cooldown check
             if (Time.time >= lastSlideTime + slideCooldown)
             {
                 playerAnimator.SetTrigger("Slide");
@@ -206,12 +205,12 @@ public class PlayerController : MonoBehaviour
                 if (moveDirection.magnitude > 0.1f)
                 {
                     ApplySlideBoost();
-                    lastSlideTime = Time.time; // ✅ Cooldown Timer starten
+                    lastSlideTime = Time.time;
                 }
             }
         }
 
-        if (Input.GetKeyUp(KeyCode.LeftControl) || (h == 0 && v == 0)) playerAnimator.SetBool("isSliding", false);
+        //if (Input.GetKeyUp(KeyCode.LeftControl) || (h == 0 && v == 0)) playerAnimator.SetBool("isSliding", false);
 
         slidingThisTick = playerAnimator.GetCurrentAnimatorStateInfo(0).IsTag("SlidingTag");
 
