@@ -5,25 +5,23 @@ using System.Collections;
 public class HUDAnimationController : MonoBehaviour
 {
     [Header("References")]
-    public Text targetsText; // Zuweisen im Inspector
-    public Text timerText;   // Zuweisen im Inspector
+    public Text targetsText;
+    public Text timerText;  
 
-    [Header("Global Settings")]
+    [Header("Settings")]
     public float slideDuration = 0.5f;
-    public float slideDistance = 100f; // Positive Y-Richtung (Up)
+    public float slideDistance = 100f; //positive Y Richtung (Up)
     public float shakeDuration = 0.2f;
     public float shakeStrength = 10f;
-
-    [Header("Special Settings")]
     public Color targetFlashColor = Color.yellow;
     public float flashDuration = 0.3f;
 
-    // Interne Speicher
+    //interne Speicher
     private Vector2 targetsOriginalPos;
     private Vector2 timerOriginalPos;
     private Color targetsOriginalColor;
     
-    // Cache Components
+    //cache
     private RectTransform targetsRect;
     private RectTransform timerRect;
     private CanvasGroup targetsCanvas;
@@ -31,9 +29,9 @@ public class HUDAnimationController : MonoBehaviour
 
     private void Start()
     {
-        // Setup Targets Text
+        //setup Targets Text
         SetupElement(targetsText, out targetsRect, out targetsCanvas, out targetsOriginalPos);
-        if (targetsText != null) targetsOriginalColor = targetsText.color;
+        targetsOriginalColor = targetsText.color;
         
         // Setup Timer Text (Farbe speichern wir hier nicht speziell für Reset, da Timer Logik variiert)
         SetupElement(timerText, out timerRect, out timerCanvas, out timerOriginalPos);
@@ -41,73 +39,53 @@ public class HUDAnimationController : MonoBehaviour
 
     private void SetupElement(Text textComp, out RectTransform rect, out CanvasGroup cg, out Vector2 origPos)
     {
-        if (textComp == null) 
-        {
-            rect = null; cg = null; origPos = Vector2.zero;
-            return;
-        }
-
         rect = textComp.GetComponent<RectTransform>();
         cg = textComp.GetComponent<CanvasGroup>();
-        
-        if (cg == null) cg = textComp.gameObject.AddComponent<CanvasGroup>();
-
         origPos = rect.anchoredPosition;
     }
 
-    // ----------------------------------------------------------------
-    // PUBLIC Methods
-    // ----------------------------------------------------------------
-
+    //Slide All Hilfs-Methoden
     public void SlideInAll()
     {
-        if(targetsRect != null) StartCoroutine(SlideRoutine(targetsRect, targetsCanvas, targetsOriginalPos, true));
-        if(timerRect != null) StartCoroutine(SlideRoutine(timerRect, timerCanvas, timerOriginalPos, true));
+        StartCoroutine(SlideRoutine(targetsRect, targetsCanvas, targetsOriginalPos, true));
+        StartCoroutine(SlideRoutine(timerRect, timerCanvas, timerOriginalPos, true));
     }
 
     public void SlideOutAll()
     {
-        if(targetsRect != null) StartCoroutine(SlideRoutine(targetsRect, targetsCanvas, targetsOriginalPos, false));
-        if(timerRect != null) StartCoroutine(SlideRoutine(timerRect, timerCanvas, timerOriginalPos, false));
+        StartCoroutine(SlideRoutine(targetsRect, targetsCanvas, targetsOriginalPos, false));
+        StartCoroutine(SlideRoutine(timerRect, timerCanvas, timerOriginalPos, false));
     }
 
-    // --- TARGETS ---
-
+    //Shake und Flash Hilfs-Methoden für Target
     public void ShakeTargets()
     {
-        if(targetsRect != null) StartCoroutine(ShakeRoutine(targetsRect, targetsOriginalPos, shakeStrength, shakeDuration));
+        StartCoroutine(ShakeRoutine(targetsRect, targetsOriginalPos, shakeStrength, shakeDuration));
     }
 
     public void ShakeAndFlashTargets()
     {
-        if(targetsRect != null) 
-        {
-            StartCoroutine(ShakeRoutine(targetsRect, targetsOriginalPos, shakeStrength, shakeDuration));
-            StartCoroutine(FlashRoutine(targetsText, targetsOriginalColor, targetFlashColor));
-        }
+        StartCoroutine(ShakeRoutine(targetsRect, targetsOriginalPos, shakeStrength, shakeDuration));
+        StartCoroutine(FlashRoutine(targetsText, targetsOriginalColor, targetFlashColor));
     }
 
-    // --- TIMER ---
-
+    //Shake und Color Hilfs-Methoden für Timer
     public void ShakeTimer()
     {
-        if(timerRect != null) StartCoroutine(ShakeRoutine(timerRect, timerOriginalPos, shakeStrength, shakeDuration));
+        StartCoroutine(ShakeRoutine(timerRect, timerOriginalPos, shakeStrength, shakeDuration));
     }
 
     public void BigShakeTimer()
     {
-        if(timerRect != null) StartCoroutine(ShakeRoutine(timerRect, timerOriginalPos, shakeStrength * 5f, shakeDuration * 1.5f));
+        StartCoroutine(ShakeRoutine(timerRect, timerOriginalPos, shakeStrength * 5f, shakeDuration * 1.5f));
     }
 
     public void SetTimerColor(Color color)
     {
-        if(timerText != null) timerText.color = color;
+        timerText.color = color;
     }
 
-    // ----------------------------------------------------------------
-    // Coroutines
-    // ----------------------------------------------------------------
-
+    //Coroutinen
     private IEnumerator SlideRoutine(RectTransform rect, CanvasGroup cg, Vector2 targetPos, bool slideIn)
     {
         Vector2 offset = new Vector2(0, slideDistance); 

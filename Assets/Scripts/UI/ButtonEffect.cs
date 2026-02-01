@@ -3,92 +3,83 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Collections;
 
+//IpointerEnterHander Maus drüber
+//IPointerExitHandler Maus weg
 public class ButtonEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     public Text buttonText;
     public Outline textOutline;
     
-    [Header("Colors (anpassbar pro Button)")]
+    [Header("Colors")]
     public Color normalColor = Color.white;
     public Color hoverColor = new Color(1f, 0.6f, 0.6f);
     public Color clickColor = new Color(0.8f, 0.2f, 0.2f);
     
-    // Alle anderen Werte sind immer gleich → hardcoded
-    private const float HOVER_SCALE = 1.15f;
-    private const float SCALE_SPEED = 15f;
-    private const float COLOR_SPEED = 10f;
-    private const float HOVER_ROTATION = 3f;
-    private const float SHAKE_DURATION = 0.15f;
-    private const float SHAKE_STRENGTH = 8f;
-    
-    private static readonly Vector2 NORMAL_OUTLINE = new Vector2(1, -1);
-    private static readonly Vector2 HOVER_OUTLINE = new Vector2(2, -2);
+    private float hover_scale = 1.15f;    
+    private readonly Vector2 outline = new Vector2(1, -1);
+    private readonly Vector2 hover_outline = new Vector2(2, -2);
     
     private Vector3 targetScale;
     private Color targetColor;
-    private Quaternion targetRotation;
     private Vector2 targetOutlineDistance;
     private Coroutine shakeCoroutine;
     private Vector3 originalPosition;
 
     private void Start()
     {
+        //Targets auf Default Werte setzen
         targetScale = Vector3.one;
         targetColor = normalColor;
-        targetRotation = Quaternion.identity;
-        targetOutlineDistance = NORMAL_OUTLINE;
+        targetOutlineDistance = outline;
         originalPosition = buttonText.transform.localPosition;
         
         buttonText.color = normalColor;
-        textOutline.effectDistance = NORMAL_OUTLINE;
+        textOutline.effectDistance = outline;
     }
 
     private void Update()
     {
-        // Elastic Scale
-        float t = 1f - Mathf.Pow(0.001f, SCALE_SPEED * Time.unscaledDeltaTime);
-        buttonText.transform.localScale = Vector3.Lerp(buttonText.transform.localScale, targetScale, t);
-        
-        // Smooth Color
-        buttonText.color = Color.Lerp(buttonText.color, targetColor, COLOR_SPEED * Time.unscaledDeltaTime);
-        
-        // Smooth Rotation
-        buttonText.transform.localRotation = Quaternion.Lerp(
-            buttonText.transform.localRotation,
-            targetRotation,
-            SCALE_SPEED * Time.unscaledDeltaTime
+        //Elastic Scale (Bounce effect)
+        buttonText.transform.localScale = Vector3.Lerp(
+            buttonText.transform.localScale, 
+            targetScale, 
+            15f * Time.unscaledDeltaTime
         );
         
+        //Smooth Color
+        buttonText.color = Color.Lerp(
+            buttonText.color, 
+            targetColor, 
+            10f * Time.unscaledDeltaTime
+        );
+
         // Outline Distance
         textOutline.effectDistance = Vector2.Lerp(
             textOutline.effectDistance,
             targetOutlineDistance,
-            SCALE_SPEED * Time.unscaledDeltaTime
+            15f * Time.unscaledDeltaTime
         );
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        targetScale = Vector3.one * HOVER_SCALE;
+        targetScale = Vector3.one * hover_scale;
         targetColor = hoverColor;
-        targetRotation = Quaternion.Euler(0, 0, HOVER_ROTATION);
-        targetOutlineDistance = HOVER_OUTLINE;
+        targetOutlineDistance = hover_outline;
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         targetScale = Vector3.one;
         targetColor = normalColor;
-        targetRotation = Quaternion.identity;
-        targetOutlineDistance = NORMAL_OUTLINE;
+        targetOutlineDistance = outline;
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        targetColor = clickColor;
+        targetColor = clickColor;    
         
-        if (!gameObject.activeInHierarchy) return; // Fix für deaktivierten Button
-        
+        //nur stoppen, wenn eine läuft
         if (shakeCoroutine != null) 
             StopCoroutine(shakeCoroutine);
         
@@ -99,9 +90,10 @@ public class ButtonEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     {
         float elapsed = 0f;
         
-        while (elapsed < SHAKE_DURATION)
+        while (elapsed < 0.15f) //shake duration
         {
-            float strength = Mathf.Lerp(SHAKE_STRENGTH, 0f, elapsed / SHAKE_DURATION);
+            //8f shake strength
+            float strength = Mathf.Lerp(8f, 0f, elapsed / 0.15f);
             float x = Random.Range(-1f, 1f) * strength;
             float y = Random.Range(-1f, 1f) * strength;
             
