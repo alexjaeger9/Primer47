@@ -33,16 +33,16 @@ public class MuzzleFlash : MonoBehaviour
 
     public void PlayFlash()
     {
-        // Zufälliges Sprite wählen (falls mehrere vorhanden)
-        if (flashVariants != null && flashVariants.Length > 0)
+        //zufälliges Sprite wählen (falls mehrere vorhanden)
+        if (flashVariants.Length > 0)
         {
             flashSprite.sprite = flashVariants[Random.Range(0, flashVariants.Length)];
         }
 
-        // Zufällige Rotation für Variation
+        //zufällige Rotation für Variation
         transform.localRotation = Quaternion.Euler(0, 0, Random.Range(0f, 360f));
 
-        // Zufällige Größe
+        //zufällige Größe
         float scale = Random.Range(minScale, maxScale);
         transform.localScale = new Vector3(scale, scale, scale);
 

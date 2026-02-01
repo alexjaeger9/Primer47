@@ -9,12 +9,14 @@ public class GameManager : MonoBehaviour
     [Header("Prefabs & Spawns")]
     public GameObject playerPrefab;
     public GameObject ghostPrefab;
-    public SpawnArea spawnArea; //
+    public SpawnArea spawnArea; 
     public Transform playerSpawnPoint;
     public Transform targetSpawnPoint;
 
     [Header("UI")]
     public UIManager uiManager;
+    public HUDAnimationController hudAnim;
+    private float lastTimerSecond = -1; //für Shake-Timing
 
     [Header("Audio Effects")]
     public AudioSource tickAudioSource;
@@ -70,13 +72,26 @@ public class GameManager : MonoBehaviour
             uiManager.UpdateTimer(timeRemaining);
             HandleTickingSound(timeRemaining);
             
+            if (timeRemaining <= 5f && timeRemaining > 0f)
+            {
+                int currentSecond = Mathf.FloorToInt(timeRemaining);
+                if (currentSecond != lastTimerSecond)
+                {
+                    lastTimerSecond = currentSecond;
+                    hudAnim.Shake("Timer");
+                }
+            }
+            
             if (timeRemaining <= 0)
             {
+                timerRunning = false;
+                hudAnim.BigShake("Timer");
                 HandlePlayerDeath(); 
             }
 
             if (player.transform.position.y < -10f)
             {
+                timerRunning = false;
                 HandlePlayerDeath(); 
             }
         }
@@ -121,7 +136,6 @@ public class GameManager : MonoBehaviour
     {
         coinsThisRun++;
         coinValue = amount;
-        uiManager.UpdateCoinCounter(coinsThisRun);
         //lastScore += amount;
         //uiManager.UpdateScore(lastScore);
     }
@@ -132,7 +146,14 @@ public class GameManager : MonoBehaviour
         if (tickAudioSource != null && startClip != null)
         {
             tickAudioSource.Stop();
-            tickAudioSource.pitch = 1f; // Pitch Reset
+            tickAudioSource.pitch = 1f;
+            
+            //Audio Source aktivieren falls deaktiviert ← FIX
+            if (!tickAudioSource.enabled)
+            {
+                tickAudioSource.enabled = true;
+            }
+            
             tickAudioSource.PlayOneShot(startClip);
         }
 
@@ -146,8 +167,7 @@ public class GameManager : MonoBehaviour
         allRuns.Clear();
         currentLoopIndex = 0;
         lastScore = 0f; //Score resetten
-        uiManager.UpdateScore(0); //UI-Score updaten  
-        uiManager.hideScoreCalculation();
+        uiManager.scoreCalculation.SetActive(false);
 
         spawnArea.ResetSpawnHistory();
         PauseManager.canPause = true; //pausieren erlauben
@@ -201,10 +221,23 @@ public class GameManager : MonoBehaviour
         //Timer starten
         currentLoopTime = 0f;
         timerRunning = true;
+        lastTimerSecond = -1; //Reset
 
         //UI Updaten
-        uiManager.UpdateLoopCounter(currentLoopIndex + 1);
         uiManager.UpdateGhostsRemaining(activeGhosts.Count);
+
+        
+        hudAnim.SlideIn("TargetsLeft");
+        hudAnim.SlideIn("Score");
+        hudAnim.SlideIn("Timer");
+        hudAnim.SlideIn("LoopCounter");
+        hudAnim.SlideIn("Coins");
+
+        GameObject coinElement = hudAnim.hudElements.Find(e => e.name == "Coins")?.element;
+        if (coinElement != null && coinElement.activeSelf)
+        {
+            hudAnim.SlideIn("Coins");
+        }
 
         //Player Number Update
         playerHealth.UpdatePlayerNumbers(currentLoopIndex + 1);
@@ -217,7 +250,6 @@ public class GameManager : MonoBehaviour
         }
 
         if (CoinPool.Instance != null) CoinPool.Instance.SpawnCoins();
-        uiManager.UpdateCoinCounter(coinsThisRun);
     }
 
     private void SpawnGhostsFromRuns()
@@ -255,45 +287,67 @@ public class GameManager : MonoBehaviour
     }
 
     private IEnumerator LoopTransition()
+{
+    PauseManager.canPause = false;
+    
+    // Score berechnen & anzeigen
+    ScoreCalculation();
+    
+    // Slow Motion Effekt
+    yield return SmoothSlowMo(0.1f, 0.5f);
+    
+    // Warten damit man den Score lesen kann
+    yield return new WaitForSecondsRealtime(2f);
+    
+    // Transition starten (Fade to Black)
+    if (transitionController != null)
     {
-        PauseManager.canPause = false; //pausieren blocken
-
-        ScoreCalculation();
-
-        //Slow Mo (auf 0,1 verlangsamen in 1s)
-        yield return SmoothSlowMo(0.1f, 0.5f);
-        
-        //kurz in Slow Mo warten
-        yield return new WaitForSecondsRealtime(2f);
-
-        uiManager.hideScoreCalculation();
-
-        //Fade to Black
-        StartCoroutine(transitionController.FadeIn(1f));
-        
-        EndLoop();
-
-        uiManager.UpdateScore(lastScore);
-
-        //Loop Text Anzeige
-        uiManager.ShowBigLoopText(currentLoopIndex + 1);
-        yield return new WaitForSecondsRealtime(1.2f); //Dauer in der der Text angezeigt wird        
-        uiManager.HideBigLoopText();
-        
-        //Loop Clearen
-        ClearGhosts();
-        ClearBullets();
-        SpawnPlayer();
-        StartLoop();
-        
-        //Slow Mo beenden
-        Time.timeScale = 1f;
-
-        PauseManager.canPause = true; //pausieren wieder erlauben
-
-        //Fade from Black
-        yield return transitionController.FadeOut(1f);
+        yield return transitionController.FadeIn(0.3f);
     }
+    else
+    {
+        Debug.LogError("TransitionController ist nicht zugewiesen im GameManager!");
+        // Fallback falls Transition fehlt, damit das Spiel nicht stecken bleibt
+        yield return new WaitForSecondsRealtime(0.5f);
+    }
+
+    // Score Panel verstecken
+    if (uiManager != null) uiManager.hideScoreCalculation();
+    
+    yield return new WaitForSecondsRealtime(0.3f);
+    
+    // --- Loop Reset Logik ---
+    int previousLoop = currentLoopIndex;
+    int nextLoop = currentLoopIndex + 1;
+    
+    EndLoop();
+    ClearGhosts();
+    ClearBullets();
+    SpawnPlayer();
+    
+    // Loop Text Animation
+    if (uiManager != null)
+    {
+        uiManager.ShowBigLoopText(previousLoop);
+        yield return new WaitForSecondsRealtime(0.2f);
+        yield return StartCoroutine(uiManager.AnimateLoopNumber(previousLoop, nextLoop));
+    }
+
+    yield return new WaitForSecondsRealtime(0.7f);
+    
+    // Fade Out (Bild wieder da)
+    if (transitionController != null)
+    {
+        StartCoroutine(transitionController.FadeOut(0.2f));
+    }
+    
+    if (uiManager != null) uiManager.HideBigLoopText();
+    
+    StartLoop();
+    
+    Time.timeScale = 1f;
+    PauseManager.canPause = true;
+}
 
     private IEnumerator SmoothSlowMo(float slowAmount, float duration)
     {
@@ -390,6 +444,12 @@ public class GameManager : MonoBehaviour
         }
 
         cam.enabled = false;
+
+        hudAnim.SlideOut("TargetsLeft");
+        hudAnim.SlideOut("Score");
+        hudAnim.SlideOut("LoopCounter");
+
+        yield return new WaitForSecondsRealtime(0.6f); 
         
         //GameOver Panel zeigen
         Time.timeScale = 0f;
@@ -422,6 +482,15 @@ public void OnGhostKilled(GhostHealth ghost)
     {
         activeGhosts.Remove(ghost);
         uiManager.UpdateGhostsRemaining(activeGhosts.Count);
+
+        if (activeGhosts.Count <= 3 && activeGhosts.Count >= 1)
+        {
+            hudAnim.ShakeAndFlash("TargetsLeft"); //Shake + Gelb
+        }
+        else
+        {
+            hudAnim.Shake("TargetsLeft"); //Nur Shake
+        }
         
         if (activeGhosts.Count == 0)
         {

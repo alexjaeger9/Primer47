@@ -10,141 +10,259 @@ public class UIManager : MonoBehaviour
     public GameObject hud;
     public TransitionController transitionController;
 
-    //HUD Elemente
-    public Text scoreText;
-    public Text currentLoopText; //kleine oben links
+    [Header("HUD Elemente")]
     public Text timerText;
-    public Text bigLoopText; //große in der Mitte
+    public Text bigLoopText;
     public Text lastScoreText;
-    public Text highScoreText;
     public Text remainingGhostText;
+    
+    [Header("Score Calculation Logic")]
     public GameObject scoreCalculation;
+    
+    // Die Texte für die Werte
     public Text sC_currentScore;
-    public Text sC_timeLeft;
+    public Text sC_timeLeft; 
     public Text sC_newScore;
     public Text sC_coinScore;
-    public GameObject[] coinTexts;
-    public Text coinsCounter;
 
-    //Hud Updates
-     public void UpdateScore(float score)
+    // Die Gruppen für die Animation
+    public GameObject sC_timeLeft_Group; 
+    public GameObject sC_newScore_Group; 
+    public GameObject coinBonusGroup;    
+
+    [Header("Audio")]
+    public AudioClip loopTransitionSound;   // Der Sound für "Loop 1 -> Loop 2"
+    public AudioClip scoreCalculationSound; // NEU: Der "Impact" Sound für die Texte (kurzes Wusch/Thud)
+
+    private void Start()
     {
-        scoreText.text = "Score: " + score.ToString("F2");
-    }
-
-    public void UpdateLoopCounter(int loopIndex)
-    {
-        currentLoopText.text = "Loop: " + loopIndex;
-    }
-
-    public void UpdateCoinCounter(int coins)
-    {
-        coinsCounter.gameObject.SetActive(coins > 0);
-        if (coins > 0) coinsCounter.text = "Coins: " + coins;
-    }
-
-    public void UpdateTimer(float timeRemaining)
-    {
-        timeRemaining = Mathf.Max(0, timeRemaining);
-        timerText.text = timeRemaining.ToString("F2") + "s";
-    }
-
-    public void UpdateGhostsRemaining(int remaining)
-    {
-        remainingGhostText.text = "Targets left: " + remaining;
-    }
-
-    //großer Loop text
-    public void ShowBigLoopText(int loopIndex)
-    {
-        bigLoopText.text = "LOOP " + loopIndex;
-        bigLoopText.gameObject.SetActive(true);
-    }
-
-    public void HideBigLoopText()
-    {
-        bigLoopText.gameObject.SetActive(false);
-    }
-
-    //Game over
-    public void ShowGameOver()
-    {
-        gameOverPanel.SetActive(true);
-        hud.SetActive(false);
-
-        float currentScore = PlayerPrefs.GetFloat("LastScore", 0f);
-        float highScore = PlayerPrefs.GetFloat("HighScore", 0f);
-        lastScoreText.text = "Your Score: " + currentScore.ToString("F2");
-        highScoreText.text = "High Score: " + highScore.ToString("F2");
-
-        //Cursor freigeben und sichtbar machen
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-    }
-
-    public void RestartGame()
-    {
-        StartCoroutine(RestartGameWithFade());
-    }
-
-    private IEnumerator RestartGameWithFade()
-    {
-        yield return transitionController.FadeIn(1f);
-        
-        //Panels deaktivieren
-        gameOverPanel.SetActive(false); 
-        pausePanel.SetActive(false);
-
-        hud.SetActive(true);
-
-        Time.timeScale = 1f; //Spiel läuft wieder
-        PauseManager.isGameOver = false;
-
-        yield return GameManager.Instance.StartNewGame();
-    }
-
-
-    //main menu methode
-    public void LoadMainMenu()
-    {
-        StartCoroutine(LoadMainMenuWithFade());
-    }
-
-    private IEnumerator LoadMainMenuWithFade()
-    {
-        //Fade to Black
-        yield return transitionController.FadeIn(1f);
-
-        Time.timeScale = 1f;
-
-        //Cursor freigeben
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-        
-        //Scene laden
-        SceneManager.LoadScene("MainMenu");
-    }
-
-    public void showScoreScalculation(float currentScore, float timeLeft, float newScore, int coins, float coinValue)
-    {
-        sC_currentScore.text = currentScore.ToString("F2");
-        sC_timeLeft.text = timeLeft.ToString("F2");
-        sC_newScore.text = newScore.ToString("F2");
-        scoreCalculation.SetActive(true);
-        if (coins > 0)
-        {
-            sC_coinScore.text = (coins * coinValue).ToString();
-        }
-        foreach (GameObject coinText in coinTexts)
-        {
-            coinText.SetActive(coins > 0);
-        }
-        
+        if (coinBonusGroup != null) coinBonusGroup.SetActive(false);
     }
 
     public void hideScoreCalculation() 
     {
         scoreCalculation.SetActive(false);
+        if (coinBonusGroup != null) coinBonusGroup.SetActive(false);
     }
 
+    // --- Standard HUD Methoden ---
+    public void UpdateTimer(float timeRemaining)
+    {
+        timeRemaining = Mathf.Max(0, timeRemaining);
+        timerText.text = timeRemaining.ToString("F2") + "s";
+        
+        HUDAnimationController hudAnim = FindFirstObjectByType<HUDAnimationController>();
+        if(hudAnim == null) return;
+
+        if (timeRemaining <= 5f && timeRemaining > 0f) hudAnim.SetTimerColor(Color.red);
+        else if (timeRemaining <= 15f && timeRemaining > 10f) hudAnim.SetTimerColor(Color.yellow);
+        else if (timeRemaining > 15f) hudAnim.SetTimerColor(Color.white);
+        
+        if (timeRemaining <= 5f && timeRemaining > 0f)
+        {
+            float fractional = timeRemaining - Mathf.Floor(timeRemaining);
+            if (fractional > 0.98f) hudAnim.Shake("Timer");
+        }
+        if (timeRemaining == 0f) hudAnim.BigShake("Timer");
+    }
+
+    public void UpdateGhostsRemaining(int remaining) { remainingGhostText.text = "targets left: " + remaining; }
+
+    public void ShowBigLoopText(int loopIndex)
+    {
+        bigLoopText.text = "Loop " + loopIndex;
+        bigLoopText.gameObject.SetActive(true);
+    }
+    public void HideBigLoopText() { bigLoopText.gameObject.SetActive(false); }
+
+    public void ShowGameOver()
+    {
+        gameOverPanel.SetActive(true);
+        hud.SetActive(false);
+        float currentScore = PlayerPrefs.GetFloat("LastScore", 0f);
+        lastScoreText.text = "Your Score: " + currentScore.ToString("F0");
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    public void RestartGame() { StartCoroutine(RestartGameWithFade()); }
+    private IEnumerator RestartGameWithFade()
+    {
+        yield return transitionController.FadeIn(1f);
+        gameOverPanel.SetActive(false); 
+        pausePanel.SetActive(false);
+        hud.SetActive(true);
+        Time.timeScale = 1f; 
+        PauseManager.isGameOver = false;
+        yield return GameManager.Instance.StartNewGame();
+    }
+
+    public void LoadMainMenu() { StartCoroutine(LoadMainMenuWithFade()); }
+    private IEnumerator LoadMainMenuWithFade()
+    {
+        yield return transitionController.FadeIn(1f);
+        Time.timeScale = 1f;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        SceneManager.LoadScene("MainMenu");
+    }
+
+    // === SCORE CALCULATION ===
+
+    public void showScoreScalculation(float currentScore, float timeLeft, float newScore, int coins, float coinValue)
+    {
+        sC_currentScore.text = currentScore.ToString("F0");
+        sC_timeLeft.text = "+ " + timeLeft.ToString("F0");
+        sC_newScore.text = newScore.ToString("F0");
+        
+        if (coins > 0)
+        {
+            sC_coinScore.text = "+ " + (coins * coinValue).ToString("F0");
+        }
+            
+        scoreCalculation.SetActive(true);
+        ResetScoreCalculationElements(coins > 0);
+        
+        StartCoroutine(ScoreCalculationZoomIn(coins > 0));
+    }
+
+    private void ResetScoreCalculationElements(bool hasCoins)
+    {
+        SetGroupAlpha(sC_timeLeft_Group, 0f);
+        SetGroupAlpha(coinBonusGroup, 0f);
+        if (coinBonusGroup != null) coinBonusGroup.SetActive(false); 
+        SetGroupAlpha(sC_newScore_Group, 0f);
+    }
+
+    private void SetGroupAlpha(GameObject group, float alpha)
+    {
+        if (group == null) return;
+        group.transform.localScale = Vector3.one;
+        Text[] texts = group.GetComponentsInChildren<Text>();
+        foreach (Text t in texts)
+        {
+            Color c = t.color;
+            c.a = alpha;
+            t.color = c;
+        }
+    }
+
+    private IEnumerator ScoreCalculationZoomIn(bool hasCoins)
+    {
+        yield return new WaitForSecondsRealtime(0.2f);
+
+        // 1. Time Left
+        if (sC_timeLeft_Group != null)
+        {
+            PlaySoundWithPitch(scoreCalculationSound, 1.0f); // Normaler Pitch
+            yield return StartCoroutine(ZoomInEffect(sC_timeLeft_Group.transform, 4f, 1f, 0.4f));
+            yield return new WaitForSecondsRealtime(0.2f);
+        }
+
+        // 2. Coin Bonus (falls aktiv)
+        if (hasCoins && coinBonusGroup != null)
+        {
+            coinBonusGroup.SetActive(true);
+            PlaySoundWithPitch(scoreCalculationSound, 1.1f); // Etwas höherer Pitch
+            yield return StartCoroutine(ZoomInEffect(coinBonusGroup.transform, 3f, 1f, 0.4f));
+            yield return new WaitForSecondsRealtime(0.2f);
+        }
+        
+        // 3. New Score
+        if (sC_newScore_Group != null)
+        {
+            PlaySoundWithPitch(scoreCalculationSound, 1.2f); // Noch höherer Pitch (Finale!)
+            yield return StartCoroutine(ZoomInEffect(sC_newScore_Group.transform, 5f, 1.2f, 0.5f));
+        }
+    }
+
+    public IEnumerator AnimateLoopNumber(int fromLoop, int toLoop)
+    {
+        // UI zeigt +1
+        bigLoopText.text = "Loop " + (fromLoop + 1);
+
+        for (int i = fromLoop; i < toLoop; i++)
+        {
+            yield return new WaitForSecondsRealtime(0.5f);
+
+            int nextLoop = i + 1;
+            bigLoopText.text = "Loop " + (nextLoop + 1);
+
+            PlaySoundWithPitch(loopTransitionSound, 1.0f);
+            StartCoroutine(ZoomInEffect(bigLoopText.transform, 4f, 1f, 0.4f));
+        }
+    }
+
+
+    private IEnumerator ZoomInEffect(Transform target, float startScale, float endScale, float duration)
+    {
+        // --- HIER KEINE AUDIO LOGIK MEHR (wird oben gesteuert) ---
+
+        Vector3 originalScale = Vector3.one;
+        float elapsed = 0f;
+        
+        Text[] texts = target.GetComponentsInChildren<Text>();
+        
+        // Farben vorbereiten
+        Color[] targetColors = new Color[texts.Length];
+        for (int i = 0; i < texts.Length; i++)
+        {
+            Color c = texts[i].color;
+            c.a = 1f; // Ziel sichtbar
+            targetColors[i] = c;
+            
+            c.a = 0f; // Start unsichtbar
+            texts[i].color = c;
+        }
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = elapsed / duration;
+            
+            float easedT = 1f - Mathf.Pow(1f - t, 3f);
+            float currentScale = Mathf.Lerp(startScale, endScale, easedT);
+            target.localScale = originalScale * currentScale;
+            
+            float alphaT = Mathf.Clamp01(t * 3f); 
+            
+            for (int i = 0; i < texts.Length; i++)
+            {
+                Color c = targetColors[i];
+                c.a = Mathf.Lerp(0f, targetColors[i].a, alphaT);
+                texts[i].color = c;
+            }
+            
+            yield return null;
+        }
+        
+        target.localScale = originalScale * endScale;
+        for (int i = 0; i < texts.Length; i++)
+        {
+            texts[i].color = targetColors[i];
+        }
+    }
+
+    // Hilfsmethode für Sound mit Pitch (ohne extra AudioSource am Objekt zu brauchen)
+    private void PlaySoundWithPitch(AudioClip clip, float pitch)
+    {
+        if (clip == null) return;
+
+        // Erstelle temporäres Objekt
+        GameObject soundObj = new GameObject("TempAudio");
+        soundObj.transform.position = Camera.main.transform.position; // Sound bei der Kamera
+        
+        AudioSource audioSource = soundObj.AddComponent<AudioSource>();
+        audioSource.clip = clip;
+        audioSource.pitch = pitch;
+        audioSource.volume = 1f; // Oder variabel, falls gewünscht
+        
+        // Settings Manager checken für Lautstärke (optional, falls du das willst)
+        // audioSource.outputAudioMixerGroup = ... 
+
+        audioSource.Play();
+
+        // Objekt zerstören wenn fertig
+        Destroy(soundObj, clip.length + 0.1f);
+    }
 }

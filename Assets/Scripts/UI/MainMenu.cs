@@ -53,8 +53,8 @@ public class MainMenu : MonoBehaviour
         float highScore = PlayerPrefs.GetFloat("HighScore", 0);
         float lastScore = PlayerPrefs.GetFloat("LastScore", 0);
       
-        highScoreText.text = "High Score: " + highScore.ToString("F2");
-        lastScoreText.text = "Last Score: " + lastScore.ToString("F2");
+        highScoreText.text = "High Score: " + highScore.ToString("F0");
+        lastScoreText.text = "Last Score: " + lastScore.ToString("F0");
     }
 
     public void StartGame()
