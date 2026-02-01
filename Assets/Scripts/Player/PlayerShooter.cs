@@ -64,7 +64,7 @@ public class PlayerShooter : MonoBehaviour
 
     private void LateUpdate()
     {
-        // Erzwinge die gespeicherte Pose über jede Animation drüber
+        // Erzwingt Pose
         if (savedRotations != null)
         {
             for (int i = 0; i < handBones.Length; i++)

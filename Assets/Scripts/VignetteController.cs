@@ -24,7 +24,6 @@ public class VignetteController : MonoBehaviour
 
     void Update()
     {
-        // Wenn tot, bleibt die Vignette fest auf dem maximalen Alpha
         if (isDead)
         {
             SetVignetteAlpha(maxAlpha);
@@ -42,7 +41,7 @@ public class VignetteController : MonoBehaviour
     public void SetActive(bool state)
     {
         isActive = state;
-        isDead = false; // Reset bei neuem Loop/Spiel
+        isDead = false;
         
         if (!isActive)
         {

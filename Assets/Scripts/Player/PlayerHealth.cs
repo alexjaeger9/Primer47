@@ -14,7 +14,7 @@ public class PlayerHealth : MonoBehaviour
 
     private void Die()
     {
-        // an GameManager
+        //GameManager
         OnPlayerDeath?.Invoke();
     }
 

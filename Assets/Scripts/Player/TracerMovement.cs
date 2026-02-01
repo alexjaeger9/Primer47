@@ -9,10 +9,10 @@ public class TracerMovement : MonoBehaviour
 
     public void Initialize(Vector3 start, Vector3 end)
     {
-        targetPosition = end; //wo tracer hinsoll
-        transform.position = start; //startpos
-        transform.LookAt(targetPosition); //in richtung des Ziels drehen
-        gameObject.SetActive(true); //Bullet aktivieren
+        targetPosition = end;
+        transform.position = start;
+        transform.LookAt(targetPosition);
+        gameObject.SetActive(true);
         enabled = true;
     }
 
@@ -26,7 +26,7 @@ public class TracerMovement : MonoBehaviour
         
         if (transform.position == targetPosition)
         {
-            enabled = false; //nach Delay in Pool zurück
+            enabled = false;
             StartCoroutine(ReturnToPoolAfterDelay());
         }
     }
