@@ -45,7 +45,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float slideCooldown = 0.5f; 
     private float lastSlideTime = 0f;
 
-    
+    [Header("Slide Audio")]
+    public AudioClip slideClip;
+
     void Awake()
     {
         controller = GetComponent<CharacterController>();
@@ -60,14 +62,12 @@ public class PlayerController : MonoBehaviour
         HandleGravityAndJump();
         HandleAnimation();
 
-        // Boost Velocity abbauen
         if (boostVelocity.magnitude > 0.1f)
         {
             boostVelocity = Vector3.Lerp(boostVelocity, Vector3.zero, boostVelocityDecay * Time.deltaTime);
         }
         else
         {
-            // Auf exakt 0 setzen wenn sehr klein
             boostVelocity = Vector3.zero;
         }
 
@@ -133,7 +133,6 @@ public class PlayerController : MonoBehaviour
                 landedThisTick = true;
                 landed = true;
                 PlaySound(landClip);
-                //Debug.Log("Land");
             } 
             else if (playerAnimator.GetCurrentAnimatorStateInfo(0).IsTag("JumpTag") && !landed) playerAnimator.SetBool("isFalling", true);
 
@@ -146,7 +145,6 @@ public class PlayerController : MonoBehaviour
                 PlaySound(jumpClip);
                 landed = false;
             }
-            
         }
         else
         {
@@ -162,13 +160,10 @@ public class PlayerController : MonoBehaviour
     public void OnFootstep()
     {
         if (!controller.isGrounded) return;
-
-        // Wenn man zu langsam ist (Antippen), kein Sound
         if (controller.velocity.sqrMagnitude < 0.5f) return;
 
         if (footstepClips.Length > 0)
         {
-
             currentStepIndex = currentStepIndex % footstepClips.Length;
             AudioClip clipToPlay = footstepClips[currentStepIndex];
 
@@ -181,6 +176,7 @@ public class PlayerController : MonoBehaviour
             currentStepIndex++;
         }
     }
+
     void HandleAnimation()
     {
         if (playerAnimator == null) return;
@@ -193,15 +189,13 @@ public class PlayerController : MonoBehaviour
         float targetX = h * multiplier;
         float targetY = v * multiplier;
 
-         if (Input.GetKeyDown(KeyCode.LeftControl) && (h != 0 || v != 0) && controller.isGrounded)
+        if (Input.GetKeyDown(KeyCode.LeftControl) && (h != 0 || v != 0) && controller.isGrounded)
         {
-            // cooldown check
             if (Time.time >= lastSlideTime + slideCooldown)
             {
                 playerAnimator.SetTrigger("Slide");
                 playerAnimator.SetBool("isSliding", true);
                 
-                // Slide Boost anwenden
                 if (moveDirection.magnitude > 0.1f)
                 {
                     ApplySlideBoost();
@@ -210,9 +204,15 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        //if (Input.GetKeyUp(KeyCode.LeftControl) || (h == 0 && v == 0)) playerAnimator.SetBool("isSliding", false);
-
+        // Sound & Status Abbruch Logik
+        bool wasSliding = slidingThisTick;
         slidingThisTick = playerAnimator.GetCurrentAnimatorStateInfo(0).IsTag("SlidingTag");
+
+        if ((wasSliding && !slidingThisTick) || jumpedThisTick)
+        {
+            CancelSlideSound();
+            playerAnimator.SetBool("isSliding", false);
+        }
 
         playerAnimator.SetFloat("MoveX", targetX, 0.1f, Time.deltaTime);
         playerAnimator.SetFloat("MoveY", targetY, 0.1f, Time.deltaTime);
@@ -221,7 +221,6 @@ public class PlayerController : MonoBehaviour
 
     private void ApplySlideBoost()
     {
-        // Boost in aktuelle Bewegungsrichtung (horizontal only, kein Y)
         Vector3 boostDirection = new Vector3(moveDirection.x, 0f, moveDirection.z).normalized;
         boostVelocity = boostDirection * slideBoostForce;
     }
@@ -242,6 +241,26 @@ public class PlayerController : MonoBehaviour
         {
             audioSource.pitch = Random.Range(0.95f, 1.05f);
             audioSource.PlayOneShot(clip);
+        }
+    }
+
+    // --- SLIDE SOUND METHODEN FÜR ANIMATION EVENTS ---
+    public void PlaySlideSound()
+    {
+        if (audioSource != null && slideClip != null)
+        {
+            audioSource.clip = slideClip;
+            audioSource.loop = false;
+            audioSource.Play();
+        }
+    }
+
+    public void CancelSlideSound()
+    {
+        if (audioSource != null && audioSource.clip == slideClip)
+        {
+            audioSource.Stop();
+            audioSource.clip = null;
         }
     }
 }
