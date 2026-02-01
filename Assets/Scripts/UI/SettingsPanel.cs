@@ -110,7 +110,7 @@ public class SettingsPanel : MonoBehaviour
         SettingsManager.Instance.SetMasterVolume(masterVolumeSlider.value);
         SettingsManager.Instance.SetMusicVolume(musicVolumeSlider.value);
         SettingsManager.Instance.SetSFXVolume(sfxVolumeSlider.value);
-        SettingsManager.Instance.SetMouseSensitivity(sensitivitySlider.value * 20);
+        SettingsManager.Instance.SetMouseSensitivity(sensitivitySlider.value * 40);
         SettingsManager.Instance.SetFullscreen(fullscreenToggle.isOn);
         SettingsManager.Instance.SetResolution(resolutionDropdown.value);
         SettingsManager.Instance.SetVSync(vsyncToggle.isOn);
@@ -145,7 +145,7 @@ public class SettingsPanel : MonoBehaviour
         masterVolumeSlider.value = SettingsManager.Instance.GetMasterVolume();
         musicVolumeSlider.value = SettingsManager.Instance.GetMusicVolume();
         sfxVolumeSlider.value = SettingsManager.Instance.GetSFXVolume();
-        sensitivitySlider.value = SettingsManager.Instance.GetMouseSensitivity() / 20;
+        sensitivitySlider.value = SettingsManager.Instance.GetMouseSensitivity() / 40;
         fullscreenToggle.isOn = SettingsManager.Instance.GetFullscreen();
         resolutionDropdown.value = SettingsManager.Instance.GetResolutionIndex();
         vsyncToggle.isOn = SettingsManager.Instance.GetVSync();
@@ -194,7 +194,7 @@ public class SettingsPanel : MonoBehaviour
         if (!Mathf.Approximately(masterVolumeSlider.value, SettingsManager.Instance.GetMasterVolume())) return true;
         if (!Mathf.Approximately(musicVolumeSlider.value, SettingsManager.Instance.GetMusicVolume())) return true;
         if (!Mathf.Approximately(sfxVolumeSlider.value, SettingsManager.Instance.GetSFXVolume())) return true;
-        if (!Mathf.Approximately(sensitivitySlider.value, SettingsManager.Instance.GetMouseSensitivity() / 20)) return true;
+        if (!Mathf.Approximately(sensitivitySlider.value, SettingsManager.Instance.GetMouseSensitivity() / 40)) return true;
         if (fullscreenToggle.isOn != SettingsManager.Instance.GetFullscreen()) return true;
         if (resolutionDropdown.value != SettingsManager.Instance.GetResolutionIndex()) return true;
         if (vsyncToggle.isOn != SettingsManager.Instance.GetVSync()) return true;

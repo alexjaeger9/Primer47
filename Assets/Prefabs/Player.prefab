@@ -1197,7 +1197,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   playerAnimator: {fileID: 32402762388241486}
   audioSource: {fileID: 5768383761421614576}
-  jumpClip: {fileID: 8300000, guid: e0c044fa486111b458dae9a2b2928a8c, type: 3}
+  jumpClip: {fileID: 8300000, guid: f72b3b33aa0d121479aecb8bd09702ae, type: 3}
   landClip: {fileID: 8300000, guid: 562d33d861eb8e04c895b250ea2701bf, type: 3}
   footstepClips:
   - {fileID: 8300000, guid: fe50203f91c6c444eac5755ffaa550bf, type: 3}
@@ -1211,6 +1211,8 @@ MonoBehaviour:
   landedThisTick: 0
   slidingThisTick: 0
   aimSensitivityMultiplier: 0.3
+  slideBoostForce: 8
+  slideCooldown: 2
 --- !u!114 &441272580854828227
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1228,7 +1230,7 @@ MonoBehaviour:
   muzzleTransform: {fileID: 5056583357010010285}
   gunTransform: {fileID: 2903742202514363888}
   gunAudioSource: {fileID: 5768383761421614576}
-  gunshotClip: {fileID: 8300000, guid: 5560e1f007fe74947ad8b181ebd25eda, type: 3}
+  gunshotClip: {fileID: 8300000, guid: 7a77f2ca2bac8454ea1da01f3afa6594, type: 3}
   pitchVariation: 0.1
   tracePrefab: {fileID: 6796344618158638744, guid: 3e8b227d28f15b04bb04dc50d4ad9548, type: 3}
   impactPrefab: {fileID: 2526400565753230683, guid: a7d5c628c7549d948848c734d70259ae, type: 3}
@@ -1321,7 +1323,7 @@ AudioSource:
   m_GameObject: {fileID: 2954327873741449940}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 4671920711311275818, guid: 2f91744720b26e54eb5a38d3a1891fc5, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0

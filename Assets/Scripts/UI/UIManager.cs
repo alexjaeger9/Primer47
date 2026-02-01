@@ -30,6 +30,7 @@ public class UIManager : MonoBehaviour
     [Header("Audio")]
     public AudioClip loopTransitionSound;
     public AudioClip scoreCalculationSound;
+    public UnityEngine.Audio.AudioMixerGroup sfxMixerGroup;
 
     // Cached References
     private HUDAnimationController hudAnimController;
@@ -272,6 +273,8 @@ public class UIManager : MonoBehaviour
         AudioSource audioSource = soundObj.AddComponent<AudioSource>();
         audioSource.clip = clip;
         audioSource.pitch = pitch;
+        audioSource.outputAudioMixerGroup = sfxMixerGroup; 
+
         audioSource.Play();
 
         Destroy(soundObj, clip.length + 0.1f);

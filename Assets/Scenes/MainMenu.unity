@@ -1405,21 +1405,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ButtonEffect
   buttonText: {fileID: 1126575790}
   textOutline: {fileID: 1126575793}
-  normalScale: 1
-  hoverScale: 1.15
-  scaleSpeed: 15
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   hoverColor: {r: 1, g: 0.6, b: 0.6, a: 1}
   clickColor: {r: 0.8, g: 0.2, b: 0.2, a: 1}
-  colorSpeed: 10
-  enableRotation: 1
-  hoverRotation: 3
-  enableShake: 1
-  shakeDuration: 0.15
-  shakeStrength: 8
-  enableOutlineGrow: 1
-  normalOutlineDistance: {x: 1, y: -1}
-  hoverOutlineDistance: {x: 2, y: -2}
 --- !u!1 &765968567
 GameObject:
   m_ObjectHideFlags: 0
@@ -1724,21 +1712,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ButtonEffect
   buttonText: {fileID: 623643346}
   textOutline: {fileID: 623643349}
-  normalScale: 1
-  hoverScale: 1.1
-  scaleSpeed: 10
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   hoverColor: {r: 1, g: 0.6, b: 0.6, a: 1}
   clickColor: {r: 0.8, g: 0.2, b: 0.2, a: 1}
-  colorSpeed: 10
-  enableRotation: 1
-  hoverRotation: 3
-  enableShake: 1
-  shakeDuration: 0.15
-  shakeStrength: 8
-  enableOutlineGrow: 1
-  normalOutlineDistance: {x: 1, y: -1}
-  hoverOutlineDistance: {x: 2, y: -2}
 --- !u!224 &1018403550 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1898056573992614245, guid: c63bea5eadb44854bba128cbc0834cfe, type: 3}
@@ -2141,21 +2117,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ButtonEffect
   buttonText: {fileID: 1346098821}
   textOutline: {fileID: 1346098824}
-  normalScale: 1
-  hoverScale: 1.15
-  scaleSpeed: 15
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   hoverColor: {r: 1, g: 0.6, b: 0.6, a: 1}
   clickColor: {r: 0.8, g: 0.2, b: 0.2, a: 1}
-  colorSpeed: 10
-  enableRotation: 1
-  hoverRotation: 3
-  enableShake: 1
-  shakeDuration: 0.15
-  shakeStrength: 8
-  enableOutlineGrow: 1
-  normalOutlineDistance: {x: 1, y: -1}
-  hoverOutlineDistance: {x: 2, y: -2}
 --- !u!1 &1126575788
 GameObject:
   m_ObjectHideFlags: 0
@@ -2636,7 +2600,7 @@ AudioSource:
   m_GameObject: {fileID: 1657555994}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 4671920711311275818, guid: 2f91744720b26e54eb5a38d3a1891fc5, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0

@@ -98,19 +98,19 @@ public class SettingsManager : MonoBehaviour
     public void SetMasterVolume(float volume)
     {
         masterVolume = volume;
-        audioMixer.SetFloat("MasterVolume", Mathf.Log10(volume) * 20);
+        audioMixer.SetFloat("MasterVolume", volume > 0.0001f ? Mathf.Log10(volume) * 20 : -80f);
     }
 
     public void SetMusicVolume(float volume)
     {
         musicVolume = volume;
-        audioMixer.SetFloat("MusicVolume", Mathf.Log10(volume) * 20);
+        audioMixer.SetFloat("MusicVolume", volume > 0.0001f ? Mathf.Log10(volume) * 20 : -80f);
     }
 
     public void SetSFXVolume(float volume)
     {
         sfxVolume = volume;
-        audioMixer.SetFloat("SFXVolume", Mathf.Log10(volume) * 20);
+        audioMixer.SetFloat("SFXVolume", volume > 0.0001f ? Mathf.Log10(volume) * 20 : -80f);
     }
 
     public void SetMouseSensitivity(float sensitivity)
@@ -119,7 +119,7 @@ public class SettingsManager : MonoBehaviour
         ApplySensitivityToGame();
     }
 
-    private void ApplySensitivityToGame()
+    public void ApplySensitivityToGame()
     {
         //Kamera und PlayerController in der aktuellen Scene finden und Sensitivität setzen
         ThirdPersonCamera cam = FindAnyObjectByType<ThirdPersonCamera>();

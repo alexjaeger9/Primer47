@@ -16,39 +16,42 @@ public class GameManager : MonoBehaviour
     [Header("UI")]
     public UIManager uiManager;
     public HUDAnimationController hudAnim;
-    public VignetteController vignetteController; // +++ NEU: Hier kommt das Skript rein +++
-    private float lastTimerSecond = -1; //für Shake-Timing
+    public VignetteController vignetteController;
 
     [Header("Audio Effects")]
     public AudioSource tickAudioSource;
     public AudioClip startClip;
-    public AudioClip timeOverClip;
     public AudioClip gameOverClip;
-    public float tickStartTime = 8f;
-    public float minPitch = 1.0f;
-    public float maxPitch = 4.0f;
 
     [Header("Game State")]
     public int currentLoopIndex;
     public List<RunData> allRuns = new List<RunData>();
     public List<GhostHealth> activeGhosts = new List<GhostHealth>();
+    public TransitionController transitionController;
+
+    // Konstante Werte (immer gleich)
+    private const float LOOP_TIME_LIMIT = 30f;
+    private const float TICK_START_TIME = 8f;
+    private const float MIN_PITCH = 1.0f;
+    private const float MAX_PITCH = 4.0f;
+    private const float VIGNETTE_TIME_THRESHOLD = 8f;
+    private const float TIMER_SHAKE_THRESHOLD = 5f;
+    private const float DEATH_Y_POSITION = -10f;
+    
     private readonly List<GameObject> allSpawnedGhosts = new List<GameObject>();
     private GameObject player;
     private PlayerRecorder playerRecorder;
     private PlayerHealth playerHealth;
-    public TransitionController transitionController;
-
-    private float loopTimeLimit = 30f;
+    
     private float currentLoopTime = 0f;
     private bool timerRunning = false;
     private float lastScore = 0f;
     private int coinsThisRun = 0;
     private float coinValue = 0f;
-
+    private float lastTimerSecond = -1;
 
     private void Awake()
     {
-        //GameManager zuweisen
         Instance = this;
     }
 
@@ -68,26 +71,19 @@ public class GameManager : MonoBehaviour
         if (timerRunning)
         {
             currentLoopTime += Time.deltaTime;
-            float timeRemaining = loopTimeLimit - currentLoopTime;
+            float timeRemaining = LOOP_TIME_LIMIT - currentLoopTime;
             
             uiManager.UpdateTimer(timeRemaining);
             HandleTickingSound(timeRemaining);
             
-            // +++ NEU: Vignette Logik (Graues Pulsieren bei < 8s) +++
-            if (vignetteController != null)
-            {
-                if (timeRemaining <= 8f && timeRemaining > 0)
-                {
-                    vignetteController.SetLowTime(true);
-                }
-                else
-                {
-                    vignetteController.SetLowTime(false);
-                }
-            }
-            // +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            // Vignette Logik
+            if (timeRemaining <= VIGNETTE_TIME_THRESHOLD && timeRemaining > 0)
+                vignetteController.SetLowTime(true);
+            else
+                vignetteController.SetLowTime(false);
 
-            if (timeRemaining <= 5f && timeRemaining > 0f)
+            // Timer Shake bei jeder vollen Sekunde ab 5s
+            if (timeRemaining <= TIMER_SHAKE_THRESHOLD && timeRemaining > 0f)
             {
                 int currentSecond = Mathf.FloorToInt(timeRemaining);
                 if (currentSecond != lastTimerSecond)
@@ -97,6 +93,7 @@ public class GameManager : MonoBehaviour
                 }
             }
             
+            // Timer abgelaufen
             if (timeRemaining <= 0)
             {
                 timerRunning = false;
@@ -104,7 +101,8 @@ public class GameManager : MonoBehaviour
                 HandlePlayerDeath(); 
             }
 
-            if (player.transform.position.y < -10f)
+            // Spieler runtergefallen
+            if (player.transform.position.y < DEATH_Y_POSITION)
             {
                 timerRunning = false;
                 HandlePlayerDeath(); 
@@ -114,16 +112,13 @@ public class GameManager : MonoBehaviour
 
     private void HandleTickingSound(float timeRemaining)
     {
-        if (tickAudioSource == null) return;
-
         if (Time.timeScale == 0f)
         {
             if (PauseManager.isGameOver) return; 
 
             if (tickAudioSource.isPlaying) 
-            {
-                tickAudioSource.Pause(); 
-            }
+                tickAudioSource.Pause();
+            
             return;
         }
         else
@@ -131,50 +126,38 @@ public class GameManager : MonoBehaviour
             tickAudioSource.UnPause();
         }
 
-        if (timeRemaining <= tickStartTime && timeRemaining > 0)
+        if (timeRemaining <= TICK_START_TIME && timeRemaining > 0)
         {
             if (!tickAudioSource.isPlaying) 
-            {
                 tickAudioSource.Play();
-            }
 
-            float progress = 1 - (timeRemaining / tickStartTime);
-            
-            tickAudioSource.pitch = Mathf.Lerp(minPitch, maxPitch, progress);
+            float progress = 1 - (timeRemaining / TICK_START_TIME);
+            tickAudioSource.pitch = Mathf.Lerp(MIN_PITCH, MAX_PITCH, progress);
         }
         else
         {
-            if (tickAudioSource.isPlaying) tickAudioSource.Stop();
+            if (tickAudioSource.isPlaying) 
+                tickAudioSource.Stop();
         }
     }
+
     public void AddCoinPoints(float amount)
     {
         coinsThisRun++;
         coinValue = amount;
-        //lastScore += amount;
-        //uiManager.UpdateScore(lastScore);
     }
 
-    //der erste Start
     public IEnumerator StartNewGame()
     {
-        if (tickAudioSource != null && startClip != null)
-        {
-            tickAudioSource.Stop();
-            tickAudioSource.pitch = 1f;
-            
-            //Audio Source aktivieren falls deaktiviert ← FIX
-            if (!tickAudioSource.enabled)
-            {
-                tickAudioSource.enabled = true;
-            }
-            
-            tickAudioSource.PlayOneShot(startClip);
-        }
+        tickAudioSource.Stop();
+        tickAudioSource.pitch = 1f;
+        
+        if (!tickAudioSource.enabled)
+            tickAudioSource.enabled = true;
+        
+        tickAudioSource.PlayOneShot(startClip);
 
-        // +++ NEU: Vignette zurücksetzen (Alles wieder klar) +++
-        if (vignetteController != null) vignetteController.ResetVignette();
-        // ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        vignetteController.ResetVignette();
 
         PauseManager.isGameOver = false;
         Time.timeScale = 1f;
@@ -185,80 +168,81 @@ public class GameManager : MonoBehaviour
         ClearBullets();
         allRuns.Clear();
         currentLoopIndex = 0;
-        lastScore = 0f; //Score resetten
+        lastScore = 0f;
         uiManager.scoreCalculation.SetActive(false);
 
         spawnArea.ResetSpawnHistory();
-        PauseManager.canPause = true; //pausieren erlauben
+        PauseManager.canPause = true;
 
-        //Cursor locken
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        //großen Loop text 1 anzeigen
-        uiManager.ShowBigLoopText(1); //Loop Text anzeigen
-        yield return new WaitForSecondsRealtime(2f); //Dauer der Anzeige
-        uiManager.HideBigLoopText(); //Loop Text hiden
+        uiManager.ShowBigLoopText(1);
+        yield return new WaitForSecondsRealtime(2f);
+        uiManager.HideBigLoopText();
 
         StartLoop();
         yield return transitionController.FadeOut(1f);
     }
 
-
     private void ClearGhosts()
     {
         foreach (GameObject ghost in allSpawnedGhosts)
         {
-            Destroy(ghost.gameObject);
+            Destroy(ghost);
         }
         allSpawnedGhosts.Clear();
         activeGhosts.Clear();
 
-        if (CoinPool.Instance != null) CoinPool.Instance.DeactivateAll();
+        if (CoinPool.Instance != null) 
+            CoinPool.Instance.DeactivateAll();
     }
 
     private void SpawnPlayer()
     {
         Destroy(player);
         
-        //Random Position von SpawnArea
         Vector3 spawnPosition = spawnArea.GetRandomSpawnPosition();
         
         player = Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
         playerRecorder = player.GetComponent<PlayerRecorder>();
         playerHealth = player.GetComponent<PlayerHealth>();
         playerHealth.OnPlayerDeath += HandlePlayerDeath;
+
+        SettingsManager.Instance.ApplySensitivityToGame();
     }
 
     private void StartLoop()
     {
-        if (currentLoopIndex == 0) SpawnInitialTarget();
-        else SpawnGhostsFromRuns();
+        if (currentLoopIndex == 0) 
+            SpawnInitialTarget();
+        else 
+            SpawnGhostsFromRuns();
+        
         UpdateGhostNumbers();
         playerRecorder.StartRecording();
 
-        //Timer starten
         currentLoopTime = 0f;
         timerRunning = true;
-        lastTimerSecond = -1; //Reset
+        lastTimerSecond = -1;
 
-        //UI Updaten
         uiManager.UpdateGhostsRemaining(activeGhosts.Count);
-
-        
         hudAnim.SlideInAll();
 
-        //Player Number Update
         playerHealth.UpdatePlayerNumbers(currentLoopIndex + 1);
 
-        //Explosive Barrels respawnen
+        // Explosive Barrels respawnen
         ExplosiveBarrel[] barrels = Object.FindObjectsByType<ExplosiveBarrel>(FindObjectsSortMode.None);
-        foreach (ExplosiveBarrel barrel in barrels)
+        if (barrels != null)
         {
-            barrel.Respawn();
+            foreach (ExplosiveBarrel barrel in barrels)
+            {
+                barrel.Respawn();
+            }
         }
 
-        if (CoinPool.Instance != null) CoinPool.Instance.SpawnCoins();
+        if (CoinPool.Instance != null) 
+            CoinPool.Instance.SpawnCoins();
     }
 
     private void SpawnGhostsFromRuns()
@@ -299,49 +283,25 @@ public class GameManager : MonoBehaviour
     {
         PauseManager.canPause = false;
         
-        // Score berechnen & anzeigen
         ScoreCalculation();
-        
-        // Slow Motion Effekt
         yield return SmoothSlowMo(0.1f, 0.5f);
-        
-        // Warten damit man den Score lesen kann
         yield return new WaitForSecondsRealtime(2f);
-        
-        // Fade In (Bild wird schwarz)
         yield return transitionController.FadeIn(0.3f);
         
-        // Score Panel verstecken
         uiManager.hideScoreCalculation();
         yield return new WaitForSecondsRealtime(0.3f);
         
-        // --- LOGIK FIX START ---
-        
-        // 1. Alten Loop merken (z.B. Index 0 -> Loop 1)
         int previousLoop = currentLoopIndex + 1; 
-        
-        // 2. Jetzt den Loop beenden (Index wird erhöht, z.B. auf 1)
         EndLoop(); 
-        
-        // 3. Neuen Loop berechnen (z.B. Index 1 -> Loop 2)
         int nextLoop = currentLoopIndex + 1;
-
-        // --- LOGIK FIX ENDE ---
 
         ClearGhosts();
         ClearBullets();
         SpawnPlayer();
         
-        // UI Anzeige starten
-        // WICHTIG: Text muss sichtbar sein, auch wenn FadeIn noch aktiv ist (Canvas Sorting beachten!)
-        
-        // Animation abspielen: Von 1 nach 2
-        yield return StartCoroutine(uiManager.AnimateLoopNumber(previousLoop, nextLoop));
-
-        // Kurze Pause damit "Loop 2" kurz stehen bleibt
+        yield return uiManager.AnimateLoopNumber(previousLoop, nextLoop);
         yield return new WaitForSecondsRealtime(0.5f);
         
-        // Fade Out (Bild wieder da)
         StartCoroutine(transitionController.FadeOut(0.2f));
         uiManager.HideBigLoopText();
         
@@ -353,12 +313,12 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator SmoothSlowMo(float slowAmount, float duration)
     {
-        float startTimeScale = Time.timeScale; //Anfangsspeed
-        float elapsed = 0f; //Zeit vergangen
+        float startTimeScale = Time.timeScale;
+        float elapsed = 0f;
         
-        while (elapsed < duration) //solange vergangene Zeit kleiner ist als Duration
+        while (elapsed < duration)
         {
-            elapsed += Time.unscaledDeltaTime; //zählt Zeit hoch
+            elapsed += Time.unscaledDeltaTime;
             Time.timeScale = Mathf.Lerp(startTimeScale, slowAmount, elapsed / duration);
             yield return null;
         }
@@ -389,54 +349,50 @@ public class GameManager : MonoBehaviour
 
     private void ScoreCalculation()
     {
-        float timeLeft = Mathf.Max(0, loopTimeLimit - currentLoopTime);
+        float timeLeft = Mathf.Max(0, LOOP_TIME_LIMIT - currentLoopTime);
         float newScore = lastScore + timeLeft + (coinsThisRun * coinValue);
         uiManager.showScoreScalculation(lastScore, timeLeft, newScore, coinsThisRun, coinValue);
         lastScore = newScore;
     }
 
-
     private void HandlePlayerDeath()
     {
         timerRunning = false;
-        
-        // +++ NEU: Vignette auf Rot (Tod) +++
-        if (vignetteController != null) vignetteController.TriggerDeath();
-        // +++++++++++++++++++++++++++++++++++
+        vignetteController.TriggerDeath();
 
         tickAudioSource.Stop();
-        tickAudioSource.pitch = 1f; //Pitch Reset
-        tickAudioSource.PlayOneShot(timeOverClip);
+        tickAudioSource.pitch = 1f;
 
         StartCoroutine(GameOverSequence());
     }
+
     private IEnumerator GameOverSequence()
     {
-        PauseManager.canPause = false; //pausieren blocken
+        PauseManager.canPause = false;
         PauseManager.isGameOver = true;
         playerRecorder.enabled = false;
-        Animator animator = player.GetComponent<Animator>();
         
-        //Player Movement, schießen, Animation stoppen
+        Animator animator = player.GetComponent<Animator>();
         PlayerController controller = player.GetComponent<PlayerController>();
         PlayerShooter shooter = player.GetComponent<PlayerShooter>();
         CharacterController charController = player.GetComponent<CharacterController>();
+        
         controller.enabled = false;
         shooter.enabled = false;
         animator.enabled = false;
 
-        //Kamera freischalten für 360 Blick
+        // Kamera freischalten für 360 Blick
         ThirdPersonCamera cam = FindAnyObjectByType<ThirdPersonCamera>();
-        cam.EnableFreeCamera();
+        if (cam != null)
+            cam.EnableFreeCamera();
 
-        //Slow Mo (4 Sekunden)
+        // Slow Mo (4 Sekunden)
         Time.timeScale = 0.2f;
         float elapsed = 0f;
-        Vector3 velocity = Vector3.zero; //für Gravitation
+        Vector3 velocity = Vector3.zero;
 
         while (elapsed < 4f)
         {
-            //Gravity anwenden während Slow Mo
             velocity.y += -9.81f * Time.unscaledDeltaTime;
             charController.Move(velocity * Time.unscaledDeltaTime);
 
@@ -444,36 +400,33 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
 
-        //stop Movement of all Ghosts
+        // Stop Movement of all Ghosts
         foreach (GhostHealth activeGhost in activeGhosts)
         {
             activeGhost.StopMovement();
         }
 
-        cam.enabled = false;
+        if (cam != null)
+            cam.enabled = false;
 
         hudAnim.SlideOutAll();
-
         yield return new WaitForSecondsRealtime(0.6f); 
         
-        //GameOver Panel zeigen
+        // GameOver Panel zeigen
         Time.timeScale = 0f;
         tickAudioSource.pitch = 1f; 
         tickAudioSource.PlayOneShot(gameOverClip);
         SaveScore();
         uiManager.ShowGameOver();
 
-        //Cursor freigeben
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
 
     private void SaveScore()
     {
-        //aktueller Score wird zu "Last Score"
         PlayerPrefs.SetFloat("LastScore", lastScore);
         
-        //High Score updaten wenn besser
         float highScore = PlayerPrefs.GetFloat("HighScore", 0);
         if (lastScore > highScore)
         {
@@ -483,47 +436,23 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-public void OnGhostKilled(GhostHealth ghost)
+    public void OnGhostKilled(GhostHealth ghost)
     {
         activeGhosts.Remove(ghost);
         uiManager.UpdateGhostsRemaining(activeGhosts.Count);
 
         if (activeGhosts.Count <= 3 && activeGhosts.Count >= 1)
-        {
-            hudAnim.ShakeAndFlashTargets(); //Shake + Gelb
-        }
+            hudAnim.ShakeAndFlashTargets();
         else
-        {
-            hudAnim.ShakeTargets(); //Nur Shake
-        }
+            hudAnim.ShakeTargets();
         
         if (activeGhosts.Count == 0)
         {
             timerRunning = false; 
-
-            if (tickAudioSource != null)
-            {
-                tickAudioSource.Stop();
-                tickAudioSource.pitch = 1f;
-            }
+            tickAudioSource.Stop();
+            tickAudioSource.pitch = 1f;
 
             StartCoroutine(LoopTransition());
         }
-    }
-
-    private IEnumerator HitstopEffect()
-    {
-        //Timer pausieren
-        timerRunning = false;
-        
-        //Slow Mo
-        Time.timeScale = 0.3f;
-        
-        //0.1 Sekunden warten (realtime weil timeScale verändert)
-        yield return new WaitForSecondsRealtime(0.3f);
-        
-        //zurück zu normal
-        Time.timeScale = 1f;
-        timerRunning = true;
     }
 }

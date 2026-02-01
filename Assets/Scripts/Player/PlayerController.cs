@@ -40,6 +40,12 @@ public class PlayerController : MonoBehaviour
     [Range(0.1f, 1f)] public float aimSensitivityMultiplier = 0.5f;
     private bool isAiming = false;
 
+    [Header("Slide Settings")]
+    [SerializeField] private float slideBoostForce = 8f; 
+    [SerializeField] private float slideCooldown = 2f; 
+    private float lastSlideTime = -999f;
+
+    
     void Awake()
     {
         controller = GetComponent<CharacterController>();
@@ -58,6 +64,11 @@ public class PlayerController : MonoBehaviour
         if (boostVelocity.magnitude > 0.1f)
         {
             boostVelocity = Vector3.Lerp(boostVelocity, Vector3.zero, boostVelocityDecay * Time.deltaTime);
+        }
+        else
+        {
+            // Auf exakt 0 setzen wenn sehr klein
+            boostVelocity = Vector3.zero;
         }
 
         Vector3 finalMovement = (moveDirection * currentSpeed) + boostVelocity + new Vector3(0, velocity.y, 0);
@@ -183,10 +194,21 @@ public class PlayerController : MonoBehaviour
         float targetX = h * multiplier;
         float targetY = v * multiplier;
 
-        if (Input.GetKeyDown(KeyCode.LeftControl))
+         if (Input.GetKeyDown(KeyCode.LeftControl))
         {
-            playerAnimator.SetTrigger("Slide");
-            playerAnimator.SetBool("isSliding", true);
+            // Prüfen ob Cooldown vorbei ist
+            if (Time.time >= lastSlideTime + slideCooldown)
+            {
+                playerAnimator.SetTrigger("Slide");
+                playerAnimator.SetBool("isSliding", true);
+                
+                // Slide Boost anwenden
+                if (moveDirection.magnitude > 0.1f)
+                {
+                    ApplySlideBoost();
+                    lastSlideTime = Time.time; // ✅ Cooldown Timer starten
+                }
+            }
         }
 
         if (Input.GetKeyUp(KeyCode.LeftControl) || (h == 0 && v == 0)) playerAnimator.SetBool("isSliding", false);
@@ -196,6 +218,13 @@ public class PlayerController : MonoBehaviour
         playerAnimator.SetFloat("MoveX", targetX, 0.1f, Time.deltaTime);
         playerAnimator.SetFloat("MoveY", targetY, 0.1f, Time.deltaTime);
         playerAnimator.SetBool("isGrounded", controller.isGrounded);
+    }
+
+    private void ApplySlideBoost()
+    {
+        // Boost in aktuelle Bewegungsrichtung (horizontal only, kein Y)
+        Vector3 boostDirection = new Vector3(moveDirection.x, 0f, moveDirection.z).normalized;
+        boostVelocity = boostDirection * slideBoostForce;
     }
 
     public void ApplyJumpPadBoost(Vector3 boostVelocity)
