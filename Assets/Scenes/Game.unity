@@ -1378,7 +1378,7 @@ MonoBehaviour:
   arenaSize: {x: 70, y: 70}
   edgeDistance: 3
   jumpPadDistance: 5
-  raycastHeight: 15
+  raycastHeight: 20
 --- !u!4 &235042312
 Transform:
   m_ObjectHideFlags: 0
