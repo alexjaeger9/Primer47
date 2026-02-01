@@ -36,7 +36,17 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
-        if (coinBonusGroup != null) coinBonusGroup.SetActive(false);
+        // Coin Bonus Group initial verstecken
+        if (coinBonusGroup != null)
+        {
+            coinBonusGroup.SetActive(false);
+        }
+        
+        // Coin Score Text leeren ← NEU
+        if (sC_coinScore != null)
+        {
+            sC_coinScore.text = "0";
+        }
     }
 
     public void hideScoreCalculation() 
@@ -116,6 +126,10 @@ public class UIManager : MonoBehaviour
         {
             sC_coinScore.text = "+ " + (coins * coinValue).ToString("F0");
         }
+        else
+        {
+            sC_coinScore.text = "+ 0"; // ← Text leeren/resetten
+        }
             
         scoreCalculation.SetActive(true);
         ResetScoreCalculationElements(coins > 0);
@@ -127,7 +141,11 @@ public class UIManager : MonoBehaviour
     {
         SetGroupAlpha(sC_timeLeft_Group, 0f);
         SetGroupAlpha(coinBonusGroup, 0f);
-        if (coinBonusGroup != null) coinBonusGroup.SetActive(false); 
+         if (coinBonusGroup != null)
+        {
+            coinBonusGroup.SetActive(false); // Deaktivieren
+            SetGroupAlpha(coinBonusGroup, 0f); // Alpha resetten
+        }
         SetGroupAlpha(sC_newScore_Group, 0f);
     }
 
@@ -169,18 +187,29 @@ public class UIManager : MonoBehaviour
 
     public IEnumerator AnimateLoopNumber(int fromLoop, int toLoop)
     {
-        //UI zeigt +1
-        bigLoopText.text = "Loop " + (fromLoop + 1);
+        // 1. Zuerst die ALTE Nummer sicherstellen und anzeigen
+        bigLoopText.gameObject.SetActive(true);
+        bigLoopText.text = "Loop " + fromLoop;
 
+        // Kurze Pause, damit der Spieler "Loop 1" noch kurz sieht
+        yield return new WaitForSecondsRealtime(0.5f);
+
+        // 2. Jetzt hochzählen
         for (int i = fromLoop; i < toLoop; i++)
         {
-            yield return new WaitForSecondsRealtime(0.5f);
-
             int nextLoop = i + 1;
-            bigLoopText.text = "Loop " + (nextLoop + 1);
+            
+            // Jetzt den Text ändern
+            bigLoopText.text = "Loop " + nextLoop;
 
-            PlaySoundWithPitch(loopTransitionSound, 1.0f);
-            StartCoroutine(ZoomInEffect(bigLoopText.transform, 4f, 1f, 0.4f));
+            // Sound und Zoom Effekt abspielen ("SLAM" Effekt)
+            PlaySoundWithPitch(loopTransitionSound, 1.0f + (0.1f * i)); // Pitch steigt leicht mit jedem Loop
+            
+            // ZoomInEffect: Startet bei Scale 4 (riesig) und geht auf 1 (normal)
+            yield return StartCoroutine(ZoomInEffect(bigLoopText.transform, 4f, 1f, 0.4f));
+            
+            // Kurze Pause zwischen Zahlen (falls man mal von Loop 1 auf 5 springen würde)
+            if(nextLoop < toLoop) yield return new WaitForSecondsRealtime(0.2f);
         }
     }
 

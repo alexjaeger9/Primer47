@@ -309,41 +309,49 @@ public class GameManager : MonoBehaviour
     {
         PauseManager.canPause = false;
         
-        //Score berechnen & anzeigen
+        // Score berechnen & anzeigen
         ScoreCalculation();
         
-        //Slow Motion Effekt
+        // Slow Motion Effekt
         yield return SmoothSlowMo(0.1f, 0.5f);
         
-        //Warten damit man den Score lesen kann
+        // Warten damit man den Score lesen kann
         yield return new WaitForSecondsRealtime(2f);
         
+        // Fade In (Bild wird schwarz)
         yield return transitionController.FadeIn(0.3f);
         
-
-        //score Panel verstecken
+        // Score Panel verstecken
         uiManager.hideScoreCalculation();
-        
         yield return new WaitForSecondsRealtime(0.3f);
         
-        //Loop Reset
-        int previousLoop = currentLoopIndex;
-        int nextLoop = currentLoopIndex + 1;
+        // --- LOGIK FIX START ---
         
-        EndLoop();
+        // 1. Alten Loop merken (z.B. Index 0 -> Loop 1)
+        int previousLoop = currentLoopIndex + 1; 
+        
+        // 2. Jetzt den Loop beenden (Index wird erhöht, z.B. auf 1)
+        EndLoop(); 
+        
+        // 3. Neuen Loop berechnen (z.B. Index 1 -> Loop 2)
+        int nextLoop = currentLoopIndex + 1;
+
+        // --- LOGIK FIX ENDE ---
+
         ClearGhosts();
         ClearBullets();
         SpawnPlayer();
         
-        //Loop Text Animation
-        uiManager.ShowBigLoopText(previousLoop);
-        yield return new WaitForSecondsRealtime(0.2f);
+        // UI Anzeige starten
+        // WICHTIG: Text muss sichtbar sein, auch wenn FadeIn noch aktiv ist (Canvas Sorting beachten!)
+        
+        // Animation abspielen: Von 1 nach 2
         yield return StartCoroutine(uiManager.AnimateLoopNumber(previousLoop, nextLoop));
 
-
-        yield return new WaitForSecondsRealtime(0.7f);
+        // Kurze Pause damit "Loop 2" kurz stehen bleibt
+        yield return new WaitForSecondsRealtime(0.5f);
         
-        //Fade Out (Bild wieder da)
+        // Fade Out (Bild wieder da)
         StartCoroutine(transitionController.FadeOut(0.2f));
         uiManager.HideBigLoopText();
         
