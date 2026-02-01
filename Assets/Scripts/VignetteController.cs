@@ -7,24 +7,36 @@ public class VignetteController : MonoBehaviour
     [SerializeField] private Image vignetteImage;
 
     [Header("Settings")]
-    [SerializeField] private float pulseSpeed = 5f;
+    [SerializeField] private float minPulseSpeed = 3f;
+    [SerializeField] private float maxPulseSpeed = 12f;
     [SerializeField] private float minAlpha = 0.2f;
     [SerializeField] private float maxAlpha = 0.7f;
 
     private bool isActive = false;
+    private float currentPulseSpeed;
+    private bool isDead = false;
 
     void Start()
     {
-        // Zu Beginn unsichtbar machen
-        SetVignetteAlpha(0);
-
+        if (vignetteImage != null)
+        {
+            SetVignetteAlpha(0);
+        }
+        currentPulseSpeed = minPulseSpeed;
     }
 
     void Update()
     {
+        // Wenn tot, bleibt die Vignette fest auf dem maximalen Alpha
+        if (isDead)
+        {
+            SetVignetteAlpha(maxAlpha);
+            return;
+        }
+
         if (!isActive || vignetteImage == null) return;
 
-        float lerp = Mathf.PingPong(Time.time * pulseSpeed, 1f);
+        float lerp = Mathf.PingPong(Time.time * currentPulseSpeed, 1f);
         float currentAlpha = Mathf.Lerp(minAlpha, maxAlpha, lerp);
 
         SetVignetteAlpha(currentAlpha);
@@ -33,20 +45,32 @@ public class VignetteController : MonoBehaviour
     public void SetActive(bool state)
     {
         isActive = state;
+        isDead = false; // Reset bei neuem Loop/Spiel
         
-        // Wenn deaktiviert, sofort ausblenden
         if (!isActive)
         {
             SetVignetteAlpha(0);
         }
     }
 
+    // Neue Funktion für das schnellere Blinken
+    public void UpdatePulseSpeed(float progress)
+    {
+        currentPulseSpeed = Mathf.Lerp(minPulseSpeed, maxPulseSpeed, progress);
+    }
+
+    // Neue Funktion für den Tod
+    public void TriggerPermanentVignette()
+    {
+        isDead = true;
+    }
+
     private void SetVignetteAlpha(float alpha)
     {
+        if (vignetteImage == null) return;
 
         Color c = vignetteImage.color;
         c.a = alpha;
         vignetteImage.color = c;
-
     }
 }

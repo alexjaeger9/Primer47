@@ -75,10 +75,18 @@ public class GameManager : MonoBehaviour
             uiManager.UpdateTimer(timeRemaining);
             HandleTickingSound(timeRemaining);
             
+            // Vignette Logik (Blinkt jetzt schneller, je weniger Zeit bleibt)
             if (timeRemaining <= VIGNETTE_TIME_THRESHOLD && timeRemaining > 0)
+            {
                 vignetteController.SetActive(true);
+                // Wir berechnen, wie weit die Zeit abgelaufen ist (0 bis 1)
+                float progress = 1 - (timeRemaining / VIGNETTE_TIME_THRESHOLD);
+                vignetteController.UpdatePulseSpeed(progress);
+            }
             else
+            {
                 vignetteController.SetActive(false);
+            }
 
             if (timeRemaining <= TIMER_SHAKE_THRESHOLD && timeRemaining > 0f)
             {
@@ -352,7 +360,7 @@ public class GameManager : MonoBehaviour
     private void HandlePlayerDeath()
     {
         timerRunning = false;
-        vignetteController.SetActive(false);
+        vignetteController.TriggerPermanentVignette();
 
         tickAudioSource.Stop();
         tickAudioSource.pitch = 1f;

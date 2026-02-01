@@ -5721,8 +5721,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VignetteController
   vignetteImage: {fileID: 797934217}
-  pulseSpeed: 5
-  minAlpha: 0.4
+  minPulseSpeed: 0.2
+  maxPulseSpeed: 1
+  minAlpha: 0.7
   maxAlpha: 1
 --- !u!1 &803774575
 GameObject:
