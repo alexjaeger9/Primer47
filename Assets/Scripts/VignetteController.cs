@@ -3,75 +3,50 @@ using UnityEngine.UI;
 
 public class VignetteController : MonoBehaviour
 {
-    public Image vignetteImage;
-    
+    [Header("Components")]
+    [SerializeField] private Image vignetteImage;
+
     [Header("Settings")]
-    public Color pulseColor = new Color(0.5f, 0.5f, 0.5f, 1f); // Grau pulsierend
-    public Color deathColor = new Color(1f, 0f, 0f, 1f);    // Rot fest
-    public float pulseSpeed = 5f; 
+    [SerializeField] private float pulseSpeed = 5f;
+    [SerializeField] private float minAlpha = 0.2f;
+    [SerializeField] private float maxAlpha = 0.7f;
 
-    private bool isLowTime = false;
-    private bool isDead = false;
+    private bool isActive = false;
 
-    private void Start()
+    void Start()
     {
-        if (vignetteImage == null) vignetteImage = GetComponent<Image>();
+        // Zu Beginn unsichtbar machen
+        SetVignetteAlpha(0);
+
+    }
+
+    void Update()
+    {
+        if (!isActive || vignetteImage == null) return;
+
+        float lerp = Mathf.PingPong(Time.time * pulseSpeed, 1f);
+        float currentAlpha = Mathf.Lerp(minAlpha, maxAlpha, lerp);
+
+        SetVignetteAlpha(currentAlpha);
+    }
+
+    public void SetActive(bool state)
+    {
+        isActive = state;
         
-        // Startet unsichtbar
-        if (vignetteImage != null)
+        // Wenn deaktiviert, sofort ausblenden
+        if (!isActive)
         {
-            vignetteImage.color = new Color(0, 0, 0, 0);
+            SetVignetteAlpha(0);
         }
     }
 
-    private void Update()
+    private void SetVignetteAlpha(float alpha)
     {
-        if (vignetteImage == null) return;
 
-        // Rot
-        if (isDead)
-        {
-            Color target = deathColor;
-            target.a = 1.0f;
-            vignetteImage.color = Color.Lerp(vignetteImage.color, target, Time.deltaTime * 5f);
-        }
-        // grau pulsierend
-        else if (isLowTime)
-        {
-            float alpha = 0.85f + Mathf.Sin(Time.time * pulseSpeed) * 0.25f; 
-            
-            Color target = pulseColor;
-            target.a = alpha;
-            
-            vignetteImage.color = Color.Lerp(vignetteImage.color, target, Time.deltaTime * 15f);
-        }
-        // Unsichtbar
-        else
-        {
-            Color target = vignetteImage.color;
-            target.a = 0f;
-            vignetteImage.color = Color.Lerp(vignetteImage.color, target, Time.deltaTime * 5f);
-        }
-    }
+        Color c = vignetteImage.color;
+        c.a = alpha;
+        vignetteImage.color = c;
 
-    public void SetLowTime(bool active)
-    {
-        if (isDead) return;
-        isLowTime = active;
-    }
-
-    public void TriggerDeath()
-    {
-        isLowTime = false;
-        isDead = true;
-    }
-    
-    public void ResetVignette()
-    {
-        isLowTime = false;
-        isDead = false;
-        // ausblenden beim Reset
-        if(vignetteImage != null)
-             vignetteImage.color = new Color(0,0,0,0);
     }
 }

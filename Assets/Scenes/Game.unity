@@ -5720,10 +5720,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a7cf617c1b5168418631b5073a3196b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VignetteController
-  vignetteImage: {fileID: 0}
-  pulseColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  deathColor: {r: 1, g: 0, b: 0, a: 1}
-  pulseSpeed: 10
+  vignetteImage: {fileID: 797934217}
+  pulseSpeed: 5
+  minAlpha: 0.4
+  maxAlpha: 1
 --- !u!1 &803774575
 GameObject:
   m_ObjectHideFlags: 0

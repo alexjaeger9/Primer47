@@ -30,7 +30,6 @@ public class GameManager : MonoBehaviour
     public List<GhostHealth> activeGhosts = new List<GhostHealth>();
     public TransitionController transitionController;
 
-    // Konstante Werte (immer gleich)
     private const float LOOP_TIME_LIMIT = 30f;
     private const float TICK_START_TIME = 8f;
     private const float MIN_PITCH = 1.0f;
@@ -76,13 +75,11 @@ public class GameManager : MonoBehaviour
             uiManager.UpdateTimer(timeRemaining);
             HandleTickingSound(timeRemaining);
             
-            // Vignette Logik
             if (timeRemaining <= VIGNETTE_TIME_THRESHOLD && timeRemaining > 0)
-                vignetteController.SetLowTime(true);
+                vignetteController.SetActive(true);
             else
-                vignetteController.SetLowTime(false);
+                vignetteController.SetActive(false);
 
-            // Timer Shake bei jeder vollen Sekunde ab 5s
             if (timeRemaining <= TIMER_SHAKE_THRESHOLD && timeRemaining > 0f)
             {
                 int currentSecond = Mathf.FloorToInt(timeRemaining);
@@ -93,7 +90,6 @@ public class GameManager : MonoBehaviour
                 }
             }
             
-            // Timer abgelaufen
             if (timeRemaining <= 0)
             {
                 timerRunning = false;
@@ -101,7 +97,6 @@ public class GameManager : MonoBehaviour
                 HandlePlayerDeath(); 
             }
 
-            // Spieler runtergefallen
             if (player.transform.position.y < DEATH_Y_POSITION)
             {
                 timerRunning = false;
@@ -157,7 +152,7 @@ public class GameManager : MonoBehaviour
         
         tickAudioSource.PlayOneShot(startClip);
 
-        vignetteController.ResetVignette();
+        vignetteController.SetActive(false);
 
         PauseManager.isGameOver = false;
         Time.timeScale = 1f;
@@ -231,7 +226,6 @@ public class GameManager : MonoBehaviour
 
         playerHealth.UpdatePlayerNumbers(currentLoopIndex + 1);
 
-        // Explosive Barrels respawnen
         ExplosiveBarrel[] barrels = Object.FindObjectsByType<ExplosiveBarrel>(FindObjectsSortMode.None);
         if (barrels != null)
         {
@@ -358,7 +352,7 @@ public class GameManager : MonoBehaviour
     private void HandlePlayerDeath()
     {
         timerRunning = false;
-        vignetteController.TriggerDeath();
+        vignetteController.SetActive(false);
 
         tickAudioSource.Stop();
         tickAudioSource.pitch = 1f;
@@ -381,12 +375,10 @@ public class GameManager : MonoBehaviour
         shooter.enabled = false;
         animator.enabled = false;
 
-        // Kamera freischalten für 360 Blick
         ThirdPersonCamera cam = FindAnyObjectByType<ThirdPersonCamera>();
         if (cam != null)
             cam.EnableFreeCamera();
 
-        // Slow Mo (4 Sekunden)
         Time.timeScale = 0.2f;
         float elapsed = 0f;
         Vector3 velocity = Vector3.zero;
@@ -400,7 +392,6 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
 
-        // Stop Movement of all Ghosts
         foreach (GhostHealth activeGhost in activeGhosts)
         {
             activeGhost.StopMovement();
@@ -412,7 +403,6 @@ public class GameManager : MonoBehaviour
         hudAnim.SlideOutAll();
         yield return new WaitForSecondsRealtime(0.6f); 
         
-        // GameOver Panel zeigen
         Time.timeScale = 0f;
         tickAudioSource.pitch = 1f; 
         tickAudioSource.PlayOneShot(gameOverClip);
