@@ -5644,7 +5644,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VignetteController
   vignetteImage: {fileID: 0}
-  pressureColor: {r: 0, g: 0, b: 0, a: 1}
+  pressureColor: {r: 0.2735849, g: 0.2735849, b: 0.2735849, a: 1}
   deathColor: {r: 1, g: 0, b: 0, a: 1}
   pulseSpeed: 10
 --- !u!1 &803774575
