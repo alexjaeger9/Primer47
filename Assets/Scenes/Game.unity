@@ -4163,7 +4163,7 @@ MonoBehaviour:
   sC_newScore_Group: {fileID: 126500024}
   coinBonusGroup: {fileID: 201795513}
   loopTransitionSound: {fileID: 8300000, guid: 62318f7a69e0b314da2ae3845d3dfb8b, type: 3}
-  scoreCalculationSound: {fileID: 8300000, guid: 1a75fb42fae85854195d10718a38ddd8, type: 3}
+  scoreCalculationSound: {fileID: 8300000, guid: 62318f7a69e0b314da2ae3845d3dfb8b, type: 3}
 --- !u!4 &555316288
 Transform:
   m_ObjectHideFlags: 0
