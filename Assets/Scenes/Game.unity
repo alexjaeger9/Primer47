@@ -8528,7 +8528,7 @@ MonoBehaviour:
     originalTextColor: {r: 0, g: 0, b: 0, a: 0}
     originalPanelColor: {r: 0, g: 0, b: 0, a: 0}
     isAnimating: 0
-  - name: TimerText
+  - name: Timer
     element: {fileID: 1309451381}
     textComponent: {fileID: 1309451384}
     enableSlideIn: 1
