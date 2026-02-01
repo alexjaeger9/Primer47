@@ -5690,7 +5690,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 273d0e434749f2747add267c7066f4a8, type: 3}
+  m_Sprite: {fileID: 21300000, guid: eea2c4531f2ac8045a0bdf432cfda220, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -5721,7 +5721,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VignetteController
   vignetteImage: {fileID: 0}
-  pressureColor: {r: 0.2735849, g: 0.2735849, b: 0.2735849, a: 1}
+  pulseColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   deathColor: {r: 1, g: 0, b: 0, a: 1}
   pulseSpeed: 10
 --- !u!1 &803774575
@@ -8043,7 +8043,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -276.06, y: -27.8}
+  m_AnchoredPosition: {x: -276.06006, y: -27.800049}
   m_SizeDelta: {x: 300, y: 143.4}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &1309451383
