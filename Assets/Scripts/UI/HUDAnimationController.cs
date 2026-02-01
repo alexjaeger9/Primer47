@@ -1,205 +1,144 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
-using System.Collections.Generic;
 
 public class HUDAnimationController : MonoBehaviour
 {
-    [System.Serializable]
-    public class HUDElement
-    {
-        public string name;
-        public GameObject element;
-        public Text textComponent;
-        
-        [Header("Slide Animation")]
-        public bool enableSlideIn = true;
-        public SlideDirection slideInDirection = SlideDirection.Down;
-        public float slideInDuration = 0.3f;
-        
-        public bool enableSlideOut = false;
-        public SlideDirection slideOutDirection = SlideDirection.Up;
-        public float slideOutDuration = 0.5f;
-        public float slideDistance = 100f;
-        
-        [Header("Shake Settings")]
-        public bool enableShake = false;
-        public float shakeDuration = 0.2f;
-        public float shakeStrength = 10f;
-        
-        [Header("Color Flash Settings")]
-        public bool enableColorFlash = false;
-        public Color flashColor = Color.yellow;
-        public float colorFlashDuration = 0.3f;
-        
-        [HideInInspector] public Vector2 originalPosition;
-        [HideInInspector] public Color originalTextColor;
-        [HideInInspector] public Color originalPanelColor;
-        [HideInInspector] public bool isAnimating = false;
-    }
+    [Header("References")]
+    public Text targetsText; // Zuweisen im Inspector
+    public Text timerText;   // Zuweisen im Inspector
+
+    [Header("Global Settings")]
+    public float slideDuration = 0.5f;
+    public float slideDistance = 100f; // Positive Y-Richtung (Up)
+    public float shakeDuration = 0.2f;
+    public float shakeStrength = 10f;
+
+    [Header("Special Settings")]
+    public Color targetFlashColor = Color.yellow;
+    public float flashDuration = 0.3f;
+
+    // Interne Speicher
+    private Vector2 targetsOriginalPos;
+    private Vector2 timerOriginalPos;
+    private Color targetsOriginalColor;
     
-    public enum SlideDirection { Up, Down }
-    
-    [Header("HUD Elements")]
-    public List<HUDElement> hudElements = new List<HUDElement>();
-    
+    // Cache Components
+    private RectTransform targetsRect;
+    private RectTransform timerRect;
+    private CanvasGroup targetsCanvas;
+    private CanvasGroup timerCanvas;
+
     private void Start()
     {
-        foreach (HUDElement elem in hudElements)
-        {
-            if (elem.element == null) continue;
-            
-            RectTransform rect = elem.element.GetComponent<RectTransform>();
-            elem.originalPosition = rect.anchoredPosition;
-            
-            if (elem.textComponent != null)
-            {
-                elem.originalTextColor = elem.textComponent.color;
-            }
-            
-            if (elem.element.GetComponent<CanvasGroup>() == null)
-            {
-                elem.element.AddComponent<CanvasGroup>();
-            }
-        }
+        // Setup Targets Text
+        SetupElement(targetsText, out targetsRect, out targetsCanvas, out targetsOriginalPos);
+        if (targetsText != null) targetsOriginalColor = targetsText.color;
+        
+        // Setup Timer Text (Farbe speichern wir hier nicht speziell für Reset, da Timer Logik variiert)
+        SetupElement(timerText, out timerRect, out timerCanvas, out timerOriginalPos);
     }
-    
-    public void SlideIn(string elementName)
+
+    private void SetupElement(Text textComp, out RectTransform rect, out CanvasGroup cg, out Vector2 origPos)
     {
-        HUDElement elem = FindElement(elementName);
-        if (elem != null && elem.enableSlideIn)
+        if (textComp == null) 
         {
-            StartCoroutine(SlideInElement(elem));
+            rect = null; cg = null; origPos = Vector2.zero;
+            return;
         }
+
+        rect = textComp.GetComponent<RectTransform>();
+        cg = textComp.GetComponent<CanvasGroup>();
+        
+        if (cg == null) cg = textComp.gameObject.AddComponent<CanvasGroup>();
+
+        origPos = rect.anchoredPosition;
     }
-    
-    public void SlideOut(string elementName)
+
+    // ----------------------------------------------------------------
+    // PUBLIC Methods
+    // ----------------------------------------------------------------
+
+    public void SlideInAll()
     {
-        HUDElement elem = FindElement(elementName);
-        if (elem != null && elem.enableSlideOut)
-        {
-            StartCoroutine(SlideOutElement(elem));
-        }
+        if(targetsRect != null) StartCoroutine(SlideRoutine(targetsRect, targetsCanvas, targetsOriginalPos, true));
+        if(timerRect != null) StartCoroutine(SlideRoutine(timerRect, timerCanvas, timerOriginalPos, true));
     }
-    
-    public void Shake(string elementName)
+
+    public void SlideOutAll()
     {
-        HUDElement elem = FindElement(elementName);
-        if (elem != null && elem.enableShake)
-        {
-            StartCoroutine(ShakeElement(elem));
-        }
+        if(targetsRect != null) StartCoroutine(SlideRoutine(targetsRect, targetsCanvas, targetsOriginalPos, false));
+        if(timerRect != null) StartCoroutine(SlideRoutine(timerRect, timerCanvas, timerOriginalPos, false));
     }
-    
-    public void ColorFlash(string elementName)
+
+    // --- TARGETS ---
+
+    public void ShakeTargets()
     {
-        HUDElement elem = FindElement(elementName);
-        if (elem != null && elem.enableColorFlash)
-        {
-            StartCoroutine(ColorFlashElement(elem));
-        }
+        if(targetsRect != null) StartCoroutine(ShakeRoutine(targetsRect, targetsOriginalPos, shakeStrength, shakeDuration));
     }
-    
-    public void ShakeAndFlash(string elementName)
+
+    public void ShakeAndFlashTargets()
     {
-        HUDElement elem = FindElement(elementName);
-        if (elem != null)
+        if(targetsRect != null) 
         {
-            if (elem.enableShake) StartCoroutine(ShakeElement(elem));
-            if (elem.enableColorFlash) StartCoroutine(ColorFlashElement(elem));
+            StartCoroutine(ShakeRoutine(targetsRect, targetsOriginalPos, shakeStrength, shakeDuration));
+            StartCoroutine(FlashRoutine(targetsText, targetsOriginalColor, targetFlashColor));
         }
     }
-    
-    //Timer-spezifisch: Farbe ändern
+
+    // --- TIMER ---
+
+    public void ShakeTimer()
+    {
+        if(timerRect != null) StartCoroutine(ShakeRoutine(timerRect, timerOriginalPos, shakeStrength, shakeDuration));
+    }
+
+    public void BigShakeTimer()
+    {
+        if(timerRect != null) StartCoroutine(ShakeRoutine(timerRect, timerOriginalPos, shakeStrength * 5f, shakeDuration * 1.5f));
+    }
+
     public void SetTimerColor(Color color)
     {
-        HUDElement elem = FindElement("Timer");
-        if (elem != null && elem.textComponent != null)
-        {
-            elem.textComponent.color = color;
-            elem.originalTextColor = color; //update original für Shake
-        }
+        if(timerText != null) timerText.color = color;
     }
-    
-    //Extra starker Shake (für Timer bei 0)
-    public void BigShake(string elementName)
+
+    // ----------------------------------------------------------------
+    // Coroutines
+    // ----------------------------------------------------------------
+
+    private IEnumerator SlideRoutine(RectTransform rect, CanvasGroup cg, Vector2 targetPos, bool slideIn)
     {
-        HUDElement elem = FindElement(elementName);
-        StartCoroutine(ShakeElement(elem, elem.shakeStrength * 5f, elem.shakeDuration * 1.5f));
-    }
-    
-    private HUDElement FindElement(string name)
-    {
-        return hudElements.Find(e => e.name == name);
-    }
-    
-    private IEnumerator SlideInElement(HUDElement elem)
-    {
-        if (elem.isAnimating || elem.element == null) yield break;
-        elem.isAnimating = true;
+        Vector2 offset = new Vector2(0, slideDistance); 
+        Vector2 hiddenPos = targetPos + offset; 
+
+        Vector2 start = slideIn ? hiddenPos : targetPos;
+        Vector2 end = slideIn ? targetPos : hiddenPos;
         
-        RectTransform rect = elem.element.GetComponent<RectTransform>();
-        CanvasGroup canvasGroup = elem.element.GetComponent<CanvasGroup>();
-        
-        Vector2 startPos = elem.originalPosition + GetSlideOffset(elem.slideInDirection, elem.slideDistance);
-        rect.anchoredPosition = startPos;
-        canvasGroup.alpha = 0f;
-        
+        float startAlpha = slideIn ? 0f : 1f;
+        float endAlpha = slideIn ? 1f : 0f;
+
         float elapsed = 0f;
-        
-        while (elapsed < elem.slideInDuration)
+
+        while (elapsed < slideDuration)
         {
             elapsed += Time.unscaledDeltaTime;
-            float t = Mathf.SmoothStep(0f, 1f, elapsed / elem.slideInDuration);
-            
-            rect.anchoredPosition = Vector2.Lerp(startPos, elem.originalPosition, t);
-            canvasGroup.alpha = t;
-            
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / slideDuration);
+
+            rect.anchoredPosition = Vector2.Lerp(start, end, t);
+            cg.alpha = Mathf.Lerp(startAlpha, endAlpha, t);
+
             yield return null;
         }
-        
-        rect.anchoredPosition = elem.originalPosition;
-        canvasGroup.alpha = 1f;
-        elem.isAnimating = false;
+
+        rect.anchoredPosition = end;
+        cg.alpha = endAlpha;
     }
-    
-    private IEnumerator SlideOutElement(HUDElement elem)
+
+    private IEnumerator ShakeRoutine(RectTransform rect, Vector2 basePos, float strength, float duration)
     {
-        if (elem.isAnimating || elem.element == null) yield break;
-        elem.isAnimating = true;
-        
-        RectTransform rect = elem.element.GetComponent<RectTransform>();
-        CanvasGroup canvasGroup = elem.element.GetComponent<CanvasGroup>();
-        
-        Vector2 endPos = elem.originalPosition + GetSlideOffset(elem.slideOutDirection, elem.slideDistance);
-        
         float elapsed = 0f;
-        
-        while (elapsed < elem.slideOutDuration)
-        {
-            elapsed += Time.unscaledDeltaTime;
-            float t = Mathf.SmoothStep(0f, 1f, elapsed / elem.slideOutDuration);
-            
-            rect.anchoredPosition = Vector2.Lerp(elem.originalPosition, endPos, t);
-            canvasGroup.alpha = 1f - t;
-            
-            yield return null;
-        }
-        
-        rect.anchoredPosition = endPos;
-        canvasGroup.alpha = 0f;
-        elem.isAnimating = false;
-    }
-    
-    private IEnumerator ShakeElement(HUDElement elem, float? customStrength = null, float? customDuration = null)
-    {
-        if (elem.element == null) yield break;
-        
-        RectTransform rect = elem.element.GetComponent<RectTransform>();
-        float strength = customStrength ?? elem.shakeStrength;
-        float duration = customDuration ?? elem.shakeDuration;
-        float elapsed = 0f;
-        
         while (elapsed < duration)
         {
             elapsed += Time.unscaledDeltaTime;
@@ -207,44 +146,26 @@ public class HUDAnimationController : MonoBehaviour
             
             float x = Random.Range(-1f, 1f) * currentStrength;
             float y = Random.Range(-1f, 1f) * currentStrength;
-            
-            rect.anchoredPosition = elem.originalPosition + new Vector2(x, y);
-            
+
+            rect.anchoredPosition = basePos + new Vector2(x, y);
+
             yield return null;
         }
-        
-        rect.anchoredPosition = elem.originalPosition;
+        rect.anchoredPosition = basePos;
     }
-    
-    private IEnumerator ColorFlashElement(HUDElement elem)
+
+    private IEnumerator FlashRoutine(Text textComp, Color baseColor, Color flashCol)
     {
         float elapsed = 0f;
-        
-        while (elapsed < elem.colorFlashDuration)
+        while (elapsed < flashDuration)
         {
             elapsed += Time.unscaledDeltaTime;
-            float t = elapsed / elem.colorFlashDuration;
-            float pingPong = Mathf.PingPong(t * 2f, 1f);
+            float t = elapsed / flashDuration;
+            float blend = Mathf.PingPong(t * 2f, 1f); 
             
-            if (elem.textComponent != null)
-            {
-                elem.textComponent.color = Color.Lerp(elem.originalTextColor, elem.flashColor, pingPong);
-            }
-
-            
+            textComp.color = Color.Lerp(baseColor, flashCol, blend);
             yield return null;
         }
-        
-        if (elem.textComponent != null) elem.textComponent.color = elem.originalTextColor;
-    }
-    
-    private Vector2 GetSlideOffset(SlideDirection direction, float distance)
-    {
-        switch (direction)
-        {
-            case SlideDirection.Up: return new Vector2(0, distance);
-            case SlideDirection.Down: return new Vector2(0, -distance);
-            default: return Vector2.zero;
-        }
+        textComp.color = baseColor;
     }
 }

@@ -28,9 +28,6 @@ public class Coin : MonoBehaviour
         // Partikel spawnen (Unabhängig vom Coin)
         if (pickupEffectPrefab != null) Instantiate(pickupEffectPrefab, transform.position, Quaternion.identity);
 
-        HUDAnimationController hudAnim = FindFirstObjectByType<HUDAnimationController>();
-        hudAnim.ShakeAndFlash("Coins");
-
         // POOLING: Nicht zerstören, nur deaktivieren!
         gameObject.SetActive(false);
     }

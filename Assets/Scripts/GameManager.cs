@@ -93,14 +93,14 @@ public class GameManager : MonoBehaviour
                 if (currentSecond != lastTimerSecond)
                 {
                     lastTimerSecond = currentSecond;
-                    hudAnim.Shake("Timer");
+                    hudAnim.ShakeTimer();
                 }
             }
             
             if (timeRemaining <= 0)
             {
                 timerRunning = false;
-                hudAnim.BigShake("Timer");
+                hudAnim.BigShakeTimer();
                 HandlePlayerDeath(); 
             }
 
@@ -246,17 +246,7 @@ public class GameManager : MonoBehaviour
         uiManager.UpdateGhostsRemaining(activeGhosts.Count);
 
         
-        hudAnim.SlideIn("TargetsLeft");
-        hudAnim.SlideIn("Score");
-        hudAnim.SlideIn("Timer");
-        hudAnim.SlideIn("LoopCounter");
-        hudAnim.SlideIn("Coins");
-
-        GameObject coinElement = hudAnim.hudElements.Find(e => e.name == "Coins")?.element;
-        if (coinElement != null && coinElement.activeSelf)
-        {
-            hudAnim.SlideIn("Coins");
-        }
+        hudAnim.SlideInAll();
 
         //Player Number Update
         playerHealth.UpdatePlayerNumbers(currentLoopIndex + 1);
@@ -462,9 +452,7 @@ public class GameManager : MonoBehaviour
 
         cam.enabled = false;
 
-        hudAnim.SlideOut("TargetsLeft");
-        hudAnim.SlideOut("Score");
-        hudAnim.SlideOut("LoopCounter");
+        hudAnim.SlideOutAll();
 
         yield return new WaitForSecondsRealtime(0.6f); 
         
@@ -502,11 +490,11 @@ public void OnGhostKilled(GhostHealth ghost)
 
         if (activeGhosts.Count <= 3 && activeGhosts.Count >= 1)
         {
-            hudAnim.ShakeAndFlash("TargetsLeft"); //Shake + Gelb
+            hudAnim.ShakeAndFlashTargets(); //Shake + Gelb
         }
         else
         {
-            hudAnim.Shake("TargetsLeft"); //Nur Shake
+            hudAnim.ShakeTargets(); //Nur Shake
         }
         
         if (activeGhosts.Count == 0)

@@ -3512,21 +3512,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ButtonEffect
   buttonText: {fileID: 236843134}
   textOutline: {fileID: 236843137}
-  normalScale: 1
-  hoverScale: 1.15
-  scaleSpeed: 15
   normalColor: {r: 0, g: 0, b: 0, a: 1}
   hoverColor: {r: 0.24528301, g: 0.24528301, b: 0.24528301, a: 1}
   clickColor: {r: 0.8679245, g: 0.8679245, b: 0.8679245, a: 1}
-  colorSpeed: 10
-  enableRotation: 1
-  hoverRotation: 3
-  enableShake: 1
-  shakeDuration: 0.15
-  shakeStrength: 8
-  enableOutlineGrow: 1
-  normalOutlineDistance: {x: 1, y: -1}
-  hoverOutlineDistance: {x: 2, y: -2}
 --- !u!1001 &513298363
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3987,21 +3975,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ButtonEffect
   buttonText: {fileID: 1997262123}
   textOutline: {fileID: 1997262126}
-  normalScale: 1
-  hoverScale: 1.15
-  scaleSpeed: 15
   normalColor: {r: 0, g: 0, b: 0, a: 1}
   hoverColor: {r: 0.254717, g: 0.254717, b: 0.254717, a: 1}
   clickColor: {r: 1, g: 1, b: 1, a: 1}
-  colorSpeed: 10
-  enableRotation: 1
-  hoverRotation: 3
-  enableShake: 1
-  shakeDuration: 0.15
-  shakeStrength: 8
-  enableOutlineGrow: 1
-  normalOutlineDistance: {x: 1, y: -1}
-  hoverOutlineDistance: {x: 2, y: -2}
 --- !u!4 &539780651 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 921994838791601756, guid: 3e32158757d692849973ab790f2a7fe1, type: 3}
@@ -7316,7 +7292,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 175.8, y: -66.8}
+  m_AnchoredPosition: {x: 200.5, y: -66.8}
   m_SizeDelta: {x: 300, y: 60}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1194463985
@@ -7514,21 +7490,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ButtonEffect
   buttonText: {fileID: 1466054416}
   textOutline: {fileID: 1466054419}
-  normalScale: 1
-  hoverScale: 1.15
-  scaleSpeed: 15
   normalColor: {r: 0, g: 0, b: 0, a: 1}
   hoverColor: {r: 0.24528301, g: 0.24528301, b: 0.24528301, a: 1}
   clickColor: {r: 0.8679245, g: 0.8679245, b: 0.8679245, a: 1}
-  colorSpeed: 10
-  enableRotation: 1
-  hoverRotation: 3
-  enableShake: 1
-  shakeDuration: 0.15
-  shakeStrength: 8
-  enableOutlineGrow: 1
-  normalOutlineDistance: {x: 1, y: -1}
-  hoverOutlineDistance: {x: 2, y: -2}
 --- !u!1001 &1219620636
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8601,47 +8565,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e6db0d211b540140be7e2a7d79d61df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HUDAnimationController
-  hudElements:
-  - name: TargetsLeft
-    element: {fileID: 237389561}
-    textComponent: {fileID: 237389563}
-    enableSlideIn: 1
-    slideInDirection: 0
-    slideInDuration: 0.3
-    enableSlideOut: 1
-    slideOutDirection: 0
-    slideOutDuration: 0.5
-    slideDistance: 100
-    enableShake: 1
-    shakeDuration: 0.4
-    shakeStrength: 15
-    enableColorFlash: 1
-    flashColor: {r: 0.9837978, g: 1, b: 0, a: 0}
-    colorFlashDuration: 0.5
-    originalPosition: {x: 0, y: 0}
-    originalTextColor: {r: 0, g: 0, b: 0, a: 0}
-    originalPanelColor: {r: 0, g: 0, b: 0, a: 0}
-    isAnimating: 0
-  - name: Timer
-    element: {fileID: 1309451381}
-    textComponent: {fileID: 1309451384}
-    enableSlideIn: 1
-    slideInDirection: 0
-    slideInDuration: 0.3
-    enableSlideOut: 1
-    slideOutDirection: 0
-    slideOutDuration: 0.5
-    slideDistance: 100
-    enableShake: 1
-    shakeDuration: 0.4
-    shakeStrength: 15
-    enableColorFlash: 0
-    flashColor: {r: 1, g: 1, b: 1, a: 0}
-    colorFlashDuration: 0.5
-    originalPosition: {x: 0, y: 0}
-    originalTextColor: {r: 0, g: 0, b: 0, a: 0}
-    originalPanelColor: {r: 0, g: 0, b: 0, a: 0}
-    isAnimating: 0
+  targetsText: {fileID: 237389563}
+  timerText: {fileID: 1309451384}
+  slideDuration: 0.5
+  slideDistance: 100
+  shakeDuration: 0.2
+  shakeStrength: 20
+  targetFlashColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  flashDuration: 0.3
 --- !u!1 &1409824402
 GameObject:
   m_ObjectHideFlags: 0
@@ -10771,21 +10702,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ButtonEffect
   buttonText: {fileID: 466815587}
   textOutline: {fileID: 466815590}
-  normalScale: 1
-  hoverScale: 1.15
-  scaleSpeed: 15
   normalColor: {r: 0, g: 0, b: 0, a: 1}
   hoverColor: {r: 0.24528301, g: 0.24528301, b: 0.24528301, a: 1}
   clickColor: {r: 0.8679245, g: 0.8679245, b: 0.8679245, a: 1}
-  colorSpeed: 10
-  enableRotation: 1
-  hoverRotation: 3
-  enableShake: 1
-  shakeDuration: 0.15
-  shakeStrength: 8
-  enableOutlineGrow: 1
-  normalOutlineDistance: {x: 1, y: -1}
-  hoverOutlineDistance: {x: 2, y: -2}
 --- !u!1 &1768730266
 GameObject:
   m_ObjectHideFlags: 0
@@ -11941,21 +11860,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ButtonEffect
   buttonText: {fileID: 1145451696}
   textOutline: {fileID: 1145451699}
-  normalScale: 1
-  hoverScale: 1.15
-  scaleSpeed: 15
   normalColor: {r: 0, g: 0, b: 0, a: 1}
   hoverColor: {r: 0.24528301, g: 0.24528301, b: 0.24528301, a: 1}
   clickColor: {r: 0.8679245, g: 0.8679245, b: 0.8679245, a: 1}
-  colorSpeed: 10
-  enableRotation: 1
-  hoverRotation: 3
-  enableShake: 1
-  shakeDuration: 0.15
-  shakeStrength: 8
-  enableOutlineGrow: 1
-  normalOutlineDistance: {x: 1, y: -1}
-  hoverOutlineDistance: {x: 2, y: -2}
 --- !u!1001 &1997577289
 PrefabInstance:
   m_ObjectHideFlags: 0
