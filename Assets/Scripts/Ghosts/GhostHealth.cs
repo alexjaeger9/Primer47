@@ -52,4 +52,14 @@ public class GhostHealth : MonoBehaviour
             txt.text = loopCount.ToString();
         }
     }
+    
+    private void OnTriggerEnter(Collider other) 
+    {
+        if (enemyRenderer != null && enemyRenderer.material.color == Color.gray3) return;
+
+        if (other.TryGetComponent<PlayerHealth>(out var player))
+        {
+            player.TakeDamage();
+        }
+    }
 }
