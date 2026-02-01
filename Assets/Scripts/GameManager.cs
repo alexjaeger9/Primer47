@@ -16,8 +16,8 @@ public class GameManager : MonoBehaviour
     [Header("UI")]
     public UIManager uiManager;
     public HUDAnimationController hudAnim;
-    public VignetteController vignetteController; // +++ NEU: Hier kommt das Skript rein +++
-    private float lastTimerSecond = -1; //für Shake-Timing
+    public VignetteController vignetteController;
+    private float lastTimerSecond = -1;
 
     [Header("Audio Effects")]
     public AudioSource tickAudioSource;
@@ -73,7 +73,6 @@ public class GameManager : MonoBehaviour
             uiManager.UpdateTimer(timeRemaining);
             HandleTickingSound(timeRemaining);
             
-            // +++ NEU: Vignette Logik (Graues Pulsieren bei < 8s) +++
             if (vignetteController != null)
             {
                 if (timeRemaining <= 8f && timeRemaining > 0)
@@ -85,7 +84,6 @@ public class GameManager : MonoBehaviour
                     vignetteController.SetLowTime(false);
                 }
             }
-            // +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
             if (timeRemaining <= 5f && timeRemaining > 0f)
             {
@@ -163,7 +161,7 @@ public class GameManager : MonoBehaviour
             tickAudioSource.Stop();
             tickAudioSource.pitch = 1f;
             
-            //Audio Source aktivieren falls deaktiviert ← FIX
+            //Audio Source aktivieren falls deaktiviert
             if (!tickAudioSource.enabled)
             {
                 tickAudioSource.enabled = true;
@@ -172,9 +170,8 @@ public class GameManager : MonoBehaviour
             tickAudioSource.PlayOneShot(startClip);
         }
 
-        // +++ NEU: Vignette zurücksetzen (Alles wieder klar) +++
+        // Vignette zurücksetzen
         if (vignetteController != null) vignetteController.ResetVignette();
-        // ++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
         PauseManager.isGameOver = false;
         Time.timeScale = 1f;
@@ -315,7 +312,6 @@ public class GameManager : MonoBehaviour
         uiManager.hideScoreCalculation();
         yield return new WaitForSecondsRealtime(0.3f);
         
-        // --- LOGIK FIX START ---
         
         // 1. Alten Loop merken (z.B. Index 0 -> Loop 1)
         int previousLoop = currentLoopIndex + 1; 
@@ -326,14 +322,13 @@ public class GameManager : MonoBehaviour
         // 3. Neuen Loop berechnen (z.B. Index 1 -> Loop 2)
         int nextLoop = currentLoopIndex + 1;
 
-        // --- LOGIK FIX ENDE ---
 
         ClearGhosts();
         ClearBullets();
         SpawnPlayer();
         
         // UI Anzeige starten
-        // WICHTIG: Text muss sichtbar sein, auch wenn FadeIn noch aktiv ist (Canvas Sorting beachten!)
+        // WICHTIG: Text muss sichtbar sein, auch wenn FadeIn noch aktiv ist
         
         // Animation abspielen: Von 1 nach 2
         yield return StartCoroutine(uiManager.AnimateLoopNumber(previousLoop, nextLoop));
@@ -400,9 +395,8 @@ public class GameManager : MonoBehaviour
     {
         timerRunning = false;
         
-        // +++ NEU: Vignette auf Rot (Tod) +++
+        // Vignette auf Rot
         if (vignetteController != null) vignetteController.TriggerDeath();
-        // +++++++++++++++++++++++++++++++++++
 
         tickAudioSource.Stop();
         tickAudioSource.pitch = 1f; //Pitch Reset

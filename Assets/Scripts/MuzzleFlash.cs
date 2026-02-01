@@ -4,7 +4,7 @@ public class MuzzleFlash : MonoBehaviour
 {
     [Header("Flash Settings")]
     public SpriteRenderer flashSprite;
-    public Sprite[] flashVariants; // verschiedene Comic-Blitz Sprites
+    public Sprite[] flashVariants; // verschiedene Sprites
     public float flashDuration = 0.05f;
     public float minScale = 0.3f;
     public float maxScale = 0.5f;
@@ -33,7 +33,7 @@ public class MuzzleFlash : MonoBehaviour
 
     public void PlayFlash()
     {
-        //zufälliges Sprite wählen (falls mehrere vorhanden)
+        //zufälliges Sprite wählen
         if (flashVariants.Length > 0)
         {
             flashSprite.sprite = flashVariants[Random.Range(0, flashVariants.Length)];
