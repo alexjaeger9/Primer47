@@ -287,67 +287,52 @@ public class GameManager : MonoBehaviour
     }
 
     private IEnumerator LoopTransition()
-{
-    PauseManager.canPause = false;
-    
-    // Score berechnen & anzeigen
-    ScoreCalculation();
-    
-    // Slow Motion Effekt
-    yield return SmoothSlowMo(0.1f, 0.5f);
-    
-    // Warten damit man den Score lesen kann
-    yield return new WaitForSecondsRealtime(2f);
-    
-    // Transition starten (Fade to Black)
-    if (transitionController != null)
     {
+        PauseManager.canPause = false;
+        
+        //Score berechnen & anzeigen
+        ScoreCalculation();
+        
+        //Slow Motion Effekt
+        yield return SmoothSlowMo(0.1f, 0.5f);
+        
+        //Warten damit man den Score lesen kann
+        yield return new WaitForSecondsRealtime(2f);
+        
         yield return transitionController.FadeIn(0.3f);
-    }
-    else
-    {
-        Debug.LogError("TransitionController ist nicht zugewiesen im GameManager!");
-        // Fallback falls Transition fehlt, damit das Spiel nicht stecken bleibt
-        yield return new WaitForSecondsRealtime(0.5f);
-    }
+        
 
-    // Score Panel verstecken
-    if (uiManager != null) uiManager.hideScoreCalculation();
-    
-    yield return new WaitForSecondsRealtime(0.3f);
-    
-    // --- Loop Reset Logik ---
-    int previousLoop = currentLoopIndex;
-    int nextLoop = currentLoopIndex + 1;
-    
-    EndLoop();
-    ClearGhosts();
-    ClearBullets();
-    SpawnPlayer();
-    
-    // Loop Text Animation
-    if (uiManager != null)
-    {
+        //score Panel verstecken
+        uiManager.hideScoreCalculation();
+        
+        yield return new WaitForSecondsRealtime(0.3f);
+        
+        //Loop Reset
+        int previousLoop = currentLoopIndex;
+        int nextLoop = currentLoopIndex + 1;
+        
+        EndLoop();
+        ClearGhosts();
+        ClearBullets();
+        SpawnPlayer();
+        
+        //Loop Text Animation
         uiManager.ShowBigLoopText(previousLoop);
         yield return new WaitForSecondsRealtime(0.2f);
         yield return StartCoroutine(uiManager.AnimateLoopNumber(previousLoop, nextLoop));
-    }
 
-    yield return new WaitForSecondsRealtime(0.7f);
-    
-    // Fade Out (Bild wieder da)
-    if (transitionController != null)
-    {
+
+        yield return new WaitForSecondsRealtime(0.7f);
+        
+        //Fade Out (Bild wieder da)
         StartCoroutine(transitionController.FadeOut(0.2f));
+        uiManager.HideBigLoopText();
+        
+        StartLoop();
+        
+        Time.timeScale = 1f;
+        PauseManager.canPause = true;
     }
-    
-    if (uiManager != null) uiManager.HideBigLoopText();
-    
-    StartLoop();
-    
-    Time.timeScale = 1f;
-    PauseManager.canPause = true;
-}
 
     private IEnumerator SmoothSlowMo(float slowAmount, float duration)
     {
@@ -398,7 +383,7 @@ public class GameManager : MonoBehaviour
     {
         timerRunning = false;
         tickAudioSource.Stop();
-        tickAudioSource.pitch = 1f; // Pitch Reset
+        tickAudioSource.pitch = 1f; //Pitch Reset
         tickAudioSource.PlayOneShot(timeOverClip);
 
         StartCoroutine(GameOverSequence());

@@ -19,20 +19,20 @@ public class UIManager : MonoBehaviour
     [Header("Score Calculation Logic")]
     public GameObject scoreCalculation;
     
-    // Die Texte für die Werte
+    //Texte für die Werte
     public Text sC_currentScore;
     public Text sC_timeLeft; 
     public Text sC_newScore;
     public Text sC_coinScore;
 
-    // Die Gruppen für die Animation
+    //Gruppen für die Animation
     public GameObject sC_timeLeft_Group; 
     public GameObject sC_newScore_Group; 
     public GameObject coinBonusGroup;    
 
     [Header("Audio")]
-    public AudioClip loopTransitionSound;   // Der Sound für "Loop 1 -> Loop 2"
-    public AudioClip scoreCalculationSound; // NEU: Der "Impact" Sound für die Texte (kurzes Wusch/Thud)
+    public AudioClip loopTransitionSound;   
+    public AudioClip scoreCalculationSound;
 
     private void Start()
     {
@@ -45,7 +45,6 @@ public class UIManager : MonoBehaviour
         if (coinBonusGroup != null) coinBonusGroup.SetActive(false);
     }
 
-    // --- Standard HUD Methoden ---
     public void UpdateTimer(float timeRemaining)
     {
         timeRemaining = Mathf.Max(0, timeRemaining);
@@ -107,8 +106,6 @@ public class UIManager : MonoBehaviour
         SceneManager.LoadScene("MainMenu");
     }
 
-    // === SCORE CALCULATION ===
-
     public void showScoreScalculation(float currentScore, float timeLeft, float newScore, int coins, float coinValue)
     {
         sC_currentScore.text = currentScore.ToString("F0");
@@ -151,34 +148,28 @@ public class UIManager : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(0.2f);
 
-        // 1. Time Left
-        if (sC_timeLeft_Group != null)
-        {
-            PlaySoundWithPitch(scoreCalculationSound, 1.0f); // Normaler Pitch
-            yield return StartCoroutine(ZoomInEffect(sC_timeLeft_Group.transform, 4f, 1f, 0.4f));
-            yield return new WaitForSecondsRealtime(0.2f);
-        }
+        //Time Left
+        PlaySoundWithPitch(scoreCalculationSound, 1.0f); // Normaler Pitch
+        yield return StartCoroutine(ZoomInEffect(sC_timeLeft_Group.transform, 4f, 1f, 0.4f));
+        yield return new WaitForSecondsRealtime(0.2f);
 
-        // 2. Coin Bonus (falls aktiv)
-        if (hasCoins && coinBonusGroup != null)
-        {
-            coinBonusGroup.SetActive(true);
-            PlaySoundWithPitch(scoreCalculationSound, 1.1f); // Etwas höherer Pitch
-            yield return StartCoroutine(ZoomInEffect(coinBonusGroup.transform, 3f, 1f, 0.4f));
-            yield return new WaitForSecondsRealtime(0.2f);
-        }
+
+        //Coin Bonus (falls aktiv)
+        coinBonusGroup.SetActive(true);
+        PlaySoundWithPitch(scoreCalculationSound, 1.1f); // Etwas höherer Pitch
+        yield return StartCoroutine(ZoomInEffect(coinBonusGroup.transform, 3f, 1f, 0.4f));
+        yield return new WaitForSecondsRealtime(0.2f);
+
         
-        // 3. New Score
-        if (sC_newScore_Group != null)
-        {
-            PlaySoundWithPitch(scoreCalculationSound, 1.2f); // Noch höherer Pitch (Finale!)
-            yield return StartCoroutine(ZoomInEffect(sC_newScore_Group.transform, 5f, 1.2f, 0.5f));
-        }
+        //New Score
+
+        PlaySoundWithPitch(scoreCalculationSound, 1.2f); // Noch höherer Pitch (Finale!)
+        yield return StartCoroutine(ZoomInEffect(sC_newScore_Group.transform, 5f, 1.2f, 0.5f));
     }
 
     public IEnumerator AnimateLoopNumber(int fromLoop, int toLoop)
     {
-        // UI zeigt +1
+        //UI zeigt +1
         bigLoopText.text = "Loop " + (fromLoop + 1);
 
         for (int i = fromLoop; i < toLoop; i++)
@@ -196,7 +187,6 @@ public class UIManager : MonoBehaviour
 
     private IEnumerator ZoomInEffect(Transform target, float startScale, float endScale, float duration)
     {
-        // --- HIER KEINE AUDIO LOGIK MEHR (wird oben gesteuert) ---
 
         Vector3 originalScale = Vector3.one;
         float elapsed = 0f;
@@ -208,10 +198,10 @@ public class UIManager : MonoBehaviour
         for (int i = 0; i < texts.Length; i++)
         {
             Color c = texts[i].color;
-            c.a = 1f; // Ziel sichtbar
+            c.a = 1f; //sichtbar
             targetColors[i] = c;
             
-            c.a = 0f; // Start unsichtbar
+            c.a = 0f; //unsichtbar
             texts[i].color = c;
         }
 
@@ -243,22 +233,19 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // Hilfsmethode für Sound mit Pitch (ohne extra AudioSource am Objekt zu brauchen)
+    //Hilfsmethode für Sound mit Pitch (ohne extra AudioSource am Objekt zu brauchen)
     private void PlaySoundWithPitch(AudioClip clip, float pitch)
     {
         if (clip == null) return;
 
-        // Erstelle temporäres Objekt
+        //erstelle temporäres Objekt
         GameObject soundObj = new GameObject("TempAudio");
         soundObj.transform.position = Camera.main.transform.position; // Sound bei der Kamera
         
         AudioSource audioSource = soundObj.AddComponent<AudioSource>();
         audioSource.clip = clip;
         audioSource.pitch = pitch;
-        audioSource.volume = 1f; // Oder variabel, falls gewünscht
-        
-        // Settings Manager checken für Lautstärke (optional, falls du das willst)
-        // audioSource.outputAudioMixerGroup = ... 
+        audioSource.volume = 1f; //Oder variabel
 
         audioSource.Play();
 
