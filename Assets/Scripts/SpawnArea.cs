@@ -11,7 +11,7 @@ public class SpawnArea : MonoBehaviour
     //Mindestabstand zu Jump Pads"
     public float jumpPadDistance = 5f;
     //Von welcher Höhe soll nach unten gecastet werden?
-    public float raycastHeight = 15f;
+    public float raycastHeight = 20f;
     
     //Liste für letzten 3 Spawn Positionen
     private List<Vector3> lastThreeSpawns = new List<Vector3>();

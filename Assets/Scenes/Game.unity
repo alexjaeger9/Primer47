@@ -3729,7 +3729,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4210,7 +4210,7 @@ MonoBehaviour:
   hud: {fileID: 1406642983}
   transitionController: {fileID: 200218055}
   timerText: {fileID: 1309451384}
-  bigLoopText: {fileID: 324839532}
+  loopText: {fileID: 324839532}
   lastScoreText: {fileID: 515759020}
   remainingGhostText: {fileID: 237389563}
   scoreCalculation: {fileID: 867417838}
@@ -8022,6 +8022,7 @@ GameObject:
   - component: {fileID: 1309451383}
   - component: {fileID: 1309451384}
   - component: {fileID: 1309451385}
+  - component: {fileID: 1309451386}
   m_Layer: 5
   m_Name: TimerText
   m_TagString: Untagged
@@ -8105,6 +8106,18 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
   m_EffectDistance: {x: 6.42, y: 3.23}
   m_UseGraphicAlpha: 1
+--- !u!225 &1309451386
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1309451381}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1001 &1316463129
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12725,7 +12738,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 0.122641504, g: 0.122641504, b: 0.122641504, a: 1}
+  m_Color: {r: 0.5566038, g: 0.5566038, b: 0.5566038, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

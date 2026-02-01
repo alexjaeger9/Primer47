@@ -181,9 +181,9 @@ public class GameManager : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        uiManager.ShowBigLoopText(1);
+        uiManager.ShowLoopText(1);
         yield return new WaitForSecondsRealtime(2f);
-        uiManager.HideBigLoopText();
+        uiManager.HideLoopText();
 
         StartLoop();
         yield return transitionController.FadeOut(1f);
@@ -292,7 +292,6 @@ public class GameManager : MonoBehaviour
         yield return transitionController.FadeIn(0.3f);
         
         uiManager.hideScoreCalculation();
-        yield return new WaitForSecondsRealtime(0.3f);
         
         int previousLoop = currentLoopIndex + 1; 
         EndLoop(); 
@@ -306,7 +305,7 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSecondsRealtime(0.5f);
         
         StartCoroutine(transitionController.FadeOut(0.2f));
-        uiManager.HideBigLoopText();
+        uiManager.HideLoopText();
         
         StartLoop();
         

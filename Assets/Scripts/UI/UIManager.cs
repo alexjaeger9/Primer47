@@ -5,7 +5,7 @@ using System.Collections;
 
 public class UIManager : MonoBehaviour
 {
-    [Header("Panels & HUD")]
+    [Header("Panels and HUD")]
     public GameObject gameOverPanel;
     public GameObject pausePanel;
     public GameObject hud;
@@ -13,7 +13,7 @@ public class UIManager : MonoBehaviour
 
     [Header("HUD Elements")]
     public Text timerText;
-    public Text bigLoopText;
+    public Text loopText;
     public Text lastScoreText;
     public Text remainingGhostText;
     
@@ -32,17 +32,13 @@ public class UIManager : MonoBehaviour
     public AudioClip scoreCalculationSound;
     public UnityEngine.Audio.AudioMixerGroup sfxMixerGroup;
 
-    // Cached References
+    //Cached References
     private HUDAnimationController hudAnimController;
 
     private void Start()
     {
-        // Cache HUD Animation Controller
+        //Cache HUD Animation Controller
         hudAnimController = FindFirstObjectByType<HUDAnimationController>();
-        
-        // Coin Bonus Setup
-        coinBonusGroup.SetActive(false);
-        sC_coinScore.text = "0";
     }
 
     public void hideScoreCalculation() 
@@ -56,7 +52,7 @@ public class UIManager : MonoBehaviour
         timeRemaining = Mathf.Max(0, timeRemaining);
         timerText.text = timeRemaining.ToString("F2") + "s";
         
-        // Timer Color Logic: >15s=white, 5-15s=yellow, ≤5s=red
+        //Timer Color: weiß sonst, 15s = gelb , 5s = rot
         if (timeRemaining <= 5f) 
             hudAnimController.SetTimerColor(Color.red);
         else if (timeRemaining <= 15f) 
@@ -64,15 +60,15 @@ public class UIManager : MonoBehaviour
         else 
             hudAnimController.SetTimerColor(Color.white);
         
-        // Shake bei jeder vollen Sekunde ab 5s
-        if (timeRemaining <= 5f && timeRemaining > 0f)
+        //Shake bei jeder vollen Sekunde ab 5s
+        if (timeRemaining <= 5f)
         {
             float fractional = timeRemaining - Mathf.Floor(timeRemaining);
             if (fractional > 0.98f) 
-                hudAnimController.ShakeTimer(); // ✅ Fix: war ShakeTargets
+                hudAnimController.ShakeTimer();
         }
         
-        // Big Shake bei 0
+        //Big Shake bei 0s
         if (timeRemaining == 0f) 
             hudAnimController.BigShakeTimer();
     }
@@ -82,15 +78,15 @@ public class UIManager : MonoBehaviour
         remainingGhostText.text = "targets left: " + remaining; 
     }
 
-    public void ShowBigLoopText(int loopIndex)
+    public void ShowLoopText(int loopIndex)
     {
-        bigLoopText.text = "Loop " + loopIndex;
-        bigLoopText.gameObject.SetActive(true);
+        loopText.text = "Loop " + loopIndex;
+        loopText.gameObject.SetActive(true);
     }
     
-    public void HideBigLoopText() 
+    public void HideLoopText() 
     { 
-        bigLoopText.gameObject.SetActive(false); 
+        loopText.gameObject.SetActive(false); 
     }
 
     public void ShowGameOver()
@@ -144,7 +140,7 @@ public class UIManager : MonoBehaviour
         sC_currentScore.text = currentScore.ToString("F0");
         sC_timeLeft.text = "+ " + timeLeft.ToString("F0");
         sC_newScore.text = newScore.ToString("F0");
-        sC_coinScore.text = coins > 0 ? "+ " + (coins * coinValue).ToString("F0") : "+ 0";
+        sC_coinScore.text = coins > 0 ? "+ " + (coins * coinValue).ToString("F0") : "+ 0"; //?
         
         scoreCalculation.SetActive(true);
         ResetScoreCalculationElements();
@@ -178,40 +174,40 @@ public class UIManager : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(0.2f);
 
-        // Time Left Bonus
-        PlaySoundWithPitch(scoreCalculationSound, 1.0f);
+        //Time Left Bonus
+        PlaySoundWithPitch(scoreCalculationSound, 1.4f);
         yield return ZoomInEffect(sC_timeLeft_Group.transform, 4f, 1f, 0.4f);
         yield return new WaitForSecondsRealtime(0.2f);
 
-        // Coin Bonus
+        //Coin Bonus
         coinBonusGroup.SetActive(true);
-        PlaySoundWithPitch(scoreCalculationSound, 1.1f);
+        PlaySoundWithPitch(scoreCalculationSound, 1.6f);
         yield return ZoomInEffect(coinBonusGroup.transform, 3f, 1f, 0.4f);
         yield return new WaitForSecondsRealtime(0.2f);
         
-        // New Score
-        PlaySoundWithPitch(scoreCalculationSound, 1.2f);
+        //New Score
+        PlaySoundWithPitch(scoreCalculationSound, 1.8f);
         yield return ZoomInEffect(sC_newScore_Group.transform, 5f, 1.2f, 0.5f);
     }
 
     public IEnumerator AnimateLoopNumber(int fromLoop, int toLoop)
     {
-        // Alte Nummer anzeigen
-        bigLoopText.gameObject.SetActive(true);
-        bigLoopText.text = "Loop " + fromLoop;
-        yield return new WaitForSecondsRealtime(0.5f);
+        
+        loopText.gameObject.SetActive(true);
+        //alte Nummer anzeigen
+        //loopText.text = "Loop " + fromLoop;
+        //yield return new WaitForSecondsRealtime(0.5f);
 
-        // Hochzählen
+        //hochzählen
         for (int i = fromLoop; i < toLoop; i++)
         {
             int nextLoop = i + 1;
-            bigLoopText.text = "Loop " + nextLoop;
+            loopText.text = "Loop " + nextLoop;
 
-            PlaySoundWithPitch(loopTransitionSound, 1.0f + (0.1f * i));
-            yield return ZoomInEffect(bigLoopText.transform, 4f, 1f, 0.4f);
-            
-            if (nextLoop < toLoop) 
-                yield return new WaitForSecondsRealtime(0.2f);
+            PlaySoundWithPitch(scoreCalculationSound, 1f + (0.1f * i));
+            yield return ZoomInEffect(loopText.transform, 4f, 1f, 0.4f);
+
+            yield return new WaitForSecondsRealtime(0.2f);
         }
     }
 
@@ -257,7 +253,7 @@ public class UIManager : MonoBehaviour
             yield return null;
         }
         
-        // Final Values
+        //final Values
         target.localScale = originalScale * endScale;
         for (int i = 0; i < texts.Length; i++)
         {

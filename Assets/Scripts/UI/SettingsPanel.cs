@@ -34,13 +34,13 @@ public class SettingsPanel : MonoBehaviour
     private bool eventsInitialized = false;
 
     //Defaults Konstanten
-    private const float DEFAULT_MASTER_VOLUME = 0.75f;
-    private const float DEFAULT_MUSIC_VOLUME = 0.75f;
-    private const float DEFAULT_SFX_VOLUME = 0.75f;
-    private const float DEFAULT_SENSITIVITY = 5.0f;
-    private const bool DEFAULT_FULLSCREEN = true;
-    private const bool DEFAULT_VSYNC = true;
-    private const int DEFAULT_FPS_DROPDOWN_INDEX = 1;
+    private float defaultMasterVol = 0.75f;
+    private float defaultMusicVol = 0.75f;
+    private float defautSfxVol = 0.75f;
+    private float defaultSens = 5.0f;
+    private bool defaultFullScreen = true;
+    private bool defaultVSync = true;
+    private int defaultFpsDropDown = 1;
 
     private void Update()
     {
@@ -160,20 +160,20 @@ public class SettingsPanel : MonoBehaviour
 
     private void SetUIToDefaults()
     {
-        masterVolumeSlider.value = DEFAULT_MASTER_VOLUME;
-        musicVolumeSlider.value = DEFAULT_MUSIC_VOLUME;
-        sfxVolumeSlider.value = DEFAULT_SFX_VOLUME;
-        sensitivitySlider.value = DEFAULT_SENSITIVITY;
-        fullscreenToggle.isOn = DEFAULT_FULLSCREEN;
+        masterVolumeSlider.value = defaultMasterVol;
+        musicVolumeSlider.value = defaultMusicVol;
+        sfxVolumeSlider.value = defautSfxVol;
+        sensitivitySlider.value = defaultSens;
+        fullscreenToggle.isOn = defaultFullScreen;
         resolutionDropdown.value = resolutions.Length - 1; //höchste Auflösung
-        vsyncToggle.isOn = DEFAULT_VSYNC;
-        fpsLimitDropdown.value = DEFAULT_FPS_DROPDOWN_INDEX;
+        vsyncToggle.isOn = defaultVSync;
+        fpsLimitDropdown.value = defaultFpsDropDown;
 
         //Texte updaten
-        UpdateVolumeText(masterVolumeText, DEFAULT_MASTER_VOLUME);
-        UpdateVolumeText(musicVolumeText, DEFAULT_MUSIC_VOLUME);
-        UpdateVolumeText(sfxVolumeText, DEFAULT_SFX_VOLUME);
-        UpdateSensitivityText(sensitivityText, DEFAULT_SENSITIVITY);
+        UpdateVolumeText(masterVolumeText, defaultMasterVol);
+        UpdateVolumeText(musicVolumeText, defaultMusicVol);
+        UpdateVolumeText(sfxVolumeText, defautSfxVol);
+        UpdateSensitivityText(sensitivityText, defaultSens);
     }
 
     private void UpdateButtonStates()
@@ -209,14 +209,14 @@ public class SettingsPanel : MonoBehaviour
     {
         //vergleicht UI mit Default Werten
         //wenn ein UI Element anders ist als Default -> false
-        bool masterCheck = Mathf.Approximately(masterVolumeSlider.value, DEFAULT_MASTER_VOLUME);
-        bool musicCheck = Mathf.Approximately(musicVolumeSlider.value, DEFAULT_MUSIC_VOLUME);
-        bool sfxCheck = Mathf.Approximately(sfxVolumeSlider.value, DEFAULT_SFX_VOLUME);
-        bool sensCheck = Mathf.Approximately(sensitivitySlider.value, DEFAULT_SENSITIVITY);
-        bool fullscreenCheck = fullscreenToggle.isOn == DEFAULT_FULLSCREEN;
+        bool masterCheck = Mathf.Approximately(masterVolumeSlider.value, defaultMasterVol);
+        bool musicCheck = Mathf.Approximately(musicVolumeSlider.value, defaultMusicVol);
+        bool sfxCheck = Mathf.Approximately(sfxVolumeSlider.value, defautSfxVol);
+        bool sensCheck = Mathf.Approximately(sensitivitySlider.value, defaultSens);
+        bool fullscreenCheck = fullscreenToggle.isOn == defaultFullScreen;
         bool resCheck = resolutionDropdown.value == resolutions.Length - 1;
-        bool vsyncCheck = vsyncToggle.isOn == DEFAULT_VSYNC;
-        bool fpsCheck = fpsLimitDropdown.value == DEFAULT_FPS_DROPDOWN_INDEX;
+        bool vsyncCheck = vsyncToggle.isOn == defaultVSync;
+        bool fpsCheck = fpsLimitDropdown.value == defaultFpsDropDown;
 
         //alles muss true sein, damit reset nicht aktiv ist
         return masterCheck && musicCheck && sfxCheck && sensCheck && 
@@ -307,7 +307,7 @@ public class SettingsPanel : MonoBehaviour
         fpsLimitDropdown.AddOptions(options);
         
         //füllt FPS DropDown Menü ohne Apply Button zu triggern
-        fpsLimitDropdown.SetValueWithoutNotify(DEFAULT_FPS_DROPDOWN_INDEX);
+        fpsLimitDropdown.SetValueWithoutNotify(defaultFpsDropDown);
     }
 
     private int GetFPSLimitDropdownIndex(int fpsLimit)

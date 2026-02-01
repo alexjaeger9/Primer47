@@ -37,7 +37,7 @@ public class MainMenu : MonoBehaviour
         // Alle Posen deaktivieren
         foreach (var pose in playerPoses) pose.SetActive(false);
 
-        // Neue Pose w�hlen, die nicht die letzte war
+        // Neue Pose waehlen, die nicht die letzte war
         do
         {
             currentPoseIndex = Random.Range(0, playerPoses.Length);

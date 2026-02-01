@@ -189,8 +189,7 @@ public class PlayerController : MonoBehaviour
         float targetX = h * multiplier;
         float targetY = v * multiplier;
 
-        if (Input.GetKeyDown(KeyCode.LeftControl) && (h != 0 || v != 0) && controller.isGrounded)
-        {
+        if (Input.GetKeyDown(KeyCode.LeftControl) && (h != 0 || v != 0) && controller.isGrounded && v >= 0)        {
             if (Time.time >= lastSlideTime + slideCooldown)
             {
                 playerAnimator.SetTrigger("Slide");
