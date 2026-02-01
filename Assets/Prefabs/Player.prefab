@@ -1197,11 +1197,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   playerAnimator: {fileID: 32402762388241486}
   audioSource: {fileID: 5768383761421614576}
-  jumpClip: {fileID: 8300000, guid: f72b3b33aa0d121479aecb8bd09702ae, type: 3}
+  jumpClip: {fileID: 8300000, guid: 85c73ac150d8f064bb736d7f441c00ce, type: 3}
   landClip: {fileID: 8300000, guid: 562d33d861eb8e04c895b250ea2701bf, type: 3}
   footstepClips:
-  - {fileID: 8300000, guid: fe50203f91c6c444eac5755ffaa550bf, type: 3}
-  - {fileID: 8300000, guid: e7e5449db38321345afb854737a95c7c, type: 3}
+  - {fileID: 8300000, guid: 360a7055f39a11d48b50ee2c11d3547f, type: 3}
+  - {fileID: 8300000, guid: 23052e472a02ccc42a6ec7e281421481, type: 3}
   runSpeed: 4
   sprintSpeed: 6
   jumpForce: 8

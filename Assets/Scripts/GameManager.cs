@@ -21,6 +21,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Audio Effects")]
     public AudioSource tickAudioSource;
+    public AudioClip timeOverClip;
     public AudioClip startClip;
     public AudioClip gameOverClip;
 
@@ -361,6 +362,7 @@ public class GameManager : MonoBehaviour
         vignetteController.TriggerDeath();
 
         tickAudioSource.Stop();
+        tickAudioSource.PlayOneShot(timeOverClip);
         tickAudioSource.pitch = 1f;
 
         StartCoroutine(GameOverSequence());
