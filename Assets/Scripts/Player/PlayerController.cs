@@ -167,11 +167,8 @@ public class PlayerController : MonoBehaviour
             currentStepIndex = currentStepIndex % footstepClips.Length;
             AudioClip clipToPlay = footstepClips[currentStepIndex];
 
-            if (audioSource != null && clipToPlay != null)
-            {
-                audioSource.pitch = Random.Range(0.95f, 1.05f);
-                audioSource.PlayOneShot(clipToPlay, 0.25f); 
-            }
+            audioSource.pitch = Random.Range(0.95f, 1.05f);
+            audioSource.PlayOneShot(clipToPlay, 0.25f); 
 
             currentStepIndex++;
         }
@@ -203,8 +200,6 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
-
-        // Sound & Status Abbruch Logik
         bool wasSliding = slidingThisTick;
         slidingThisTick = playerAnimator.GetCurrentAnimatorStateInfo(0).IsTag("SlidingTag");
 
@@ -237,30 +232,20 @@ public class PlayerController : MonoBehaviour
 
     private void PlaySound(AudioClip clip)
     {
-        if (audioSource != null && clip != null)
-        {
-            audioSource.pitch = Random.Range(0.95f, 1.05f);
-            audioSource.PlayOneShot(clip);
-        }
+        audioSource.pitch = Random.Range(0.95f, 1.05f);
+        audioSource.PlayOneShot(clip);
     }
 
-    // --- SLIDE SOUND METHODEN FÜR ANIMATION EVENTS ---
     public void PlaySlideSound()
     {
-        if (audioSource != null && slideClip != null)
-        {
-            audioSource.clip = slideClip;
-            audioSource.loop = false;
-            audioSource.Play();
-        }
+        audioSource.clip = slideClip;
+        audioSource.loop = false;
+        audioSource.Play();
     }
 
     public void CancelSlideSound()
     {
-        if (audioSource != null && audioSource.clip == slideClip)
-        {
-            audioSource.Stop();
-            audioSource.clip = null;
-        }
+        audioSource.Stop();
+        audioSource.clip = null;
     }
 }

@@ -53,7 +53,7 @@ public class ThirdPersonCamera : MonoBehaviour
         currentDistance = distance;
 
         cam = GetComponent<Camera>();
-        if (cam != null) defaultFOV = cam.fieldOfView;
+        defaultFOV = cam.fieldOfView;
     }
 
     public void SetZoom(bool state)
@@ -65,24 +65,15 @@ public class ThirdPersonCamera : MonoBehaviour
     {
         if (target == null) return;
 
-        if (cam != null)
-        {
-            float targetFOV = isZooming ? zoomFOV : defaultFOV;
-            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, targetFOV, Time.deltaTime * zoomSpeed);
-        }
+        float targetFOV = isZooming ? zoomFOV : defaultFOV;
+        cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, targetFOV, Time.deltaTime * zoomSpeed);
 
         float mouseY = Input.GetAxis("Mouse Y");
 
-        // +++ ADS LOGIK (Sensitivität halbieren) +++
         float sensitivityMultiplier = isZooming ? aimSensitivityMultiplier : 1.0f;
-        // Hier wird der Multiplier benutzt:
-        pitch -= mouseY * verticalMouseSensitivity * sensitivityMultiplier * Time.deltaTime;
-        // ++++++++++++++++++++++++++++++++++++++++++
 
-        // HIER NICHTS MEHR! Die Berechnung ist schon erledigt.
-        
+        pitch -= mouseY * verticalMouseSensitivity * sensitivityMultiplier * Time.deltaTime;        
         pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
-        // ...
 
         float finalYaw;
         if (useOwnYaw)

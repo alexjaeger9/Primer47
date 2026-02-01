@@ -6,11 +6,11 @@ public class CoinPool : MonoBehaviour
     public static CoinPool Instance;
 
     [Header("Setup")]
-    public GameObject coinPrefab; // Dein Coin Prefab
-    public int coinsPerLoop = 3;  // Wir wollen immer nur 3 Coins gleichzeitig
+    public GameObject coinPrefab;
+    public int coinsPerLoop = 3;  // max Coins 
     
     [Header("Positions")]
-    public List<Transform> spawnPoints; // Hier ziehst du deine leeren GameObjects rein
+    public List<Transform> spawnPoints;
 
     private List<GameObject> coinPool = new List<GameObject>();
 
@@ -20,26 +20,24 @@ public class CoinPool : MonoBehaviour
         InitializePool();
     }
 
-    // Erstellt die Coins EINMAL beim Spielstart (Pooling)
     void InitializePool()
     {
         for (int i = 0; i < coinsPerLoop; i++)
         {
             GameObject coin = Instantiate(coinPrefab);
-            coin.SetActive(false); // Erstmal unsichtbar
-            coin.transform.parent = transform; // Der Ordnung halber im Hierarchy-Baum unterordnen
+            coin.SetActive(false); // Erstmal unsichtbar setzen
+            coin.transform.parent = transform; // in Hierarchie anordnen
             coinPool.Add(coin);
         }
     }
 
     public void SpawnCoins()
     {
-        // Erstmal alle deaktivieren (falls noch welche vom letzten Loop da sind)
+        // Alle übrigen Coins vom letzten Loop deaktivieren
         DeactivateAll();
 
         if (spawnPoints.Count < coinsPerLoop) return;
 
-        // Liste kopieren, damit wir Positionen rausstreichen können (damit keine 2 Coins am selben Ort landen)
         List<Transform> availableSpots = new List<Transform>(spawnPoints);
 
         foreach (GameObject coin in coinPool)

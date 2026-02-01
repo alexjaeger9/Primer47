@@ -76,11 +76,11 @@ public class GameManager : MonoBehaviour
             uiManager.UpdateTimer(timeRemaining);
             HandleTickingSound(timeRemaining);
             
-            // Vignette Logik (Blinkt jetzt schneller, je weniger Zeit bleibt)
+            // Vignette Blinkt schneller, je weniger Zeit bleibt
             if (timeRemaining <= VIGNETTE_TIME_THRESHOLD && timeRemaining > 0)
             {
                 vignetteController.SetActive(true);
-                // Wir berechnen, wie weit die Zeit abgelaufen ist (0 bis 1)
+                // Wie weit ist Zeit gelaufen
                 float progress = 1 - (timeRemaining / VIGNETTE_TIME_THRESHOLD);
                 vignetteController.UpdatePulseSpeed(progress);
             }
@@ -198,8 +198,7 @@ public class GameManager : MonoBehaviour
         allSpawnedGhosts.Clear();
         activeGhosts.Clear();
 
-        if (CoinPool.Instance != null) 
-            CoinPool.Instance.DeactivateAll();
+        CoinPool.Instance.DeactivateAll();
     }
 
     private void SpawnPlayer()
@@ -243,8 +242,6 @@ public class GameManager : MonoBehaviour
                 barrel.Respawn();
             }
         }
-
-        if (CoinPool.Instance != null) 
             CoinPool.Instance.SpawnCoins();
     }
 

@@ -3,11 +3,11 @@ using UnityEngine;
 public class Coin : MonoBehaviour
 {
     [Header("Settings")]
-    private float points = 5f; // Score für Coin
+    private float points = 5f; // Score
 
     [Header("Effects")]
     public AudioClip pickupSound;
-    public GameObject pickupEffectPrefab; // Partikel-Prefab
+    public GameObject pickupEffectPrefab;
 
     [Header("Animation")]
     public float rotateSpeed = 100f;
@@ -20,20 +20,20 @@ public class Coin : MonoBehaviour
     void Collect()
     {
         // Punkte an den GameManager senden
-        if (GameManager.Instance != null) GameManager.Instance.AddCoinPoints(points);
+        GameManager.Instance.AddCoinPoints(points);
 
-        // Sound abspielen (Erstellt temporäres Audio-Objekt an der Position)
-        if (pickupSound != null) AudioSource.PlayClipAtPoint(pickupSound, transform.position);
+        // Sound abspielen
+        AudioSource.PlayClipAtPoint(pickupSound, transform.position);
 
-        // Partikel spawnen (Unabhängig vom Coin)
-        if (pickupEffectPrefab != null) Instantiate(pickupEffectPrefab, transform.position, Quaternion.identity);
+        // Partikel spawnen
+        Instantiate(pickupEffectPrefab, transform.position, Quaternion.identity);
 
-        // POOLING: Nicht zerstören, nur deaktivieren!
+        // deaktivieren
         gameObject.SetActive(false);
     }
     void Update()
     {
-        // Dreht das Objekt dauerhaft um die Y-Achse (hochkant)
+        // Animiert Coin um die eigene Achse
         transform.Rotate(0, rotateSpeed * Time.deltaTime, 0);
     }
 }

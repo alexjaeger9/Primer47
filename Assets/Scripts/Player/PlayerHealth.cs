@@ -14,9 +14,7 @@ public class PlayerHealth : MonoBehaviour
 
     private void Die()
     {
-        // Visuelle/Sound-Effekte
-
-        // Informiere den GameManager
+        // an GameManager
         OnPlayerDeath?.Invoke();
     }
 

@@ -18,10 +18,7 @@ public class VignetteController : MonoBehaviour
 
     void Start()
     {
-        if (vignetteImage != null)
-        {
-            SetVignetteAlpha(0);
-        }
+        SetVignetteAlpha(0);
         currentPulseSpeed = minPulseSpeed;
     }
 
@@ -53,13 +50,11 @@ public class VignetteController : MonoBehaviour
         }
     }
 
-    // Neue Funktion für das schnellere Blinken
     public void UpdatePulseSpeed(float progress)
     {
         currentPulseSpeed = Mathf.Lerp(minPulseSpeed, maxPulseSpeed, progress);
     }
 
-    // Neue Funktion für den Tod
     public void TriggerPermanentVignette()
     {
         isDead = true;

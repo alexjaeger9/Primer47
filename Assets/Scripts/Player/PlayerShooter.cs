@@ -78,8 +78,8 @@ public class PlayerShooter : MonoBehaviour
     private void HandleAim(bool aimPressed)
     {
         isAiming = aimPressed;
-        if (playerController != null) playerController.SetAiming(aimPressed);
-        if (tpsCamera != null) tpsCamera.SetZoom(aimPressed);
+        playerController.SetAiming(aimPressed);
+        tpsCamera.SetZoom(aimPressed);
     }
 
     private void HandleShooting(bool firePressed)
@@ -96,15 +96,12 @@ public class PlayerShooter : MonoBehaviour
         firedThisTick = true;
         lastShotTime = Time.time;
 
-        if (muzzleFlash != null) muzzleFlash.PlayFlash();
+        muzzleFlash.PlayFlash();
 
         Vector3 screenCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
 
-        if (gunAudioSource != null && gunshotClip != null)
-        {
-            gunAudioSource.pitch = 1f + Random.Range(-pitchVariation, pitchVariation);
-            gunAudioSource.PlayOneShot(gunshotClip);
-        }
+        gunAudioSource.pitch = 1f + Random.Range(-pitchVariation, pitchVariation);
+        gunAudioSource.PlayOneShot(gunshotClip);
         
         Ray cameraRay = mainCamera.ScreenPointToRay(screenCenter);
 
@@ -134,10 +131,7 @@ public class PlayerShooter : MonoBehaviour
             finalHitTarget = weaponHit.point;
             currentRange = weaponHit.distance;
             
-            if (impactPrefab != null)
-            {
-                Instantiate(impactPrefab, weaponHit.point, Quaternion.LookRotation(weaponHit.normal));
-            }
+            Instantiate(impactPrefab, weaponHit.point, Quaternion.LookRotation(weaponHit.normal));
 
             // Wir prüfen nach Komponenten nur wenn wir sie finden
             if (weaponHit.collider.TryGetComponent<GhostHealth>(out var enemyHealth)) 
