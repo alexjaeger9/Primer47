@@ -112,7 +112,7 @@ public class PlayerController : MonoBehaviour
                 PlaySound(landClip);
                 //Debug.Log("Land");
             } 
-            else if (playerAnimator.GetCurrentAnimatorStateInfo(0).IsTag("JumpTag")) playerAnimator.SetBool("isFalling", true);
+            else if (playerAnimator.GetCurrentAnimatorStateInfo(0).IsTag("JumpTag") && !landed) playerAnimator.SetBool("isFalling", true);
 
             if (Input.GetButtonDown("Jump"))
             {
