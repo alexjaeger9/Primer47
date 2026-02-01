@@ -15,7 +15,6 @@ public class ButtonEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     public Color hoverColor = new Color(1f, 0.6f, 0.6f);
     public Color clickColor = new Color(0.8f, 0.2f, 0.2f);
     
-    private float hover_scale = 1.15f;    
     private readonly Vector2 outline = new Vector2(1, -1);
     private readonly Vector2 hover_outline = new Vector2(2, -2);
     
@@ -39,11 +38,11 @@ public class ButtonEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     private void Update()
     {
-        //Elastic Scale (Bounce effect)
+        //Scale (kommt immer näher aber wird langsamer: smoother)
         buttonText.transform.localScale = Vector3.Lerp(
-            buttonText.transform.localScale, 
-            targetScale, 
-            15f * Time.unscaledDeltaTime
+            buttonText.transform.localScale, //aktuelle Größe
+            targetScale, //Zielgröße 
+            15f * Time.unscaledDeltaTime //wv prozent in Richtung Ziel
         );
         
         //Smooth Color
@@ -63,7 +62,7 @@ public class ButtonEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        targetScale = Vector3.one * hover_scale;
+        targetScale = Vector3.one * 1.15f; //1.15 hover scale
         targetColor = hoverColor;
         targetOutlineDistance = hover_outline;
     }
@@ -79,7 +78,7 @@ public class ButtonEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     {
         targetColor = clickColor;    
         
-        //nur stoppen, wenn eine läuft
+        //nur stoppen, wenn eine läuft, damit nicht zwei gleichzeitig laufen
         if (shakeCoroutine != null) 
             StopCoroutine(shakeCoroutine);
         
@@ -92,9 +91,9 @@ public class ButtonEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         
         while (elapsed < 0.15f) //shake duration
         {
-            //8f shake strength
+            //8f shake strength, 0f end stürke, fortschritt/duration
             float strength = Mathf.Lerp(8f, 0f, elapsed / 0.15f);
-            float x = Random.Range(-1f, 1f) * strength;
+            float x = Random.Range(-1f, 1f) * strength; //zufälliger Offset 
             float y = Random.Range(-1f, 1f) * strength;
             
             buttonText.transform.localPosition = originalPosition + new Vector3(x, y, 0);

@@ -12,6 +12,15 @@ public class MuzzleFlash : MonoBehaviour
     private float timer;
     private bool isFlashing;
 
+    private void Awake()
+    {
+        //Flash aus bei Start
+        if (flashSprite != null)
+        {
+            flashSprite.enabled = false; 
+        }
+    }
+
     private void Update()
     {
         if (isFlashing)
