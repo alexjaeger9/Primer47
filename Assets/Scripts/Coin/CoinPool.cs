@@ -7,7 +7,7 @@ public class CoinPool : MonoBehaviour
 
     [Header("Setup")]
     public GameObject coinPrefab;
-    public int coinsPerLoop = 3;  // max Coins 
+    public int coinsPerLoop = 3;
     
     [Header("Positions")]
     public List<Transform> spawnPoints;
@@ -25,19 +25,17 @@ public class CoinPool : MonoBehaviour
         for (int i = 0; i < coinsPerLoop; i++)
         {
             GameObject coin = Instantiate(coinPrefab);
-            coin.SetActive(false); // Erstmal unsichtbar setzen
-            coin.transform.parent = transform; // in Hierarchie anordnen
+            coin.SetActive(false);
+            coin.transform.parent = transform;
             coinPool.Add(coin);
         }
     }
 
     public void SpawnCoins()
     {
-        // Alle übrigen Coins vom letzten Loop deaktivieren
         DeactivateAll();
 
         if (spawnPoints.Count < coinsPerLoop) return;
-
         List<Transform> availableSpots = new List<Transform>(spawnPoints);
 
         foreach (GameObject coin in coinPool)

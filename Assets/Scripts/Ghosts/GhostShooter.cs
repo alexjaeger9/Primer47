@@ -15,7 +15,7 @@ public class GhostShooter : MonoBehaviour
 
     private void Start()
     {
-        // Speichere die Pose von allen zugewiesenen Knochen
+        // Save Bones
         if (handBones != null)
         {
             savedRotations = new Quaternion[handBones.Length];
@@ -29,7 +29,7 @@ public class GhostShooter : MonoBehaviour
 
     private void LateUpdate()
     {
-        // Erzwinge die gespeicherte Pose �ber jede Animation dr�ber
+        // Force Bone Locations
         if (savedRotations != null)
         {
             for (int i = 0; i < handBones.Length; i++)
