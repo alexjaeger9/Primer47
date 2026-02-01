@@ -34,7 +34,11 @@ public class PlayerController : MonoBehaviour
     private bool isSprintingLocked = false;
 
     private bool landed = false;
-    private int currentStepIndex = 0; 
+    private int currentStepIndex = 0;
+
+    [Header("ADS Settings")]
+    [Range(0.1f, 1f)] public float aimSensitivityMultiplier = 0.5f;
+    private bool isAiming = false;
 
     void Awake()
     {
@@ -60,10 +64,18 @@ public class PlayerController : MonoBehaviour
         controller.Move(finalMovement * Time.deltaTime);
     }
 
+    public void SetAiming(bool state)
+    {
+        isAiming = state;
+    }
+
     void HandleRotation()
     {
         float mouseX = Input.GetAxis("Mouse X");
-        yaw += mouseX * mouseSensitivity * Time.deltaTime;
+        float sensitivityMultiplier = isAiming ? aimSensitivityMultiplier : 1.0f;
+        
+        yaw += mouseX * mouseSensitivity * sensitivityMultiplier * Time.deltaTime;
+        
         transform.rotation = Quaternion.Euler(0f, yaw, 0f);
     }
 

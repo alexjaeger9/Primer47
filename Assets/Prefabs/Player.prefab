@@ -1023,6 +1023,10 @@ MonoBehaviour:
   maxPitch: 85
   pitch: 0
   yaw: 0
+  aimSensitivityMultiplier: 0.3
+  defaultFOV: 60
+  zoomFOV: 30
+  zoomSpeed: 10
 --- !u!1 &2843898300620976029
 GameObject:
   m_ObjectHideFlags: 0
@@ -1206,6 +1210,7 @@ MonoBehaviour:
   jumpedThisTick: 0
   landedThisTick: 0
   slidingThisTick: 0
+  aimSensitivityMultiplier: 0.3
 --- !u!114 &441272580854828227
 MonoBehaviour:
   m_ObjectHideFlags: 0

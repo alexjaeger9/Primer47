@@ -36,8 +36,13 @@ public class PlayerShooter : MonoBehaviour
 
     public MuzzleFlash muzzleFlash;
 
+    private PlayerController playerController;
+    private ThirdPersonCamera tpsCamera;
+
     private void Start()
     {
+        playerController = GetComponent<PlayerController>();
+        tpsCamera = mainCamera.GetComponent<ThirdPersonCamera>();
         // Speichere die Pose von allen zugewiesenen Knochen
         if (handBones != null)
         {
@@ -73,6 +78,8 @@ public class PlayerShooter : MonoBehaviour
     private void HandleAim(bool aimPressed)
     {
         isAiming = aimPressed;
+        if (playerController != null) playerController.SetAiming(aimPressed);
+        if (tpsCamera != null) tpsCamera.SetZoom(aimPressed);
     }
 
     private void HandleShooting(bool firePressed)
