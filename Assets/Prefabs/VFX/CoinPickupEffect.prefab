@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1500163003750626313}
   - component: {fileID: 8972409400019212704}
   m_Layer: 0
-  m_Name: CoinPickupFX
+  m_Name: CoinPickupEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
