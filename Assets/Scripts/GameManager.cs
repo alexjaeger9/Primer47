@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     public UIManager uiManager;
     public HUDAnimationController hudAnim;
     public VignetteController vignetteController;
+    private float lastTimerSecond = -1;
 
     [Header("Audio Effects")]
     public AudioSource tickAudioSource;
@@ -48,7 +49,6 @@ public class GameManager : MonoBehaviour
     private float lastScore = 0f;
     private int coinsThisRun = 0;
     private float coinValue = 0f;
-    private float lastTimerSecond = -1;
 
     private void Awake()
     {

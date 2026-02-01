@@ -52,7 +52,7 @@ public class ExplosiveBarrel : MonoBehaviour
         {
             audioSource.pitch = Random.Range(0.9f, 1.1f);
             
-            // +++ NEU: Wir nutzen hier deine eingestellte Lautstärke +++
+            // Hier wird die eingestelle Lautstärke genutzt
             audioSource.PlayOneShot(explosionClip, explosionVolume);
         }
 
