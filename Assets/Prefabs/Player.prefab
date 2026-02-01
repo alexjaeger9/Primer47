@@ -1213,7 +1213,7 @@ MonoBehaviour:
   aimSensitivityMultiplier: 0.3
   slideBoostForce: 8
   slideCooldown: 2
-  slideClip: {fileID: 8300000, guid: ab8995a08683bce4983c92531513996a, type: 3}
+  slideClip: {fileID: 8300000, guid: 3ed0e33e8a55bf14ba4e011b81ed9b7c, type: 3}
 --- !u!114 &441272580854828227
 MonoBehaviour:
   m_ObjectHideFlags: 0
