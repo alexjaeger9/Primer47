@@ -129,7 +129,7 @@ public class ButtonEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     public void OnPointerClick(PointerEventData eventData)
     {
         targetColor = clickColor;
-        
+        if (!gameObject.activeInHierarchy) return; // Manh hier ist dein Fix, bitte checken
         if (enableShake)
         {
             if (shakeCoroutine != null) StopCoroutine(shakeCoroutine);
