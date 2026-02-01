@@ -18,11 +18,8 @@ public class UIButtonSounds : MonoBehaviour
 
     void PlaySound()
     {
-        if (uiAudioSource != null && clickSound != null)
-        {
-            uiAudioSource.ignoreListenerPause = true; 
-            uiAudioSource.pitch = 1f;
-            uiAudioSource.PlayOneShot(clickSound);
-        }
+        uiAudioSource.ignoreListenerPause = true; 
+        uiAudioSource.pitch = 1f;
+        uiAudioSource.PlayOneShot(clickSound);
     }
 }
