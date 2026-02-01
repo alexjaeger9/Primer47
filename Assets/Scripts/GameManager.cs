@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     [Header("UI")]
     public UIManager uiManager;
     public HUDAnimationController hudAnim;
+    public VignetteController vignetteController; // +++ NEU: Hier kommt das Skript rein +++
     private float lastTimerSecond = -1; //für Shake-Timing
 
     [Header("Audio Effects")]
@@ -72,6 +73,20 @@ public class GameManager : MonoBehaviour
             uiManager.UpdateTimer(timeRemaining);
             HandleTickingSound(timeRemaining);
             
+            // +++ NEU: Vignette Logik (Graues Pulsieren bei < 8s) +++
+            if (vignetteController != null)
+            {
+                if (timeRemaining <= 8f && timeRemaining > 0)
+                {
+                    vignetteController.SetLowTime(true);
+                }
+                else
+                {
+                    vignetteController.SetLowTime(false);
+                }
+            }
+            // +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
             if (timeRemaining <= 5f && timeRemaining > 0f)
             {
                 int currentSecond = Mathf.FloorToInt(timeRemaining);
@@ -156,6 +171,10 @@ public class GameManager : MonoBehaviour
             
             tickAudioSource.PlayOneShot(startClip);
         }
+
+        // +++ NEU: Vignette zurücksetzen (Alles wieder klar) +++
+        if (vignetteController != null) vignetteController.ResetVignette();
+        // ++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
         PauseManager.isGameOver = false;
         Time.timeScale = 1f;
@@ -382,6 +401,11 @@ public class GameManager : MonoBehaviour
     private void HandlePlayerDeath()
     {
         timerRunning = false;
+        
+        // +++ NEU: Vignette auf Rot (Tod) +++
+        if (vignetteController != null) vignetteController.TriggerDeath();
+        // +++++++++++++++++++++++++++++++++++
+
         tickAudioSource.Stop();
         tickAudioSource.pitch = 1f; //Pitch Reset
         tickAudioSource.PlayOneShot(timeOverClip);
